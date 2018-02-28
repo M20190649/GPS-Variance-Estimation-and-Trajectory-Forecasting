@@ -1,0 +1,65 @@
+\chapter{Related Work}
+\label{cha:related-work}
+
+% This chapter covers how different machine learning approaches are used in the antivirus (AV) industry.
+% The approaches are briefly explained, with both drawbacks and advantages mentioned for each approach.
+
+% \section{Weighted Naive Bayes Classifier}
+% \label{sec:WNBC}
+% The Weighted Naive Bayes Classifier (WNBC) is an extended version of the traditional NB classifier covered in Section \ref{sec:naive-bayes}.
+% The WNBC, presented by Shang et al. \cite{Shang2017}, calculates a weight vector $w_i$ for the feature vector $X_i = (x_1, ..., x_D)$.
+% The formal definition for calculating the weight vector $w_i$ for a given feature $X_i$ is given by Eq. \ref{eq:naive-bayes-w} \cite{Shang2017}.
+% This weight vector $w_i$ can be interpreted as the correlation between the different features $x_d$ in $X_i$ and the category $C_k$ \cite{Shang2017}.
+
+% \begin{equation} \label{eq:naive-bayes-w}
+%     w_i = p(C_k) \prod_{d = 1}^{D}(1 + p(x_d|C_k) - p(x_d))
+% \end{equation}
+
+% Classification of a single feature vector $X_i$ with weight $w_i$ is defined by Eq. \ref{eq:naive-bayes-w-max}.
+% The weight influences with label $y_t$ the feature vector $X_t$ is assigned.
+
+% \begin{equation} \label{eq:naive-bayes-w-max}
+%     y_t = \argmax_{k\in\{0, 1\}}p(C_k|X_t)w_i
+% \end{equation}
+
+% Shang et al. trained their WNBC using both the permissions and the correlation between permissions \cite{Shang2017}. 
+% The WNBC has a better detection rate than the traditional NB classifier \cite{Shang2017}. 
+% A drawback of the WNBC is the added complexity of the weights. 
+% If a feature vector $X_i$ contains a large amount of features $x_d$, then the complexity of calculating the weight increases \cite{Shang2017}.
+% Removing redundant features and reducing the number of related features can be done via preprocessing \cite{Shang2017}.
+
+% \section{AntiMalDroid}
+% \label{sec:AntiMalDroid}
+% Zhao et al. \cite{Zhao2011} have successfully used SVMs to detect malicious Android APKs.
+% Instead of using static APK features, the features are extracted in runtime by tracking the services used by an application.
+% The extraction can be done without serious computational overhead \cite{Zhao2011}.
+
+% The SVM used in AntiMalDroid is trained with \emph{active learning}.
+% Traditional supervised learning of SVMs require a data set of labelled data points.
+% Acquiring a large labelled data set can require a lot of manual work.
+% In \cite{Tong2002}, Tong et al. show that using active learning can reduce the number of labels needed for training.
+% The SVM accesses a pool of unlabelled samples and can request labels for some them, based on an algorithm \cite{Tong2002}.
+% The labels are still provided by human experts in the field \cite{Tong2002}.
+
+% \section{Random Forest}
+% \label{sec:related-work:random-forest}
+% RF classifiers have been demonstrated in studies \cite{Alam2013, Mahindru2017} to work well when classifying Android APKs.
+% Alam et al. \cite{Alam2013} extract features from the dynamic behaviour of Android applications to detect and classify malicious APKs.
+% The behaviour of each application is extracted by running the APK file in an emulator and simulating random user interaction \cite{Alam2013}.
+% They also explore how the accuracy is affected when varying the depth of the trees, the amount of trees used and the number of features combined in the RF classifier.
+% The result of their study was an accuracy of 99.9\%, with only a few false positives \cite{Alam2013}.
+
+% In \cite{Mahindru2017}, Mahindru et al. use dynamic permission features extracted from an emulator (similar to \cite{Alam2013}) to train their classifiers.
+% They compare the RF classifier with other machine learning techniques, e.g., the NB classifier covered in Section \ref{sec:naive-bayes}.
+% The RF classifier is shown to perform as well as the Simple Logistic classifier, achieving an accuracy rate of 99.7\% \cite{Mahindru2017}.
+
+% \section{Convolutional Neural Networks}
+% \label{sec:related-work:cnn}
+% In a recent paper \cite{McLaughlin2017}, McLaughlin et al. use a deep Convolutional Neural Network (CNN) to classify Android APKs.
+% The approach uses automatic feature extraction by learning sequences of malicious low-level operation codes (opcodes).
+% They disassemble the \texttt{.apk} file and process it to produce opcode sequences.
+% These opcode sequences are given as input to the deep CNN as features.
+% They acquired an accuracy of 98\% using a small data set, 80\% for a large data set, and an accuracy of 87\% for a very large dataset \cite{McLaughlin2017}.
+% The accuracy of the deep CNN are lower than the results from other techniques \cite{Alam2013, Liang2014, Mahindru2017, Shang2017, Yerima2015}.
+% However, not all the other techniques are evaluated on the same data set, and the other techniques use manually crafted or dynamically extracted features.
+% Evaluating the deep CNN approach described in \cite{McLaughlin2017} on static or dynamic features would probably lead to a better comparison between the different machine learning techniques.

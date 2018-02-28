@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="Master Thesis" company="" webLink="http://" view-date="2018-02-08" view-index="0" gantt-divider-location="401" resource-divider-location="322" version="2.8.6" locale="en_US">
+    <description/>
+    <view zooming-state="default:1" id="gantt-chart">
+        <field id="tpd3" name="Name" width="213" order="0"/>
+        <field id="tpd4" name="Begin date" width="80" order="1"/>
+        <field id="tpd5" name="End date" width="87" order="2"/>
+        <option id="color.recent"><![CDATA[#ff3333 #ff00ff #000000 #ffcccc #eeddee #ccccff #33ff00 #99ff99]]></option>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Name" width="220" order="0"/>
+        <field id="1" name="Default role" width="96" order="1"/>
+    </view>
+    <!-- -->
+    <calendars base-id="none">
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="1" mon="0" tue="0" wed="0" thu="0" fri="0" sat="1"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+        <date year="2018" month="5" date="10" type="HOLIDAY" color="#eeddee"><![CDATA[Ascension Day]]></date>
+        <date year="2018" month="3" date="30" type="HOLIDAY"><![CDATA[Good Friday]]></date>
+        <date year="2018" month="5" date="1" type="HOLIDAY"><![CDATA[Labour Day]]></date>
+        <date year="2018" month="4" date="1" type="HOLIDAY"><![CDATA[Easter Day]]></date>
+        <date year="2018" month="4" date="2" type="HOLIDAY"><![CDATA[Whit Monday]]></date>
+        <date year="2018" month="5" date="20" type="HOLIDAY"><![CDATA[Whitsunday]]></date>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="0" name="Master Thesis" color="#8cb6ce" shape="0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1" meeting="false" start="2018-02-12" duration="100" complete="0" expand="true"/>
+        <task id="3" name="Project Start" color="#ff00ff" meeting="true" start="2018-02-12" duration="0" complete="0" expand="true"/>
+        <task id="26" name="Administrative Work" color="#000000" meeting="false" start="2018-02-12" duration="17" complete="0" expand="true">
+            <task id="28" name="Contact Norrlandsvagnar" color="#ff3333" meeting="false" start="2018-02-12" duration="1" complete="0" thirdDate="2018-02-20" thirdDate-constraint="0" expand="true"/>
+            <task id="323" name="Norrlandsvagnar möte" color="#ff3333" meeting="false" start="2018-03-06" duration="1" complete="0" thirdDate="2018-03-06" thirdDate-constraint="0" expand="true"/>
+            <task id="29" name="LiU Supervisor meeting" color="#ff3333" meeting="false" start="2018-02-28" duration="1" complete="0" thirdDate="2018-02-21" thirdDate-constraint="0" expand="true"/>
+            <task id="87" name="Weekly Log #1" color="#33ff00" meeting="false" start="2018-02-16" duration="1" complete="0" thirdDate="2018-03-07" thirdDate-constraint="0" expand="true"/>
+            <task id="354" name="Weekly Log #2" color="#33ff00" meeting="false" start="2018-02-23" duration="1" complete="0" expand="true"/>
+        </task>
+        <task id="70" name="Research" color="#000000" meeting="false" start="2018-02-19" duration="25" complete="0" thirdDate="2018-03-08" thirdDate-constraint="0" expand="true">
+            <task id="74" name="Litterature study" color="#8cb6ce" meeting="false" start="2018-02-19" duration="25" complete="0" thirdDate="2018-02-19" thirdDate-constraint="0" expand="true"/>
+            <task id="95" name="Weekly Log #3" color="#33ff00" meeting="false" start="2018-03-02" duration="1" complete="0" thirdDate="2018-03-08" thirdDate-constraint="0" expand="true"/>
+            <task id="80" name="Start Theory" color="#8cb6ce" meeting="false" start="2018-03-08" duration="12" complete="0" thirdDate="2018-03-08" thirdDate-constraint="0" expand="true"/>
+            <task id="83" name="Start Related Work" color="#8cb6ce" meeting="false" start="2018-03-08" duration="12" complete="0" thirdDate="2018-03-08" thirdDate-constraint="0" expand="true"/>
+        </task>
+        <task id="293" name="Mid Thesis Review" color="#ff00ff" meeting="true" start="2018-04-16" duration="0" complete="0" expand="true"/>
+        <task id="11" name="Practical Work" color="#000000" meeting="false" start="2018-03-05" duration="63" complete="0" thirdDate="2018-03-26" thirdDate-constraint="0" expand="true">
+            <depend id="240" type="2" difference="0" hardness="Strong"/>
+            <task id="55" name="Exploratory Data Analysis" color="#8cb6ce" meeting="false" start="2018-03-05" duration="15" complete="0" thirdDate="2018-03-05" thirdDate-constraint="0" expand="true">
+                <depend id="56" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="99" name="Weekly Log #4" color="#33ff00" meeting="false" start="2018-03-09" duration="1" complete="0" thirdDate="2018-03-27" thirdDate-constraint="0" expand="true"/>
+            <task id="103" name="Weekly Log #5" color="#33ff00" meeting="false" start="2018-03-16" duration="1" complete="0" thirdDate="2018-03-27" thirdDate-constraint="0" expand="true"/>
+            <task id="56" name="Simple Machine Learning algorithms" color="#000000" meeting="false" start="2018-03-26" duration="21" complete="0" expand="true">
+                <depend id="151" type="2" difference="0" hardness="Strong"/>
+                <task id="125" name="Naive Bayes (?)" color="#8cb6ce" meeting="false" start="2018-03-26" duration="12" complete="0" thirdDate="2018-04-10" thirdDate-constraint="0" expand="true"/>
+                <task id="127" name="Time Series (?)" color="#8cb6ce" meeting="false" start="2018-04-10" duration="12" complete="0" expand="true"/>
+            </task>
+            <task id="105" name="Weekly Log #6" color="#33ff00" meeting="false" start="2018-03-23" duration="1" complete="0" thirdDate="2018-03-27" thirdDate-constraint="0" expand="true"/>
+            <task id="108" name="Weekly Log #7" color="#33ff00" meeting="false" start="2018-04-03" duration="1" complete="0" expand="true"/>
+            <task id="151" name="Write on Thesis" color="#000000" meeting="false" start="2018-04-26" duration="5" complete="0" expand="true">
+                <depend id="131" type="2" difference="0" hardness="Strong"/>
+                <task id="167" name="Results" color="#8cb6ce" meeting="false" start="2018-04-26" duration="5" complete="0" expand="true"/>
+                <task id="168" name="Method" color="#8cb6ce" meeting="false" start="2018-04-26" duration="5" complete="0" expand="true"/>
+                <task id="169" name="Theory" color="#8cb6ce" meeting="false" start="2018-04-26" duration="5" complete="0" expand="true"/>
+            </task>
+            <task id="111" name="Weekly Log #8" color="#33ff00" meeting="false" start="2018-04-06" duration="1" complete="0" expand="true"/>
+            <task id="131" name="CNN (?)" color="#8cb6ce" meeting="false" start="2018-05-04" duration="15" complete="0" expand="true">
+                <depend id="185" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="206" name="Weekly Log #9" color="#33ff00" meeting="false" start="2018-04-13" duration="1" complete="0" expand="true"/>
+            <task id="208" name="Weekly Log #10" color="#33ff00" meeting="false" start="2018-04-20" duration="1" complete="0" expand="true"/>
+            <task id="210" name="Weekly Log #11" color="#33ff00" meeting="false" start="2018-04-26" duration="1" complete="0" expand="true"/>
+            <task id="212" name="Weekly Log #12" color="#33ff00" meeting="false" start="2018-05-04" duration="1" complete="0" expand="true"/>
+            <task id="185" name="Write on Thesis" color="#000000" meeting="false" start="2018-05-28" duration="7" complete="0" expand="true">
+                <task id="194" name="Theory" color="#8cb6ce" meeting="false" start="2018-05-28" duration="7" complete="0" expand="true"/>
+                <task id="196" name="Results" color="#8cb6ce" meeting="false" start="2018-05-28" duration="7" complete="0" expand="true"/>
+                <task id="198" name="Method" color="#8cb6ce" meeting="false" start="2018-05-28" duration="7" complete="0" expand="true"/>
+                <task id="214" name="Weekly Log #13" color="#33ff00" meeting="false" start="2018-05-28" duration="1" complete="0" expand="true"/>
+            </task>
+        </task>
+        <task id="267" name="Final Presentation" color="#ff3333" meeting="true" start="2018-06-26" duration="0" complete="0" expand="true"/>
+        <task id="240" name="Finish Thesis" color="#000000" meeting="false" start="2018-06-06" duration="30" complete="0" expand="true">
+            <depend id="250" type="2" difference="0" hardness="Strong"/>
+            <task id="230" name="Write Discussion Chapter" color="#8cb6ce" meeting="false" start="2018-06-06" duration="10" complete="0" expand="true">
+                <depend id="242" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="292" name="Weekly Log #14" color="#33ff00" meeting="false" start="2018-06-06" duration="1" complete="0" expand="true"/>
+            <task id="219" name="Weekly Log #15" color="#33ff00" meeting="false" start="2018-06-06" duration="1" complete="0" expand="true"/>
+            <task id="221" name="Weekly Log #16" color="#33ff00" meeting="false" start="2018-06-06" duration="1" complete="0" expand="true"/>
+            <task id="256" name="Weekly Log #17" color="#33ff00" meeting="false" start="2018-06-08" duration="1" complete="0" expand="true"/>
+            <task id="242" name="Write Conclusion" color="#8cb6ce" meeting="false" start="2018-06-20" duration="6" complete="0" expand="true">
+                <depend id="257" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="257" name="Write Abstract" color="#8cb6ce" meeting="false" start="2018-06-28" duration="1" complete="0" expand="true">
+                <depend id="260" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="260" name="Final Proof Read" color="#8cb6ce" meeting="false" start="2018-06-29" duration="13" complete="0" expand="true"/>
+            <task id="227" name="Weekly Log #18" color="#33ff00" meeting="false" start="2018-06-15" duration="1" complete="0" expand="true"/>
+        </task>
+        <task id="250" name="Project Finish" color="#ff00ff" meeting="true" start="2018-07-18" duration="0" complete="0" expand="true"/>
+    </tasks>
+    <resources/>
+    <allocations/>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+</project>

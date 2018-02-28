@@ -1,0 +1,50 @@
+\chapter{Introduction}
+\label{cha:introduction}
+
+% Smartphones have given hackers new appealing attack vectors to exploit \cite{Nokia2016}.
+% One of these attack vectors is the publishing of malicious applications that act like benevolent ones.
+% These applications are commonly referred to as Potentially Harmful Applications (PHAs) \cite{PHA}.
+% For example, PHAs could be disguised Trojans stealing the consumer's contact information, opening backdoors on the infected device or even sending SMS messages \cite{current-android-malware}.
+
+% Google releases annual Android security reports covering different security aspects tackled throughout the year.
+% In Google's Android security report from 2015 \cite{android-security-2015}, they stated that "less than 0.5\% of devices had a PHA installed" and that this number was 0.15\% for devices that only installed applications from Google's own application store, Google Play\footnote{https://play.google.com/store?hl=en}.
+% In Google's review of 2016 \cite{android-security-2016} the average increased to 0.71\% of devices, while the percentage was reduced to 0.05\% for the devices installing exclusively from Google Play.
+% The increase of PHAs in devices installing applications from other sources than Google Play is interesting, as it might be indicative of a change in user behaviour, or the result of an increase of PHAs in other application stores.
+% It is, however, clear that the threat from PHAs still exists in 2017.
+
+\section{Problem Description}
+\label{sec:problem-description}
+% The problem of malware existed long before the invention of smartphones.
+% The antivirus (AV) industry has been combatting this issue for decades.
+% Modern AV software use different approaches, like signature-based detection or heuristics, to detect malware in computers.
+% One of the problems with signature-based detection is the tools available for hackers to alter the code of a malicious programme, which would change the signature of the programme.
+% This could, for example, be done by using metamorphic virology \cite{metamorphic-virology}.
+% The heuristic approach tries to capture the essence of malicious programmes and group similar malware together.
+% The grouping is done by manually engineering generic signatures for the malware.
+% This manual labour required to engineer generic signatures, together with the rapid evolution of malware, make heuristics an infeasible long-term solution.
+% Today, effort is put into using machine learning algorithms to detect malware.
+% Some of the algorithms used are: Naive Bayes (NB) classifier \cite{Shang2017}, Support Vector Machines (SVMs), Random Forest (RF) classifiers and Convolutional Neural Networks (CNNs) \cite{McLaughlin2017}. 
+
+\section{Aim}
+\label{sec:aim}
+% This work aims to use the NB, SVMs, RF classifiers and CNNs to detect malicious Android Package Kits (APKs).
+% The algorithms are implemented and then evaluated by comparing their accuracy (the fraction of malicious APKs found) with the number of false positives (benign APKs falsely flagged as malicious).
+% The specific metrics used are covered in Section \ref{sec:eval-metrics}.
+% The classifiers use static APK features for training, validation and testing.
+
+\section{Research Questions}
+\label{sec:research-questions}
+% This work explicitly answers the following questions:
+% \begin{enumerate}
+%   \item How does the NB classifier perform compared to SVMs or RF classifiers with respect to accuracy and precision?
+%   \item How can static APK features be used to train a CNN?
+%   \item How do CNNs perform compared to NB, SVMs and RF classifiers, with respect to accuracy and precision?
+%   \item Which features, other than static APK features, could potentially be useful when classifying malicious applications?
+% \end{enumerate}
+
+\section{Delimitations}
+\label{sec:delimitations}
+% Only static APK features are used for actual training; the discussion of alternative features is only theoretical.
+% The specific implementations used of the NB classifiers, SVMs, RF classifiers and CNNs are not covered in detail.
+% However, the parameters chosen for each algorithm are presented and discussed in detail.
+% Algorithms are only evaluated based on their accuracy and the number of false positives classified.
