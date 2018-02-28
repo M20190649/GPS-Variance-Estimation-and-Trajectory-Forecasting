@@ -12,6 +12,21 @@
 % The increase of PHAs in devices installing applications from other sources than Google Play is interesting, as it might be indicative of a change in user behaviour, or the result of an increase of PHAs in other application stores.
 % It is, however, clear that the threat from PHAs still exists in 2017.
 
+Maintenance of devices/vehicles/systems/machines (hereinafter referred to as “units”) is generally done by planned scheduling. 
+Typically this is done when some parameter of the system reaches a threshold value. 
+For example, car maintenance can be scheduled after 30,000 kilometres, after a year or perhaps after a certain number of operating hours.
+One problem with planned scheduling is the reliance on experience and statistics from many units.
+For a single unit, the planned scheduling will either be executed too early (could have waited longer before service) or too late (problems encountered before threshold reached).
+
+Internet of Things (IoT) permits the streaming of continuous data from multiple units.
+The data is typically the state of the unit in the shape of many different variable values.
+A rule framework can be built incorporating the continuous data.
+The framework can then give an informed service alert based on the actual state and need of a unit.
+
+Machine Learning (ML) models can be used to, for example, capture dependencies in large-scale data sets (ref needed), anomaly detection (ref), clustering (ref), image recognition (ref), and decision making (ref). 
+Anomaly detection could be used together with continuous real-time data from a system to find unusual changes or behaviour, which could be the basis for a service alert and/or the gathering of new knowledge about a system.
+ML-algorithms can also be used to perform Predictive Maintenance (PdM).
+
 \section{Problem Description}
 \label{sec:problem-description}
 % The problem of malware existed long before the invention of smartphones.
@@ -27,6 +42,11 @@
 
 \section{Aim}
 \label{sec:aim}
+The expected results is a study on how ML-algorithms can be used for Predictive Maintenance (PdM).
+The study shall compare at least two different ML-algorithms.
+The goal is to implement the ML-algorithms and use real-world data from an existing IoT system.
+The aim of the study is also to compare how well the improved DcM performs with the current solution used in the IoT system (preliminary, more info needed from company as well as ideas how to compare the solution with the practice in use today).
+
 % This work aims to use the NB, SVMs, RF classifiers and CNNs to detect malicious Android Package Kits (APKs).
 % The algorithms are implemented and then evaluated by comparing their accuracy (the fraction of malicious APKs found) with the number of false positives (benign APKs falsely flagged as malicious).
 % The specific metrics used are covered in Section \ref{sec:eval-metrics}.
@@ -34,13 +54,18 @@
 
 \section{Research Questions}
 \label{sec:research-questions}
-% This work explicitly answers the following questions:
-% \begin{enumerate}
+This work explicitly answers the following questions:
+\todo{The RQs below are just an initial draft.}
+\begin{enumerate}
+  \item Which methods can be used to detect anomalies in a dynamic real-time system?
+  \item How can the need for maintenance be detected from real-time processing of (domain-specific) data?
+  \item How can predictive maintenance be achieved by processing real-time (domain-specific) data?
+  \item How far in advance can maintenance be predicted?
 %   \item How does the NB classifier perform compared to SVMs or RF classifiers with respect to accuracy and precision?
 %   \item How can static APK features be used to train a CNN?
 %   \item How do CNNs perform compared to NB, SVMs and RF classifiers, with respect to accuracy and precision?
 %   \item Which features, other than static APK features, could potentially be useful when classifying malicious applications?
-% \end{enumerate}
+\end{enumerate}
 
 \section{Delimitations}
 \label{sec:delimitations}

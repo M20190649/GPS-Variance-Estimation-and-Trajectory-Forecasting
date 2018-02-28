@@ -1,6 +1,28 @@
 \chapter{Related Work}
 \label{cha:related-work}
 
+Predictive Maintenance (PdM) approaches have been studied and tested for many different industries.
+This chapter covers some of the approaches proposed in the literature.
+
+\section{Multiple Classifier Approach}
+
+\todo{Results of the Multiple Classifier approach?}
+\todo{Requirements in order to use it? (type of data, dimensionality, environment (R2F), supervised/unsupervised?, etc.}
+
+In \cite{Susto2015}, Susto et al. propose a multiple classifier approach to PdM.
+They use the approach to predict problems which stem from the "wear and tear" effects of equipment used for semiconductor manufacturing.
+Each classifier is trained on a different failure horizon $m$, which results in a different classification problem for each classifier.
+The failure horizon is the number of iterations in a maintenance cycle where the fault has taken place.
+In a traditional R2F (Run to Fail) environment only the last iteration would be faulty ($m=1$).
+Instead, the dataset is transformed for each classifier so that the last $m$ iterations are marked as faulty.
+A larger $m$ reduces the skewness of the dataset and enables a more conservative PdM policy.
+The multiple classifier approach thus enables the implementation of a cost optimisation policy as well as a fault prevention policy.
+
+\section{title}
+
+
+
+
 % This chapter covers how different machine learning approaches are used in the antivirus (AV) industry.
 % The approaches are briefly explained, with both drawbacks and advantages mentioned for each approach.
 
