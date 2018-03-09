@@ -4,7 +4,7 @@
 Predictive Maintenance (PdM) approaches have been studied and tested for many different industries.
 This chapter covers some of the approaches proposed in the literature.
 
-\section{Multiple Classifier Approach}
+\section{Multiple Classifier Approach} \label{sec:multiple-classifier-approach}
 
 \todo{Results of the Multiple Classifier approach?}
 \todo{Requirements in order to use it? (type of data, dimensionality, environment (R2F), supervised/unsupervised?, etc.}
@@ -18,9 +18,26 @@ Instead, the dataset is transformed for each classifier so that the last $m$ ite
 A larger $m$ reduces the skewness of the dataset and enables a more conservative PdM policy.
 The multiple classifier approach thus enables the implementation of a cost optimisation policy as well as a fault prevention policy.
 
+\section{Framework based on ARMA and data-driven techniques} \label{sec:arma-framework}
+
+Baptista et al. propose in \cite{Baptista2018} a different approach to PdM utilising usage data instead of sensor data.
+A framework is built in order to predict the next fault event based on previous events.
+The usage data (past failures and past scheduled events) is given to the Auto-Regressive Moving Average (ARMA) model, which outputs predictions on future failure events.
+The predictions from the ARMA model is fed to the data-driven model and transformed, using statistics features and PCA, in order to output a more informed prediction.
+The data-driven model trains five different classifiers: $k$-nearest neighbours (k-NN), random forest (RF), neural networks (NN), support vector machines (SVM), and generalised linear regression model (GLM).
+
+The framework is then compared against a baseline approach using a standard life usage (LU) model \todo{source?} with the Weibull distribution \todo{source?}. 
+Baptista et al. show in their case study \cite{Baptista2018}, that almost all data-driven models outperform or perform comparably with the LU model.
+The only model to perform worse was the NN model, due to over-fitting \cite{Baptista2018}.
+The SVM model achieves the best results in almost all metrics which, according to Baptista et al. \cite{Baptista2018}, proves that it is possible to build more sophisticated and improved models than the LU model. 
+
+\todo{Vi kan nog inte använda denna approach, eftersom det inte riktigt är den typ av data som vi har tillgång till.
+Vi har tillgång till sensor data (och kanske även lite usage data). 
+Dock är usage datan baserad på den tidigare statistiska modellen, 
+så man vet ju inte riktigt ifall alla scheduled events of failure events hände precis då som de står i loggen. 
+Det hade kanske varit intressant att undersöka huruvida man kan kombinera sensor data med usage data?}
+
 \section{title}
-
-
 
 
 % This chapter covers how different machine learning approaches are used in the antivirus (AV) industry.
