@@ -1,5 +1,9 @@
 .DS_Store
 norrlandsvagnar/
+
+.vscode/
+*.pyc
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
