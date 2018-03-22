@@ -2,19 +2,28 @@
 \label{cha:theory}
 
 \section{Principal Component Analysis}
-Principal Component Analysis (PCA) is a dimension reduction technique used to transform a large number of variables into principal components (PCs) \cite{Jolliffe2002}.
+Principal Component Analysis (PCA) is a dimension reduction technique used to transform a large number of variables into principal components (PCs) \cite{Jolliffe2002, Wold1987}.
 The PCs describe the variation of the data set and are uncorrelated to each other \cite{Jolliffe2002}.
-The PCs are ordered so the first few highest-ranked variables describe most of the variance in the original variables.
+The PCs are ordered so the first few highest-ranked variables describe most of the variance in the original variables \cite{Wold1987}.
 
 PCA first finds a linear function $\bm{\alpha'_1x}$, where $\bm{x}$ is a vector of $p$ variables, that maximises the variance of $\bm{x}$.
 $\bm{\alpha'_1}$ is a vector of $p$ constants $\alpha_{11}, \alpha_{12}, \dots, \alpha_{1p}$, where transpose is denoted $'$.
-$\bm{\alpha'_1x}$ can thus be written as Equation \ref{eq:pca-linear-fn} \cite{Jolliffe2002}.
+The definition for a PC $\bm{\alpha'_1x}$ is thus given by Equation \ref{eq:pca-linear-fn} \cite{Jolliffe2002}.
 
 \begin{equation} \label{eq:pca-linear-fn}
     \bm{\alpha'_1x} = \alpha_{11}x_1 + \alpha_{12}x_2 + \dots + \alpha_{1p}x_p = \sum_{j=1}^{p}\alpha_{1j}x_j
 \end{equation}
 
-The next step is to find the linear function $\alpha'_2x$, which maximises the variance subject to being uncorrelated with $\alpha'_1x$. 
+The next step is to find the linear function $\bm{\alpha'_2x}$, which maximises the variance subject to being uncorrelated with $\bm{\alpha'_1x}$, then to find $\bm{\alpha'_3x}$ up to $k$-th PC $\bm{\alpha'_kx}$ maximising the variance, subject to being uncorrelated with $\bm{\alpha'_1x}, \bm{\alpha'_2x}, \dots, \bm{\alpha'_{k-1}x}$.
+In theory $p$ PCs could be found, but the idea is to only find the $k$ PCs that account for most of the variance in the original variables, where $k \ll p$ is preferred \cite{Jolliffe2002}.
+
+In \cite{Wold1987}, Wold discuss the implications of outliers in the data set and the type of scaling used.
+In general, outliers should be removed and unit variance scaling should be applied to the data set \cite{Wold1987}.
+
+\section{Gaussian Processes}
+
+In \cite{Rasmussen2004} everything we need to know about Gaussian Processes (GP) is written, good huh? \todo{Obviously edit this and fill out the section!}
+
 \section{Support Vector Machines}
 
 Support Vector Machines (SVMs) use a decision boundary for classifying data points.
