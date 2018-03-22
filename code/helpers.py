@@ -18,3 +18,10 @@ def setup_logging():
 
     # Logging all set up and ready to be used for this run.
     logging.info('--------Starting a fresh run-----------')
+
+
+def epochify(time_stamp):
+    """Takes a human readable time_stamp and converts it into Unix epoch time.
+    Example: "2016-11-17 06:25:02" => 1479363902
+    """
+    return int(time.mktime(time.strptime(time_stamp, '%Y-%m-%d %H:%M:%S')))

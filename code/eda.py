@@ -4,18 +4,58 @@ This file performs Exploratory Data Analysis on the data received from
 Norrlandsvagnar. The data is plotted using the pandas library.
 """
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 import re
 import json
 import logging
-from helpers import setup_logging
+import time
+from collections import defaultdict
+from helpers import setup_logging, epochify
 
 def main():
     setup_logging()
     logging.info("Starting execution of eda.py!")
     events = read_events_from_file("example.data")
+    
+    relevant_fields = [
+        "date", 
+        "can.diesel1", 
+        "can.diesel2", 
+        "can.current_battery",
+        "can.temp_in",
+        "can.temp_out",
+        "can.current_sun",
+        "can.voltage",
+        "can.heating_temp"]
+    grouped_events = group_events(events, field_list=relevant_fields)
+    
+    event_id = events[0]["id"]
+    print(grouped_events[event_id])
+    return
 
-    print(len(events))
+    current_battery_levels = [(int(event["can.temp_out"], base=16), epochify(event["date"])) for event in events if event["id"] == generator_id]
+    print(current_battery_levels)
     logging.info("Execution of eda.py finished!")
+
+
+def filter_event(event, field_list=[]):
+    """Helper function that takes an event (dict) and retains the fields in the field_list.
+    If field_list is empty, all fields are retained in the event (no filtering).
+    """
+    if not field_list:
+        return event
+    return {k: v for k, v in event.items() if k in field_list}       
+
+
+def group_events(events, field_list=[]):
+    """Function which takes a list of events and groups them by id.
+    If field_list is given then only the fields in the list is included in the filtered event.
+    Othewise, all fields are included in the event.
+    """
+    grouped_events = defaultdict(list)
+    [grouped_events[event["id"]].append(filter_event(event, field_list)) for event in events]
+    return grouped_events
 
 
 def read_events_from_file(file_name):

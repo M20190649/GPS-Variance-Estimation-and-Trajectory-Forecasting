@@ -37,7 +37,17 @@ Dock är usage datan baserad på den tidigare statistiska modellen,
 så man vet ju inte riktigt ifall alla scheduled events of failure events hände precis då som de står i loggen. 
 Det hade kanske varit intressant att undersöka huruvida man kan kombinera sensor data med usage data?}
 
-\section{title}
+\section{Kernel Spectral Clustering}
+Langone et al. demonstrate in \cite{Langone2013} the use of Kernel Spectral Clustering (KSC) to implement PdM of industrial machines.
+KSC can be seen as spectral clustering formulated as weighted kernel PCA problem \cite{Langone2013}\todo{better source?}.
+Langone et al. apply KSC to data collected from a Vertical Form Fill and Seal (VFFS) machine, which is used to typically fill and seal packages in the food industry.
+They show that two clusters are created by the algorithm.
+They denote one cluster as "normal" operating condition and the other as "critical" operating condition.
+By changing the output of the KSC they can calculate a "probability" of future faults \cite{Langone2013}.
+The implementation was evaluated by comparing the cluster membership ("normal" or "critical") to logs containing conducted maintenance actions.
+
+\todo{Beskriv KSC, PCA, kernel PCA och LS-SVM}
+
 
 
 % This chapter covers how different machine learning approaches are used in the antivirus (AV) industry.
