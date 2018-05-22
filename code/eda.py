@@ -48,7 +48,7 @@ def run(input_file, output_file):
     logging.info("Reading in stop locations")
     #stops = read_stop_locations_from_file("../ostgotatrafiken/location-nearbystops-Linkoping.json")
 
-    sorted_events = read_events_from_file(input_file, skip_n=15_000_000, max_events=None)
+    sorted_events = read_events_from_file(input_file, skip_n=0, max_events=None)
     state_events = process_events(sorted_events)
     #state_events = read_journeys_from_file(input_file, max_events=4_000_000)
 
@@ -210,77 +210,73 @@ def read_events_from_file(file_name, skip_n=0, max_events=None):
     return sorted(events, key=lambda k: k["event.id"])
 
 def process_events(events):
-    started_events = []
-    assigned_events = []
-    completed_events = []
-    garage_events = []
-    other_events = []
+    processed_events = {
+        "assigned": [],
+        "started": [],
+        "completed": [],
+        "garage": [],
+        "other": []
+    }
 
-    curr_started_events = []
-    curr_assigned_events = []
-    curr_completed_events = []
-    curr_garage_events = []
-    curr_other_events = []
+    current_events = {
+        "assigned": [],
+        "started": [],
+        "completed": [],
+        "garage": [],
+        "other": []
+    }
 
-    state = None
+    state = "other"
 
     for event in events:
         event_type = event["event.type"]
+        
+        if event_type == "ObservedPositionEvent":
+            current_events[state].append(event)
+        else:
+            new_state = update_state(event_type, event)
+            
+            if new_state is None: # State we are currently not handling.
+                continue
 
-        if event_type == "JourneyStartedEvent":
-            #pprint.pprint("JourneyStarted!")
-            print(event)
-            state = "started"
-            started_events.append(curr_started_events)
-            curr_started_events = []
-        elif event_type == "JourneyCompletedEvent":
-            #pprint.pprint("JourneyCompleted!")
-            print(event)
-            if state == "assigned":
-                print("Journey was assigned before completed!")
-                curr_started_events.extend(curr_assigned_events)
-                curr_assigned_events = []
-            state = "completed"
-            completed_events.append(curr_completed_events)
-            curr_completed_events = []
-        elif event_type == "JourneyAssignedEvent":
-            print(event)
-        elif event_type == "ParameterChangedEvent":
-            print(event)
-            if event["line.new"]:
-                state = "assigned"
-                assigned_events.append(curr_assigned_events)
-                curr_assigned_events = []
-            else:
-                print("GARAGE")
-                state = "garage"
-                garage_events.append(curr_garage_events)
-            curr_garage_events = []
-        elif event_type == "ObservedPositionEvent":
-            if state == "assigned":
-                curr_assigned_events.append(event)
-            elif state == "garage":
-                curr_garage_events.append(event)
-            elif state == "started":
-                curr_started_events.append(event)
-            elif state == "completed":
-                curr_completed_events.append(event)
-            else:
-                curr_other_events.append(event)
+            if state == "assigned" and new_state == "completed":  
+                # Edge-case: New journey was assigned before old completed.
+                current_events["started"].extend(current_events["assigned"])
+                current_events["assigned"] = []
+            state = new_state
+            
+            processed_events[state].append(current_events[state])
+            current_events[state] = []
+        
+    for k_state, v_events in current_events.items():
+        # Add all current events to processed ones.
+        # TODO: This can give problems if a journey is started and not completed in this data set.
+        #       E.g., this would happen if a journey spans to the next day (the complete journey is in more than 1 log).
+        processed_events[k_state].append(v_events)
 
-    assigned_events.append(curr_assigned_events)
-    started_events.append(curr_started_events)
-    garage_events.append(curr_garage_events)
-    completed_events.append(curr_completed_events)
-    other_events.append(curr_other_events)
+    return processed_events
 
-    return {
-        "assigned": assigned_events,
-        "started": started_events,
-        "completed": completed_events,
-        "garage": garage_events,
-        "other": other_events
-    }
+def update_state(event_type, event):
+    if event_type == "JourneyStartedEvent":
+        print(event)
+        return "started"    
+    
+    if event_type == "JourneyCompletedEvent":
+        print(event)
+        return "completed"
+    
+    if event_type == "ParameterChangedEvent":
+        print(event)
+        if event["line.new"]:
+            return "assigned"
+        else:
+            return "garage"
+
+    if event_type == "JourneyAssignedEvent":
+        print(event)
+
+    return None
+
 
 def read_events_from_file_old(file_name, vehicle_id=None, max_events=None, create_timeline=False, filter_vehicle="Bus", group_by_id=True):
     """Functions that takes a file_name and returns events in the form of key-value objects.
