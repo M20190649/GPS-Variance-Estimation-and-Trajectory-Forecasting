@@ -1,0 +1,2975 @@
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>Google Maps - pygmaps </title>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>
+<script type="text/javascript">
+	function initialize() {
+		var centerlatlng = new google.maps.LatLng(58.408958, 15.618870);
+		var myOptions = {
+			zoom: 13,
+			center: centerlatlng,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+		var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+		var latlng = new google.maps.LatLng(58.409578, 15.616357);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Borggården (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.407150, 15.617490);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Elsa Brändströms gata (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.410593, 15.621589);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Stora Torget Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.409802, 15.624843);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Trädgårdstorget",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.408876, 15.612546);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Barnhemsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.408930, 15.626524);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Köpmansgränd",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.410252, 15.610442);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Länsstyrelsen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.413218, 15.623666);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kungsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.414081, 15.614622);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Länsmuseet (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.414450, 15.620780);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Klostergatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.405029, 15.626479);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tinnerbäcksbadet (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.414638, 15.613148);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Banérgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.402925, 15.613418);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kaserngatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.402269, 15.621787);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping US Norra entrén",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.403015, 15.609705);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Drabantgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.416634, 15.624960);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Centralstation",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.402206, 15.608896);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Rekrytgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.415115, 15.606919);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Abisko (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.407923, 15.601930);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Parkgatan Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.402952, 15.631531);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Folkungavallen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.412571, 15.603170);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Gärdesgatan Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.410503, 15.635810);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Drottningtorget (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.399599, 15.620349);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping US Södra entrén",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.400696, 15.609804);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Eskadern",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.415708, 15.605921);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Abisko centrum (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.412310, 15.636206);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Humlegatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.418387, 15.612204);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kristinagatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.417713, 15.609283);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Danmarksgatan 2 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.402350, 15.633949);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Bergdalsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.402979, 15.602712);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Westmansgatan 66 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.401838, 15.604222);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Fanjunkaregatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.419430, 15.618587);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Fjärrbussterminal",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.408355, 15.638911);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Loftgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.416050, 15.603889);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lingvallen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.404103, 15.599853);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Skogsfrid Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.418054, 15.605759);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Danmarksgatan 6 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.407483, 15.597246);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Vallaplan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.397559, 15.616034);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Regementsgatan",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.412202, 15.597633);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lektorshagen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.415429, 15.599566);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Åbylund (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.415187, 15.638741);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Anders Ljungstedts gy. (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.416625, 15.637006);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Vigfastgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.401343, 15.637446);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kristinebergsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.406153, 15.642102);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tegelbruksgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.396381, 15.621373);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tinnerbäcksgränd (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.403132, 15.596626);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Wernersgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.396013, 15.615647);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Brigadgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.412921, 15.594819);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Skedagatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.396211, 15.611989);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Infanterivägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.418720, 15.601525);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Gesällgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.411303, 15.644206);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Vimarkagatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.404130, 15.592887);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Vickergatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.409020, 15.646435);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tannefors center (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.404220, 15.645213);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Sandgårdsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.418962, 15.598172);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Bergsrondellen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.420679, 15.636322);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Runstensgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.416904, 15.594235);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Blomgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.407105, 15.589929);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Gamla Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.393604, 15.615485);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Garnisonen Södra (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.406368, 15.647990);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Vetegatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.424545, 15.615360);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Farmek (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.397253, 15.638884);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Majelden (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.411933, 15.589075);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tornhagen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.393208, 15.607485);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Djurgården Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.399402, 15.646309);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Risbrinksgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.423843, 15.601399);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Arla (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.391491, 15.625194);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Rotegatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.425219, 15.605166);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tyttorpsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.416625, 15.650373);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Arena",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.407303, 15.654004);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Saab Norra porten (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.395267, 15.642741);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Majorsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.402018, 15.651973);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Stationsgatan",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.424805, 15.637725);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Sigbjörnsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.419609, 15.589165);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Barhäll (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.391374, 15.633284);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Pionjärgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.424787, 15.595745);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tvättlappen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.428113, 15.608150);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Roxtorpsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.392938, 15.643037);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Berga centrum (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.423789, 15.591197);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Mellangården (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.421272, 15.586450);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Rusthållaregården (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.393253, 15.645536);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Berga Söderleden (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.397217, 15.652305);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ödegårdsgatan 11 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.418459, 15.655838);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Hagalundsvägen Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.400633, 15.657915);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Råberga bro",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.397604, 15.655110);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Braskens bro (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.392660, 15.589605);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Vallastadens skola (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.421317, 15.582378);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Skäggetorpsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.400471, 15.659236);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tannefors station (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.427448, 15.592887);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Roxtorpsgatan 3 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.417362, 15.659847);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Masugnen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.406009, 15.575223);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Solhaga (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.396579, 15.656036);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ödegårdsgatan 24 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.425875, 15.588311);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Nämndemansgården (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.390044, 15.645869);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lillgårdsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.426702, 15.589021);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Nygård Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.393756, 15.653744);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Granitgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.387500, 15.644449);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Yrkesvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.400400, 15.572966);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Universitetet",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.414189, 15.571016);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Rydsvägens ändhållpl. (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.395734, 15.661088);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Johannelunds centrum (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.391968, 15.655955);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Hjortvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.417407, 15.665456);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Harstenagatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.405469, 15.569991);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ostbrickan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.430199, 15.590639);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Biltema (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.393748, 15.578414);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Nobeltorget (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.400364, 15.571843);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Universitetet Golfbanan",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.426990, 15.582603);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Skäggetorp centrum",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.433489, 15.601085);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Fröstorpsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.397406, 15.573191);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Vallfarten (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.422522, 15.574845);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Sörgårdsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.429758, 15.586585);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lilla Ullevi (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.393334, 15.660872);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tennsoldaten (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.397505, 15.665816);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Nedre Johannelund (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.432725, 15.593884);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "MAXI (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.383113, 15.635064);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ålerydsvägen västra (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.429974, 15.584769);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ullevi (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.392858, 15.661987);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tenndosan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.394691, 15.573209);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "VTI (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.397056, 15.570800);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Mäster Mattias väg (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.388552, 15.655577);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Poppelvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.387716, 15.654022);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ridhusgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.393792, 15.573524);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "FOI (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.432374, 15.588850);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "IKEA (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.389720, 15.658715);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Rådjursvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.385073, 15.589174);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Djurgården centrum (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.407932, 15.564193);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Ryd centrum",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.414513, 15.565092);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Björnkärrsskolan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.409074, 15.563950);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ryds herrgård (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.381064, 15.633455);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ortgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.434343, 15.645743);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Åby Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.418036, 15.671722);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Fågelögatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.382466, 15.642903);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Poleraregatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.392291, 15.665304);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Övre Johannelund (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.388732, 15.660818);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Skogsgatan 51 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.383805, 15.650633);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Galoppgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.434774, 15.589039);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Coop Forum (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.401011, 15.674760);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping SAAB civila porten",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.395734, 15.671596);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Spångerum (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.413245, 15.560723);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Alsättersgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.400058, 15.675174);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping SAAB Åtvidabergsväge",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.393352, 15.568112);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Teknikringen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.388534, 15.574486);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Rättaregatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.394467, 15.566647);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Forskningsbyn",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.406422, 15.559456);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Mårdtorpsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.426235, 15.568688);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Stiglötsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.393703, 15.671398);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Munkhagsgatan 140 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.391680, 15.669088);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Skogsgatan 91 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.388839, 15.665915);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Skogsgatan 86 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.419286, 15.561379);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Heidenstams gata (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.384552, 15.658652);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Resedan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.432922, 15.576571);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Skattegården (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.384938, 15.661591);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Åleryd (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.410458, 15.556103);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Rydsvägen 236 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.408031, 15.555851);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Rydsvägen 168 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.385999, 15.572481);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Slestadsskolan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.389810, 15.566476);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Isberget",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.429138, 15.567717);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Fogdegatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.385504, 15.664899);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kryddvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.420580, 15.679722);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Fångögatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.394278, 15.560489);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Mjärdevi Center",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.423340, 15.678751);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Bilprovningen Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.381720, 15.578324);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Hemmansgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.432608, 15.570701);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Skrivaregatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.397154, 15.556813);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Mjärdevi",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.386233, 15.668863);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kattfotstigen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.381621, 15.659892);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Myntgatan Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.415906, 15.553640);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Leopolds gata (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.382349, 15.662814);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Åleryds sjukhem (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.390305, 15.561442);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Bygärdesgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.382924, 15.571852);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Boställsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.425857, 15.679390);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tallboda centrum (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.425650, 15.558116);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Glyttinge (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.428823, 15.676540);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Gullringsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.375005, 15.643100);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Hässlegatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.400480, 15.550637);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Djursjukhuset (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.388776, 15.677745);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Jakobsdal (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.378843, 15.660791);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Grindgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.382133, 15.568921);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Bygdegatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.443593, 15.646381);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Gärstad (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.386125, 15.675983);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ekhaga Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.428563, 15.680379);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tallboda skola (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.400049, 15.689233);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Landerydsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.380030, 15.571771);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Änggårdsskolan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.427178, 15.682689);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Orkanvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.382718, 15.563788);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Odalgatan Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.441516, 15.577353);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Säbyvägen Linköping",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.426504, 15.685862);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Snövägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.387095, 15.681925);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Uvebergsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.387689, 15.554727);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Storskiftesgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.373423, 15.653609);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Strågatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.397865, 15.544632);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tingsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.383500, 15.558314);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Tegskiftesgatan",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.374079, 15.659398);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Middagsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.377792, 15.669331);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Räknestickan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.383419, 15.680603);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Järdalavägen 50 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.433129, 15.683093);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Staby bro (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.377828, 15.672971);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Rökglaset (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.375257, 15.569613);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Landbogatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.400489, 15.700694);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Bökestad (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.377837, 15.677412);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ekholmsskolan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.373567, 15.668180);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Morgongatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.394907, 15.698105);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Hackefors (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.427394, 15.694896);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Rydsätter (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.382978, 15.686824);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kvinnebyvägen 12 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.380408, 15.683192);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Ekholmen centrum",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.451683, 15.643586);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Näsby allé (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.395869, 15.537162);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Jägarvallsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.378340, 15.681340);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ekholmens vårdcentral (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.434262, 15.689530);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Sidvindsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.378852, 15.685269);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ekholmen Brokindsleden (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.377207, 15.554889);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lambohov Säteri (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.381199, 15.689395);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kvinnebyvägen 87 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.379733, 15.687759);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ektunavägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.371832, 15.672612);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Stenåldersgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.431745, 15.541127);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tift Bäckgård (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.446370, 15.564894);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Gillberga Kaga (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.430666, 15.539410);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tift (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.377594, 15.685547);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Järdalavägen 102 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.389307, 15.700344);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Vårgård (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.433066, 15.696487);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Fönvindsvägen västra (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.392597, 15.703553);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Hackefors södra (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.424482, 15.532200);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Värö (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.372713, 15.678967);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ullstämma by (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.376111, 15.687076);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Järdalavägen 112 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.366537, 15.571178);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lilla Aska griftegård (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.433102, 15.701054);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Fönvindsvägen östra (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.428590, 15.706582);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Malmskogen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.378241, 15.694258);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kvinnebyvägen 95 (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.372605, 15.685071);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Aspnäset (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.372839, 15.686159);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Aspnäsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.370376, 15.556714);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Slaka kyrka (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.410584, 15.522330);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Flygvapenmuseum (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.386664, 15.705791);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ljunghagsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.380066, 15.699382);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Aspeliden (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.400364, 15.715230);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Metsjövägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.371769, 15.686743);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ullstämmavägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.368668, 15.557514);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Slaka skolan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.414198, 15.519651);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Malmslätt Kärna kors (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.379652, 15.702222);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lindaliden (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.410396, 15.518159);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Carl Cederströms gata (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.408454, 15.517458);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lägergatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.373513, 15.694411);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lövsbergsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.365090, 15.559941);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Högsätersvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.369414, 15.688100);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Fornvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.441273, 15.536641);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kaga Bygdegård (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.366205, 15.682033);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Fagottgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.451863, 15.555995);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kagavägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.365503, 15.556606);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Slaka Pilspetsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.378034, 15.704586);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Strandängsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.423376, 15.518366);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Fårbacksvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.418135, 15.515876);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kärna skola (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.407618, 15.514321);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lagerlundavägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.382565, 15.711068);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Roshagsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.463216, 15.640089);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Stensättersvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.429668, 15.717099);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Beatelund (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.361746, 15.562323);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Källtorpsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.420535, 15.513557);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Malmslätt Fårsaxvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.425560, 15.515894);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Fårullsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.363508, 15.683102);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Klarinettgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.373414, 15.703058);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ekdalsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.366753, 15.691822);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Södra Ullstämma (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.375616, 15.708146);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Änggårdsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.419412, 15.510797);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kärnabrunnsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.363706, 15.550835);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lilla Åby (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.446901, 15.535895);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ågården (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.424554, 15.511300);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Vinkännaren (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.374115, 15.709351);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Vårdsbergsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.357260, 15.563618);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lövsätter Skeda (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.395213, 15.508756);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "FMV (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.397154, 15.507543);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Malmen Vakten (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.361782, 15.549585);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lilla Åby östergård (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.398701, 15.506833);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Malmslätt Nobymalmsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.431116, 15.725109);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Karlstorp (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.377369, 15.716075);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Hjulsbro skola (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.421614, 15.506419);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Fårbetesvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.468709, 15.635199);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ekängen Bryggvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.424554, 15.507534);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Malmslätt Tokarpsskolan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.399788, 15.734862);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Björkåkra (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.362528, 15.695696);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Harvestad (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.423079, 15.503543);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linköping Fårhagsvägen",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.450380, 15.530340);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kaga kyrka (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.359031, 15.547122);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Carmelid (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.376767, 15.721819);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Landeryds vårdbostäder (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.419394, 15.500055);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Mariedalsgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.417722, 15.496972);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lötgatan (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.473158, 15.632673);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Hallonvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.392947, 15.498671);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Frössle (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.350536, 15.562233);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Skeda prästgård (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.356137, 15.542430);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Haga Slaka (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.448573, 15.515498);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Bränninge (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.476853, 15.631046);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Östernäs (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.369342, 15.724965);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Landeryds kyrka (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.427080, 15.490302);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Gerstorpsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.391410, 15.489762);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lagerlunda allé (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.353350, 15.538025);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Hag (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.400984, 15.752103);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Vårdsbergs kyrka (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.478651, 15.648161);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Roxtuna (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.344316, 15.561218);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Skeda (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.447368, 15.503678);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Mellanbränninge (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.437507, 15.745128);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Stora Bjursholmen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.351714, 15.534933);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tollstorp (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.481222, 15.631163);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Udden (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.466380, 15.533675);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Härna (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.482687, 15.637446);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Gatan Rystad (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.348307, 15.534906);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Syrorpsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.398449, 15.762603);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Vårdsberg vägkors (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.448276, 15.494581);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Svartåfors (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.347040, 15.529917);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Röby allé (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.388642, 15.475613);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ånestadlund (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.424419, 15.472836);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Snarbygget (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.437588, 15.758207);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Lilla Bjursholmen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.336172, 15.562638);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Åkerstad (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.447404, 15.486023);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Haverland (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.446631, 15.480566);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Fridhem Kaga (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.386403, 15.468844);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Ånestadlund Västra (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.393559, 15.773111);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Örminge Vårdsberg (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.436797, 15.767691);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Bommedal (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.444842, 15.475721);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Brink Kaga (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.341475, 15.712119);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Klampenborg (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.342914, 15.518744);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Röby (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.328009, 15.568840);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Byttsätter (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.433264, 15.462372);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Tomta (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.444186, 15.468314);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kränge (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.384165, 15.460718);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Hasselbacken Vikingstad (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.436374, 15.776114);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Linghem Östra Hargsvägen (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.400004, 15.785292);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Hasselbacken Bankekind (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.482282, 15.520901);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Vreta kloster kyrka (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+		var latlng = new google.maps.LatLng(58.443152, 15.460224);
+		var img = new google.maps.MarkerImage('/Users/silverfisk/Attentec/code/venv/lib/python3.6/site-packages/gmplot/markers/FF0000.png');
+		var marker = new google.maps.Marker({
+		title: "Kungskvarn (Linköping kn)",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+	}
+</script>
+</head>
+<body style="margin:0px; padding:0px;" onload="initialize()">
+	<div id="map_canvas" style="width: 100%; height: 100%;"></div>
+</body>
+</html>
