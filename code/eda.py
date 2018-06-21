@@ -17,7 +17,7 @@ import pprint
 import time
 from collections import defaultdict
 from gmplot import gmplot
-from helpers import setup_logging, epochify, str_gps_to_tuple, print_progress_bar, file_len
+from helpers import setup_logging, epochify, str_gps_to_tuple, print_progress_bar, file_len, plot_types
 
 def main(argv):
     input_file = '../ostgotatrafiken/VehicleEvents.20180218.log'
@@ -51,12 +51,15 @@ def run(input_file, output_file):
     geofence_linkoping = [(58.355693, 15.483615), (58.448841, 15.721209)]
     logging.info("Geofence setup: %s", geofence_linkoping)
 
+    #event_types = get_event_types_list(input_file, max_events=None)
+    #plot_types(event_types)
+
     sorted_events = read_events_from_file(
         input_file, 
-        skip_n=14_500_000, 
-        max_events=520_000, 
+        skip_n=0,#14_500_000, 
+        max_events=None,#520_000, 
         geofence=geofence_linkoping, 
-        vehicle_id=5478
+        vehicle_id=5456#5478
     )
 
     log_other_states = True
@@ -66,7 +69,6 @@ def run(input_file, output_file):
     logging.info("Creating Google Map Plotter")
     gmap = gmplot.GoogleMapPlotter(58.408958, 15.61887, 13)
 
-    
     #plot_markers(gmap, geofence_linkoping, colour="red", gps_key=None)
     for vehicle_id, events in sorted_events.items():
         state_events, misc_events = process_events(events)
@@ -99,16 +101,48 @@ def run(input_file, output_file):
         
         if log_misc_events:
             logging.info("Plotting Started and Stopped Events")
-            plot_markers(gmap, misc_events["started"], "springgreen", title_key="date")
-            plot_markers(gmap, misc_events["stopped"], "red", title_key="date")
+            #plot_markers(gmap, misc_events["started"], "springgreen", title_key="date")
+            #plot_markers(gmap, misc_events["stopped"], "red", title_key="date")
 
             logging.info("Plotting Passed/Arrived/Departed Events")
-            plot_markers(gmap, misc_events["passed"], colour="yellow", title="gps:", title_key=["line", "date", "stop.name"])
-            plot_markers(gmap, misc_events["passed"], colour="yellow", gps_key="gps2", title="gps2:", title_key=["line", "date", "stop.name"])
+            #plot_markers(gmap, misc_events["passed"], colour="yellow", title="gps:", title_key=["line", "date", "stop.name", "stop.mode", "time1", "time2", "time3", "time4"])
+            #plot_markers(gmap, misc_events["passed"], colour="yellow", gps_key="gps2", title="gps2:", title_key=["line", "date", "stop.name", "stop.mode", "time1", "time2", "time3", "time4"])
 
-            plot_markers(gmap, misc_events["arrived"], colour="white", gps_key="gps2", title="gps2:", title_key=["line", "date", "stop.name"])
-            plot_markers(gmap, misc_events["departed"], colour="black", gps_key="gps2",title="gps2:", title_key=["line", "date", "stop.name"])
+            #plot_markers(gmap, misc_events["arrived"], colour="white", gps_key="gps2", title="gps2:", title_key=[
+            #    "line", "date", "stop.name", "gps", "stop.gps1", "stop.mode", "stop.gps2", "time1", "time2", "time3"])
+
+            #plot_markers(gmap, misc_events["departed"], colour="black", gps_key="gps2",title="gps2:", title_key=[
+            #    "line", "date", "stop.name", "gps", "stop.gps1", "stop.mode", "stop.gps2", "time1", "time2", "time3", "time4"])
         
+            #heatmap_lat_lon = []
+            gps_list = []
+            gps2_list = []
+            stop_gps_list = []
+            stop_gps2_list = []
+            for key in ["departed", "passed", "arrived"]:
+                for event in misc_events[key]:
+                    gps_list.append(event["gps"])
+                    gps2_list.append(event["gps2"])
+                    stop_gps_list.append(event["stop.gps1"])
+                    stop_gps2_list.append(event["stop.gps2"])
+            h_lat, h_lon = zip(*gps_list)
+            gmap.scatter(h_lat, h_lon, color="blue", marker=False, size=3)
+            h_lat, h_lon = zip(*gps2_list)
+            gmap.scatter(h_lat, h_lon, color="red", marker=False, size=3)
+            h_lat, h_lon = zip(*stop_gps_list)
+            gmap.scatter(h_lat, h_lon, color="green", marker=False, size=3)
+            h_lat, h_lon = zip(*stop_gps2_list)
+            gmap.scatter(h_lat, h_lon, color="yellow", marker=False, size=3)
+            #gmap.heatmap(h_lat, h_lon)
+
+            #scatter_lat_lon = []
+            #for key in ["started", "stopped"]:
+            #    for event in misc_events[key]:
+            #        scatter_lat_lon.append(event["gps"])
+            #s_lat, s_lon = zip(*scatter_lat_lon)
+            #gmap.scatter(s_lat, s_lon, color="grey", marker=False, size=10)
+
+
     print("#Lines: ", len(routes.keys()))
     print(routes.keys())
     
@@ -316,7 +350,7 @@ def process_events(events):
         "started": [],
         "completed": [],
         "garage": [],
-        "other": []
+        "other": [],
     }
 
     current_events = {
@@ -449,6 +483,35 @@ def read_events_from_file_old(file_name, vehicle_id=None, max_events=None, creat
                         timeline_events.append(event)
     return events, timeline_events
 
+def get_event_types_list(file_name, max_events=None):
+    if max_events is None:
+        logging.info("Calculating number of events in file...")
+        T = file_len(file_name)
+        logging.info("File has %i events", T)
+    else:
+        T = max_events
+    percent = T // 100
+    types = []
+    with open(file_name, 'r', encoding="latin-1") as f:
+        for i in range(T):
+            if (i+1) % percent == 0 or (i+1) == T:
+                print_progress_bar(i+1, T, prefix = 'Progress:', suffix = 'Complete', length = 50)
+
+            event_type = get_event_type(f.readline())
+            types.append(event_type)
+    return types
+            
+
+def get_event_type(line):
+    header, _ = line.split("|||")
+    header_fields = header.split("|")    
+
+    for field in header_fields:
+        if "Event" in field:
+            return field#[:-5]  # Remove trailing "Event".
+
+    print(header_fields)
+    return None
 
 def parse_event(line, filter_vehicle="Bus"):
     """Helper function that takes a line containing an event.
@@ -501,6 +564,21 @@ def parse_obspos_event(header_fields, body_fields):
         "gid": int(body_fields[3]),
         "vehicle.id": int(body_fields[4]),
         "gps": str_gps_to_tuple(body_fields[5])
+    }
+
+def parse_invalidpos_event(header_fields, body_fields):
+    """Parses an "ObservedPositionEvent" and extracts relevant fields.
+    Header: date | 2 (?) | event_type | event_id | status (Normal/Warning/Error) | ref id (?)
+    Body: vehicle (Bus/Train) | junk | gid | vehicle_id | gps (lat, lon)
+    """
+    return {
+        "date": header_fields[0],
+        "event.type": header_fields[2],
+        "event.id": int(header_fields[3]),
+        "vehicle.type": body_fields[0],
+        "gid": int(body_fields[2]),
+        "vehicle.id": int(body_fields[3]),
+        "gps": str_gps_to_tuple(body_fields[4])
     }
 
 # TODO: Examine all types that have functions below!!!!!
@@ -560,6 +638,8 @@ def parse_arrived_event(header_fields, body_fields):
         "line.id": int(body_fields[5][11:]),
         "gps2": str_gps_to_tuple(body_fields[6]),
         "stop.int1": float(body_fields[7]),
+        "stop.id": int(body_fields[8][11:14]),
+        "stop.mode": int(body_fields[8][14:-2]),
         "stop.name": body_fields[9],
         "stop.gps1": str_gps_to_tuple(body_fields[10]),
         "stop.int2": float(body_fields[11]),
@@ -607,6 +687,8 @@ def parse_departed_event(header_fields, body_fields):
         "line.id": int(body_fields[5][11:]),
         "gps2": str_gps_to_tuple(body_fields[6]),
         "stop.int1": float(body_fields[7]),
+        "stop.id": int(body_fields[8][11:14]),
+        "stop.mode": int(body_fields[8][14:-2]),
         "stop.name": body_fields[9],
         "stop.gps1": str_gps_to_tuple(body_fields[10]),
         "stop.int2": float(body_fields[11]),
@@ -655,6 +737,8 @@ def parse_passed_event(header_fields, body_fields):
         "line.id": int(body_fields[5][11:]),
         "gps2": str_gps_to_tuple(body_fields[6]),
         "stop.int1": float(body_fields[7]),
+        "stop.id": int(body_fields[8][11:14]),
+        "stop.mode": int(body_fields[8][14:-2]),
         "stop.name": body_fields[9],
         "stop.gps1": str_gps_to_tuple(body_fields[10]),
         "stop.int2": float(body_fields[11]),

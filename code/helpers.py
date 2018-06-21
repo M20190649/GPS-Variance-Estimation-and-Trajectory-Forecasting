@@ -1,6 +1,10 @@
 """ Helper class that contains useful functions """
 import logging
 import subprocess
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+from decimal import Decimal
 
 def setup_logging():
     """
@@ -19,6 +23,7 @@ def setup_logging():
 
     # Logging all set up and ready to be used for this run.
     logging.info('--------Starting a fresh run-----------')
+
 
 def print_progress_bar(iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
     """
@@ -39,6 +44,25 @@ def print_progress_bar(iteration, total, prefix = '', suffix = '', decimals = 1,
     # Print New Line on Complete
     if iteration == total: 
         print()
+
+
+def plot_types(types, output_file="types_barplot.pdf"):
+    """ Plot barplot of all types in the given Counter."""
+    logging.info("Plotting types")
+    df = pd.DataFrame(types)
+    df = df.rename(columns={0:'event'})
+    print(df.event.value_counts())
+    plt.figure(figsize=(16, 5))
+    sns.set_color_codes("pastel")
+    ax = (df.event.value_counts(normalize=True)*100).plot(kind='bar', fontsize=12, rot=45, title="Event type distribution")
+    ax.title.set_size(24)
+    for p in ax.patches:
+        ax.annotate(str(round(Decimal(p.get_height()), 2)) + "%", (p.get_x(), p.get_height() + 1))
+    plt.ylabel('Percentage', fontsize=18)
+    plt.xlabel('Event types', fontsize=18)
+    plt.xticks(ha='right')
+    plt.savefig(output_file, bbox_inches='tight')  
+
 
 def file_len(fname):
     p = subprocess.Popen(['wc', '-l', fname], stdout=subprocess.PIPE, 
