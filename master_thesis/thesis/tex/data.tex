@@ -72,7 +72,7 @@ In this example the header and body contain seven key parameters:
 
 \subsection{Event Types}
 The dataset contains 20 unique event types.
-Figure \ref{fig:types-barplot} visualises the distribution of event types for a random day \todo{Should we do a boxplot instead of the whole dataset? Will take a lot of time to create!} in the dataset.
+Figure \ref{fig:types-barplot} visualises the distribution of event types for a random day \todo{Should we instead do a boxplot of the whole dataset? Will take a lot of time to create!} in the dataset.
 The figure only gives an indication of what the true distribution could be, as it is computationally expensive to calculate the true distribution for the given dataset, due to its size.
 Knowledge about the true distribution is not required in order to reason about the event types.
 As the figure shows, the majority of events that occur are of the type \texttt{ObservedPositionEvent}, which is the event containing an updated GPS position for a vehicle.
@@ -92,7 +92,7 @@ The valid \texttt{ObservedPositionEvent} type also contains the \textit{Speed} a
 The GPS position of the \texttt{InvalidPositionEvent} events were always the same coordinates.
 In this thesis project the \texttt{InvalidPositionEvent} type was discarded, due to the missing parameters and static GPS position.
 
-The 11 event types used in this thesis project were:
+The 11 event types used in this thesis project are:
 \begin{itemize}
     \item \textit{ObservedPositionEvent:}
     \item \textit{StartedEvent:}
@@ -107,5 +107,4 @@ The 11 event types used in this thesis project were:
     \item \textit{JourneyStartedEvent:}
     \item \textit{JourneyAssignedEvent:}
 \end{itemize}
-
 
