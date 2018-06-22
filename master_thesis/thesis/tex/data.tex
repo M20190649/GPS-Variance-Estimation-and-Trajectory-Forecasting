@@ -84,7 +84,7 @@ As the figure shows, the majority of events that occur are of the type \texttt{O
     \label{fig:types-barplot}
 \end{figure}
 
-Of the 20 event types available in the dataset, this thesis project only used 11 of them.
+Of the 20 event types available in the dataset, this thesis project only used 12 of them.
 The events to use were chosen by analysing the log for a single day in great detail.
 Event types which occurred rarely and seemingly random were discarded, as no pattern could be determined for them.
 The \texttt{InvalidPositionEvent} type only contains the GPS position of the vehicle.
@@ -92,19 +92,117 @@ The valid \texttt{ObservedPositionEvent} type also contains the \textit{Speed} a
 The GPS position of the \texttt{InvalidPositionEvent} events were always the same coordinates.
 In this thesis project the \texttt{InvalidPositionEvent} type was discarded, due to the missing parameters and static GPS position.
 
-The 11 event types used in this thesis project are:
+The 12 event types used in this thesis project were:
 \begin{itemize}
-    \item \textit{ObservedPositionEvent:}
-    \item \textit{StartedEvent:}
-    \item \textit{StoppedEvent:}
-    \item \textit{InvalidPositionEvent:}
-    \item \textit{ExitedEvent:}
-    \item \textit{EnteredEvent:}
-    \item \textit{PassedEvent:}
-    \item \textit{DepartedEvent:}
-    \item \textit{ArrivedEvent:}
-    \item \textit{ParameterChangedEvent:}
-    \item \textit{JourneyStartedEvent:}
-    \item \textit{JourneyAssignedEvent:}
+    \item \textit{ObservedPositionEvent}:
+    This event type contains the information highlighted in Figure \ref{fig:data-ex-1}.
+    It is the most prevalent event type in the provided dataset.
+    This event type is contextless, as it contains no information about which public transportation line the vehicle is currently serving, if any. 
+    
+    \item \textit{StartedEvent} and \textit{StoppedEvent}:
+    These two event types provide context to a sequence of observed position events.
+    They denote when the vehicle has started or stopped moving, respectively.
+    For example, they can be used to identify road intersections, bus stops, traffic or driver breaks.
+    
+    \item \textit{EnteredEvent} and \textit{ExitedEvent}:
+    These two event types are used by the "Internal Analysis" component to identify bus stops.
+    The \textit{EnteredEvent} is produced by the system when the vehicle is within a certain predefined distance to a bus stop.
+    The \textit{ExitedEvent} is similarly produced when the vehicle leaves the predefined distance to the bus stop.
+    \todo{Wasnt it something like this Östgötatrafiken did? @Mattias}
+    These event types could, for example, be used in an algorithm which improves the bus stop detection.
+    
+    \item \textit{PassedEvent}, \textit{ArrivedEvent}, and \textit{DepartedEvent}:
+    These three event types are used to provide information regarding which bus stop a particular bus is at.
+    The \textit{PassedEvent} type denotes when a particular bus, serving a specific public transportation line, passed a bus line stop.
+    It contains information about the predefined position of the stop, the public transportation line the particular bus is currently serving and the time of the passing.
+    Similarly, the \textit{ArrivedEvent} and \textit{DepartedEvent} types denote when a particular bus arrived at or departed from a particular bus stop.
+    These event types provide context to the observed positions.
+    In this thesis project they are used to group a sequence of observed positions into a segment between two stops for a particular bus line.
+    
+    \item \textit{ParameterChangedEvent}:  
+    The \textit{ParameterChangedEvent} type is the most dynamic event type in the data set, e.g. it can be used to inform the system when the doors on a particular bus open or close or when a bus changes journeys.
+    In this thesis project it is only used to identify bus lines and give context to observed positions.
+    
+    \item \textit{JourneyStartedEvent} and \textit{JourneyCompletedEvent}:
+    The \textit{JourneyStartedEvent} type is produced by the "Internal Analysis" component when a bus has reached the starting bus stop for a bus line.
+    The \textit{JourneyCompletedEvent} event type is produced when the bus has reached the final bus stop for a bus line.
+
+    \item \textit{JourneyAssignedEvent}:
+    This event type is accompanied by a \textit{ParameterChangedEvent} to denote when a bus changes its journey.
 \end{itemize}
+
+\section{Pre-processing Events}
+The first step deemed necessary in order to use the data in the provided dataset was to transform it from strings to object with attributes.
+Figure \ref{fig:data-ex-1} visualises which attributes an \textit{ObservedPositionEvent} object contains.
+Similar structures were created for each of the mentioned event types.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/context-state-machine}
+    \caption{Finite-state machine providing context to \textit{ObservedPositionEvent}s. 
+    The constructed finite-state machine is simplified to illustrate the best-case scenario.
+    The "Assigned" state is the starting state.
+    \textit{ObservedPositionEvent}s are assigned to the current state the state machine is in.
+    }
+    \label{fig:context-state-machine}
+\end{figure}
+
+After this parsing step the idea was to provide context to \textit{ObservedPositionEvent}s.
+Only using this one contextless event type greatly reduces the potential problems one could solve with the provided dataset.
+Context was provided by constructing a finite-state machine.
+
+\subsection{Context-Providing Finite-State Machine}
+Finite-state machines are well-defined \todo{what is the formal definition?} and can be modelled with simple algorithmic structures \todo{source?}.
+The context-providing finite-state machine constructed in this thesis project is shown in Figure \ref{fig:context-state-machine}.
+The shown state machine is illustrating the best-case scenario, when the actual order of events is equal to the logical ordering of events.
+This is not always the case when working with real world data.
+Occasionally the timing of events get mixed up, e.g. a bus in the "Started" state receives a \textit{JourneyAssignedEvent} before it receives a \textit{JourneyCompletedEvent}.
+This ordering breaks the logical ordering of events: a journey needs to be completed before a new one can assigned.
+
+The problem is solved by partly changing the ordering of events from timestamps to event IDs.
+This is a feasible approach when the data is batched into separate files, where one file is a full day of events.
+When processing data in real time the approach would have to be slightly altered.
+The \textit{ObservedPositionEvent}s would have to be placed in a temporary buffer once an anomaly is detected in the event ordering, e.g. \textit{JourneyAssignedEvent} is received before \textit{JourneyCompletedEvent} and the system is in the "Started" state.
+Once the \textit{JourneyCompletedEvent} type is finally received, the data in the buffer could be added to the "Started" state.
+The "Started" state would then correctly contain all \textit{ObservedPositionEvent}s received from the starting bus stop to the final bus stop.
+
+\todo{Add visual examples of this. Available in the "Problem" doc.}
+
+Unfortunately, it is not always the case that the \textit{JourneyCompletedEvent} type is in an erroneous ordering.
+Occasionally the type is missing from the dataset due to human error.
+
+\subsection{Human Error: Early Stopping}
+Figure \ref{fig:human-error-early-stopping-1} and \ref{fig:human-error-early-stopping-2} illustrate two scenarios when the \textit{JourneyCompletedEvent} type for a started journey would be missing.
+In Figure \ref{fig:human-error-early-stopping-1}, the bus driver is supposed to visit the three markers in order to complete the journey for a particular line.
+In Figure \ref{fig:human-error-early-stopping-2}, the dashed line highlights the route of the bus line, while the blue line is the actual route the bus drove.
+In both these real-world examples, the bus drivers ignore the final stops of the journeys.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/edge_case_early_quit}
+    \caption{Example of early stopping in a journey.
+    The three markers are the final three stops of a particular bus line.
+    Instead of following the pre-determined route of the bus line, the final three stops are skipped.
+    This results in the journey never being deemed completed.}
+    \label{fig:human-error-early-stopping-1}
+\end{figure}
+
+The "Internal Analysis" component never deems the journey as completed in these scenarios, which results in the \textit{JourneyCompletedEvent} type never being produced.
+This scenario is easy to detect in historical data, but in real-time certain assumptions need to be made.
+For example, if the journey is compared with an average journey, the anomaly could be detected early.
+However, it would be uncertain if the anomaly is due to a journey being stopped early or if the bus driver took a wrong turn on the highway.
+A time constraint threshold would have to be introduced to the system in order to separate these two cases.
+In the case of a wrong turn, the bus would eventually converge to the average journey, while in the early-stopping scenario the journey would most likely never converge.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/lazy_driver_2}
+    \caption{Another example of early stopping in a journey.
+    The red dashed line is the planned route of the bus line.
+    The blue line at "Nya Ledbergsvägen" is the actual route the bus drove.
+    This results in the journey never being deemed completed, creating a erroneous ordering of contextual events.}
+    \label{fig:human-error-early-stopping-2}
+\end{figure}
+
+
 
