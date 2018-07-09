@@ -4,6 +4,7 @@ norrlandsvagnar/
 venv/
 .vscode/
 *.pyc
+GPflow/
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
