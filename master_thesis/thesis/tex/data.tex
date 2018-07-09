@@ -38,7 +38,7 @@ The collection of logs is the dataset used in this thesis project.
 The logs contain the GPS data from the buses and also events created by the "Internal Analysis" component in the system.
 The "Internal Analysis" component is simplified and is beyond the scope of this thesis project.
 
-\section{Structure}
+\section{Structure} \label{sec:data-structure}
 A document in the dataset is made up of a large number of events representing a single day.
 A single day typically contains roughly 21 \todo{Is it interesting to plot this exact number and its variance?} million events.  
 Each event is represented by a single line of text.
@@ -208,7 +208,7 @@ This ordering breaks the logical ordering of events: a journey needs to be compl
     \label{fig:assigned-before-completed}
 \end{figure}
 
-The problem is solved by partly changing the ordering of events from timestamps to event IDs.
+The problem is solved by partly changing the ordering of events from \textit{Timestamp} to \textit{Event ID}.
 This is a feasible approach when the data is batched into separate files, where one file is a full day of events.
 When processing data in real time the approach would have to be slightly altered.
 The \textit{ObservedPositionEvent}s would have to be placed in a temporary buffer once an anomaly is detected in the event ordering, e.g. \textit{JourneyAssignedEvent} is received before \textit{JourneyCompletedEvent} and the system is in the "Started" state.
@@ -248,7 +248,7 @@ The "Internal Analysis" component never deems the journey as completed in these 
 This scenario is easy to detect in historical data, but in real-time certain assumptions need to be made.
 For example, if the journey is compared with an average journey, the anomaly could be detected early.
 However, it would be uncertain if the anomaly is due to a journey being stopped early or if the bus driver took a wrong turn on the highway.
-A time constraint threshold would have to be introduced to the system in order to separate these two cases.
+A time constraint threshold would have to be introduced to th8e system in order to separate these two cases.
 In the case of a wrong turn, the bus would eventually converge to the average journey, while in the early-stopping scenario the journey would most likely never converge.
 
 \begin{figure}[ht!]
@@ -280,14 +280,24 @@ The states introduced yield a simple way to visualise contextual paths, e.g. act
 However, the context-providing finite-state machine solution does not handle events about a bus arriving, departing or passing a bus stop on the journey.
 Handling this type of data could be a critical step in detecting imprecisions in the bus stop detection algorithm or early stopping due to human error.
 The "Started" state in the finite-state machine can easily be extended to not only include \textit{ObservedPositionEvent} types, but also \textit{ArrivedEvent}, \textit{DepartedEvent}, and \textit{PassedEvent} types.
-For example, a missed final bus stop could be identified by looking at the bus stops added to the "Started" state for that journey and compare them to other journeys for that particular bus line.
+For example, a missed final bus stop could be identified by looking at all the bus stops added to the "Started" state for that journey and compare them to the bus stops in other journeys for that particular bus line.
 
 \subsection{Results}
 The results of the pre-processing step is a collection of journeys for each bus line.
+A journey consists of all the \textit{ObservedPositionEvent}s sent by the bus while the finite-state machine was in the "Started" state and all the bus stops the bus arrived at, departed from or passed by.
+Erroneous event type ordering was solved by sorting the events based on \textit{Event ID} and retroactively adding \textit{ObservedPositionEvent} in the "Assigned" state to the "Started" state in the case of early journey assignment.
+Journeys with early stopping or missed final bus stops are still prevalent in the collection of journeys.
+These can be detected by analysing the bus stops registered during a journey.
+In this thesis, the faulty journeys will only be marked as anomalies and discarded.
 An index-tree is constructed to quickly access all journeys for a bus with a particular \textit{Vehicle ID}.
 A number of high-level problems can now be formulated by using the two results from the pre-processing steps.
 
-
+\subsection{Discussion}
+The faulty journeys are only marked as anomalies and discarded in this thesis.
+The fraction of faulty journeys can be calculated and used as a baseline when comparing an improved bus stop detection algorithm with the existing one.
+Faulty journeys can be categorised based on the error in the journey, e.g. a missed starting bus stop is a different error compared with a missed final bus stop.
+The categorisation of faults could provide deeper insights into the dataset.
+For example, the insights could be used to improve the bus stop detection algorithm or identify journeys where a particular error occurs regularly.    
 
 
 
