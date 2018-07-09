@@ -1,0 +1,93 @@
+\chapter{Methodology}
+\label{cha:methodology}
+
+This chapter describes the methodology applied to solve two of the three higher-level problems presented in this thesis project.
+
+\section{GPS Variation Estimation}
+The method used in this thesis project to solve the higher-level GPS Variation Estimation problem is based on combined Gaussian Processes (GPs).
+The method is described by 5 steps:
+
+\begin{enumerate}
+    \item \textit{Stop Compression:}
+    Each stop present in the journey causes an imbalance of points being clustered around each stop.
+    The longer the stop is, the more points are present.
+    This results in problems with the GP, as certain coordinates would be denser than others.
+    Positions sent while a bus has stopped are averaged into a single coordinate.
+    The time of the stop is also adjusted.
+    The result is journey consisting of a sequence of coordinates where stops are invisible both time-wise and position-wise.
+
+    \item \textit{Segment Journeys:}
+    Each bus journey in the dataset is fitted with its own GPs.
+    Journeys are analysed in order to detect self-overlapping, which would cause problems for the fitted GPs.
+    Journeys with self-overlap are split at the overlapping points into two segments.
+    The process recursively analyses each resulting segment and proceeds with splitting the segments as long as self-overlapping is present.
+    If a journey has multiple segments, each segment is fitted with its own GPs.
+
+    The first GP fits $x$, $y$ (latitude, longitude) coordinates to a new time parameter $\tau$:
+    \begin{equation} \label{eq:gps-var-f1}
+       f_1: x, y \longmapsto \tau
+    \end{equation}
+    $\tau$ is the relative time of the journey, denoting the progress of the bus in completing the journey.
+    The second and third GP fits $\tau$ to a new $x$ and $y$, respectively:
+    \begin{equation} \label{eq:gps-var-f2}
+        f_2: \tau \longmapsto x
+    \end{equation}
+    \begin{equation} \label{eq:gps-var-f3}
+        f_3: \tau \longmapsto y
+    \end{equation}
+
+    \item \textit{Point-Wise Combining of GP:}
+    The GPs $f_2$ (Eq. \ref{eq:gps-var-f2}) and $f_3$ (Eq. \ref{eq:gps-var-f3}) each describe the variance ($\sigma_2^2$ and $\sigma_3^2$, respectively) at each point in the fitted segment or journey.
+    The GPs describing the variances are point-wise combined, creating the GPs $f_4$ (Eq. \ref{eq:gps-var-f4}) and $f_5$ (Eq. \ref{eq:gps-var-f5}), respectively.
+    \begin{equation} \label{eq:gps-var-f4}
+        f_4: \tau \longmapsto \sigma_4^2
+    \end{equation}
+    \begin{equation} \label{eq:gps-var-f5}
+        f_5: \tau \longmapsto \sigma_5^2
+    \end{equation}
+    where $\sigma_4^2$ is the variation in latitude and $\sigma_5^2$ the variation in longitude.
+
+    \item \textit{Visualisation:}
+    The resulting $f_4$ and $f_5$ GPs are then visualised. \todo{hur?}
+
+    \item \textit{Comparison:}
+    The visualised GPs are compared and different routes are compared at the same spatial area.
+    The comparison analyses if there is a periodicity to the variation or if the variation is purely based on spatial locality.
+\end{enumerate}  
+
+\section{Trajectory Forecasting}
+This thesis project proposes a Trajectory Forecasting model based on multiple GPs.
+It provides time to arrival distributions to all the remaining bus stops, meaning that it can answers queries such as:
+\textit{"What is the most likely time of arrival at station $p$?"}, \textit{"What is the probability of the bus arriving at the earliest/latest possible time?"}, and \textit{Which stop impacts the arrival time of the bus the most?}.
+
+The approach has three steps:
+\begin{enumerate}
+    \item \textit{Stop Model and Compression:}
+    Stops will be modelled as both bus stops and red lights, i.e., common stops during a bus journey.
+    GPS positions of stopped buses needs to be compressed in order to support more robust GPs \todo{source: Gaussian Process Based Motion Pattern Recognition
+    with Sequential Local Models}.
+    The result of this step is a timeline for each bus journey with marked common stops and compressed GPS positions during stops.
+
+    \item \textit{Segment Stops (With Model Overlap):}
+    The next step is to process the timeline and segment it between stops.
+    The segments need to be checked for self-overlaps, in order to avoid the problems described in Section \ref{sec:problems-trajectory-forecasting}.
+    Each segment will have a small model overlap, which means that neighbouring segments will share a few data points.
+    This improves the robustness of the model.
+
+    \item \textit{GP Trajectory Models:}
+    The final step is to fit multiple GPs to each trajectory segment.
+    The first GP fits $x$, $y$ (latitude, longitude) coordinates to a time $\tau$:
+    \begin{equation}
+       f_1: x, y \longmapsto \tau
+    \end{equation}
+    
+    $\tau$ is the relative time of the journey, denoting the progress of the bus in completing the journey.
+    The second and third GP fits $\tau$ to a new $x$ and $y$, respectively:
+    \begin{equation}
+        f_2: \tau \longmapsto x
+    \end{equation}
+    \begin{equation}
+        f_3: \tau \longmapsto y
+    \end{equation}
+\end{enumerate}
+
