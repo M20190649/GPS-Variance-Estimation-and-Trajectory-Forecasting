@@ -38,7 +38,16 @@ The method is described by 5 steps:
 
     \item \textit{Point-Wise Combining of GP:}
     The GPs $f_2$ (Eq. \ref{eq:gps-var-f2}) and $f_3$ (Eq. \ref{eq:gps-var-f3}) each describe the variance ($\sigma_2^2$ and $\sigma_3^2$, respectively) at each point in the fitted segment or journey.
-    The GPs describing the variances are point-wise combined, creating the GPs $f_4$ (Eq. \ref{eq:gps-var-f4}) and $f_5$ (Eq. \ref{eq:gps-var-f5}), respectively.
+    The GPs describing the variances are point-wise combined using Equation \ref{eq:mean-point-wise-combined} and \ref{eq:var-point-wise-combined}, creating the GPs $f_4$ (Eq. \ref{eq:gps-var-f4}) and $f_5$ (Eq. \ref{eq:gps-var-f5}), respectively.
+    
+    \begin{equation} \label{eq:mean-point-wise-combined}
+        \mu(x^*) = \frac{\sum_{j=1}^{J} N_j\mu_j(x^*)}{\sum_{j=1}^{J} N_j},
+    \end{equation}
+
+    \begin{equation} \label{eq:var-point-wise-combined}
+        \sigma^2(x^*) = \frac{\sum_{j=1}^{J} N_j(\sigma_j^2(x^*) + \mu_j^2(x^*))}{\sum_{j=1}^{J} N_j} - \mu(x^*)^2,
+    \end{equation}
+
     \begin{equation} \label{eq:gps-var-f4}
         f_4: \tau \longmapsto \sigma_4^2
     \end{equation}
