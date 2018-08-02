@@ -23,7 +23,7 @@ The hypotheses are that the GPS positions vary depending on:
     Figure \ref{fig:gps-variation} illustrates how the GPS variance can differ for different road segments.
     In the shown scenario, the difference between geographical segmentation between crossings and contextual segmentation would be minor, as the variance seems to be similar for a given road segment.
     However, the difference would be major if the geographical segmentation was done between bus stops.
-    The number of road segments would be higher in the crossing-geographical approach than in the contextual approach, as, for example, "Järnvägsgatan" have many crossings but exhibit similar variance. 
+    The number of road segments would be higher in the crossing-geographical approach than in the contextual approach, as, for example, "Järnvägsgatan" has many crossings but exhibit similar variance. 
     
 
     \item \textit{GPS Sensor Calibration:}
@@ -74,12 +74,12 @@ The road segments could, for example, be used to create a model calculating the 
 However, the variance of GPS positions does not only occur orthogonal to a given road segment. \todo{Vart vill jag komma med det här?} 
 
 Manual inspection of journeys done in the pre-processing step highlights scenarios with discrepancies between roads in Google Maps and actual roads the buses drove.
-The Google Maps roads are in these scenarios usually incorrectly drawn or has missing roads or buildings.
+The Google Maps roads are in these scenarios usually incorrectly drawn or has missing roads.
 Figure \ref{fig:gps-map-problem} shows such a real-world example.
 The discrepancies would cause problems if used naïvely together with the Google Maps Roads API.
 These journeys would have to be detected and either handled or ignored.
 The detection could be done by looking at the distances to the closest Google Maps Roads segments.
-The distances would roughly be similar for all the journeys, as in Figure \ref{fig:gps-map-problem}.
+The distances would be roughly similar for all the journeys, as in Figure \ref{fig:gps-map-problem}.
 Since the distances would be roughly similar they could be averaged and interpreted as a bias to the roads.
 Applying the bias-interpretation methodology would result in a more generalised model using the Google Maps Roads API.
 Ignoring the journeys with discrepancies could also be seen as feasible, given that the occurrence is rare.
@@ -107,7 +107,7 @@ The method is described by 5 steps:
     This results in problems with the GP, as certain coordinates would be denser than others.
     Positions sent while a bus has stopped are averaged into a single coordinate.
     The time of the stop is also adjusted.
-    The result is journey consisting of a sequence of coordinates where stops are invisible both time-wise and position-wise.
+    The result is a journey consisting of a sequence of coordinates where stops are invisible time-wise.
 
     \item \textit{Segment Journeys:}
     Each bus journey in the dataset is fitted with its own GPs.
@@ -116,7 +116,7 @@ The method is described by 5 steps:
     The process recursively analyses each resulting segment and proceeds with splitting the segments as long as self-overlapping is present.
     If a journey has multiple segments, each segment is fitted with its own GPs.
 
-    The first GP fits $x$, $y$ (latitude, longitude) coordinates to a new time parameter $\tau$:
+    The first GP fits $x$, $y$ (longitude, latitude) coordinates to a new time parameter $\tau$:
     \begin{equation} \label{eq:gps-var-f1}
        f_1: x, y \longmapsto \tau
     \end{equation}
@@ -147,7 +147,7 @@ The method is described by 5 steps:
     \begin{equation} \label{eq:gps-var-f5}
         f_5: \tau \longmapsto \sigma_5^2
     \end{equation}
-    where $\sigma_4^2$ is the variation in latitude and $\sigma_5^2$ the variation in longitude.
+    where $\sigma_4^2$ is the variation in longitude and $\sigma_5^2$ the variation in latitude.
 
     \item \textit{Visualisation:}
     The resulting $f_4$ and $f_5$ GPs are then visualised. \todo{hur?}

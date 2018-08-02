@@ -2,7 +2,7 @@
 \label{cha:arrival-time-prediction}
 
 \todo{Arrival Time Prediction -> ...}
-Trajectory Forecasting is the process of determining when a bus arrives at a given bus stop.
+Trajectory Forecasting is the process of predetermining when a bus will arrive at a particular bus stop.
 The existing Trajectory Forecasting is based purely on long-time historical data.
 It provides a single timestamp when it predicts the bus to arrive at a certain bus stop.
 
@@ -10,14 +10,18 @@ It provides a single timestamp when it predicts the bus to arrive at a certain b
 \section{Methodology}
 
 This thesis project proposes a Trajectory Forecasting model based on multiple GPs.
-It provides time to arrival distributions to all the remaining bus stops, meaning that it can answers queries such as:
-\textit{"What is the most likely time of arrival at station $p$?"}, \textit{"What is the probability of the bus arriving at the earliest/latest possible time?"}, and \textit{Which stop impacts the arrival time of the bus the most?}.
+It provides time to arrival distributions to all the remaining bus stops, meaning that it can answer queries such as:
+\begin{itemize}
+    \item \textit{"What is the most likely time of arrival at bus stop $p$?"}
+    \item \textit{"What is the probability of the bus arriving at the earliest/latest possible time?"}
+    \item \textit{Which stop impacts the arrival time of the bus the most?}
+\end{itemize}
 
 The approach has three steps:
 \begin{enumerate}
     \item \textit{Stop Model and Compression:}
     Stops will be modelled as both bus stops and red lights, i.e., common stops during a bus journey.
-    GPS positions of stopped buses needs to be compressed in order to support more robust GPs \todo{source: Gaussian Process Based Motion Pattern Recognition
+    GPS positions of stopped buses need to be compressed in order to support more robust GPs \todo{source: Gaussian Process Based Motion Pattern Recognition
     with Sequential Local Models}.
     The result of this step is a timeline for each bus journey with marked common stops and compressed GPS positions during stops.
 
@@ -29,7 +33,7 @@ The approach has three steps:
 
     \item \textit{GP Trajectory Models:}
     The final step is to fit multiple GPs to each trajectory segment.
-    The first GP fits $x$, $y$ (latitude, longitude) coordinates to a time $\tau$:
+    The first GP fits $x$, $y$ (longitude, latitude) coordinates to a time $\tau$:
     \begin{equation}
        f_1: x, y \longmapsto \tau
     \end{equation}
