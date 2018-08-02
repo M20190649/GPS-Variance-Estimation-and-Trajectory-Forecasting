@@ -1,11 +1,12 @@
 # # -*- coding: utf-8 -*-
 """
 This file performs Exploratory Data Analysis on the data received from 
-Norrlandsvagnar. The data is plotted using the pandas library.
+Östgötatrafiken. The data is plotted using the pandas library.
 
 5508 - Is line 13 on morning of 2018-02-18 
 
 """
+import pickle
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,6 +16,10 @@ import sys, getopt
 import logging
 import pprint
 import time
+import dateutil.parser
+import datetime
+from bus_line import BusLine
+from journey import Journey
 from collections import defaultdict
 from gmplot import gmplot
 from helpers import setup_logging, epochify, str_gps_to_tuple, print_progress_bar, file_len, plot_types
@@ -39,72 +44,80 @@ def main(argv):
     run(input_file, output_file)
     
 def run(input_file, output_file):
-    setup_logging()
-    logging.info("Starting execution of eda.py!")
+    logger.info("Starting execution of eda.py!")
     #events, timeline_events = read_events_from_file(input_file, max_events=4_000_000, group_by_id=False, vehicle_id=5508)#, max_events = 10_000_000)
     #pprint.pprint(events["PassedEvent"])
-    #logging.info("Events read and parsed")
+    #logger.info("Events read and parsed")
 
-    #logging.info("Reading in stop locations")
+    #logger.info("Reading in stop locations")
     #stops = read_stop_locations_from_file("../ostgotatrafiken/location-nearbystops-Linkoping.json")
 
     geofence_linkoping = [(58.355693, 15.483615), (58.448841, 15.721209)]
-    logging.info("Geofence setup: %s", geofence_linkoping)
+    logger.info("Geofence setup: %s", geofence_linkoping)
 
     #event_types = get_event_types_list(input_file, max_events=None)
     #plot_types(event_types)
+
 
     sorted_events = read_events_from_file(
         input_file, 
         skip_n=0,#14_500_000, 
         max_events=None,#520_000, 
         geofence=geofence_linkoping, 
-        vehicle_id=5456#5478
+        vehicle_id=None#5510#5508#5478
     )
 
-    log_other_states = True
-    log_misc_events = True
+    print_line_stops = False
+    log_other_states = False
+    log_misc_events = False
+    save_line = 213
     
-    routes = defaultdict(list)
-    logging.info("Creating Google Map Plotter")
+    bus_lines = {}
+    logger.info("Creating Google Map Plotter")
     gmap = gmplot.GoogleMapPlotter(58.408958, 15.61887, 13)
 
     #plot_markers(gmap, geofence_linkoping, colour="red", gps_key=None)
     for vehicle_id, events in sorted_events.items():
         state_events, misc_events = process_events(events)
-        for event_list in state_events["started"]:
-            if event_list:
-                line = event_list[0]
-                route = event_list[1:]
-                routes[line].append(route)
+
+        journeys = create_journeys(vehicle_id, state_events["started"], misc_events["all"])
+        
+        if print_line_stops:
+            [pprint.pprint([journey.line_number] + journey.bus_stops) for journey in journeys]
+
+        for journey in journeys:
+            if journey.line_number not in bus_lines:
+                bus_lines[journey.line_number] = BusLine(journey.line_number)
+            bus_line = bus_lines[journey.line_number]
+            bus_line.add_journey(journey)
 
         if log_other_states:
-            logging.info("Plotting assigned events")
+            logger.info("Plotting assigned events")
             for event_list in state_events["assigned"]:
                 if event_list:
                     plot_polygon(gmap, event_list, "orange")
 
-            logging.info("Plotting other events")
+            logger.info("Plotting other events")
             for event_list in state_events["other"]:
                if event_list:
                    plot_polygon(gmap, event_list, "red")
 
-            logging.info("Plotting completed events")
+            logger.info("Plotting completed events")
             for event_list in state_events["completed"]:
                if event_list:
                    plot_polygon(gmap, event_list, "springgreen")
 
-            logging.info("Plotting garage events")
+            logger.info("Plotting garage events")
             for event_list in state_events["garage"]:
                if event_list:
                    plot_polygon(gmap, event_list, "black")
         
         if log_misc_events:
-            logging.info("Plotting Started and Stopped Events")
+            logger.info("Plotting Started and Stopped Events")
             #plot_markers(gmap, misc_events["started"], "springgreen", title_key="date")
             #plot_markers(gmap, misc_events["stopped"], "red", title_key="date")
 
-            logging.info("Plotting Passed/Arrived/Departed Events")
+            logger.info("Plotting Passed/Arrived/Departed Events")
             #plot_markers(gmap, misc_events["passed"], colour="yellow", title="gps:", title_key=["line", "date", "stop.name", "stop.mode", "time1", "time2", "time3", "time4"])
             #plot_markers(gmap, misc_events["passed"], colour="yellow", gps_key="gps2", title="gps2:", title_key=["line", "date", "stop.name", "stop.mode", "time1", "time2", "time3", "time4"])
 
@@ -143,16 +156,16 @@ def run(input_file, output_file):
             #gmap.scatter(s_lat, s_lon, color="grey", marker=False, size=10)
 
 
-    print("#Lines: ", len(routes.keys()))
-    print(routes.keys())
+    print("#Lines: ", len(bus_lines.keys()))
+    print(bus_lines.keys())
     
     #state_events = read_journeys_from_file(input_file, max_events=4_000_000)
 
-    logging.info("Plotting Stop Locations")
+    logger.info("Plotting Stop Locations")
     #for stop in stops:
     #    gmap.marker(stop["lat"], stop["lon"], title=stop["name"])
 
-    logging.info("Plotting started events")
+    logger.info("Plotting started events")
 
     line_to_colour = {
         213: "cornflowerblue",
@@ -162,25 +175,29 @@ def run(input_file, output_file):
         201: "black"
     }
 
-    for line, route_list in routes.items():
+    for line, bus_line in bus_lines.items():
         if not log_other_states:
-            plot_route(gmap, route_list, line, line_to_colour)
+            plot_route(gmap, bus_line.journeys, line, line_to_colour)
         else:
-            plot_unicolour_route(gmap, route_list)
+            plot_unicolour_route(gmap, bus_line.journeys)
+        if save_line is not None and line == save_line:
+            with open("line_{}.pickle".format(save_line), 'wb') as handle:
+                pickle.dump(bus_line, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    #logging.info("Plotting Started Events")
+
+    #logger.info("Plotting Started Events")
     #plot_scatter(gmap, events["StartedEvent"], 'cornflowerblue')
 
-    #logging.info("Plotting Stopped Events")
+    #logger.info("Plotting Stopped Events")
     #plot_scatter(gmap, events["StoppedEvent"], 'mistyrose')
 
-    #logging.info("Plotting Passed Events")
+    #logger.info("Plotting Passed Events")
     #this one: plot_markers(gmap, events["PassedEvent"], 'orange', title="Passed 1")
     #plot_markers(gmap, events["PassedEvent"], 'violet', gps_key="gps2")
     #this one: plot_markers(gmap, events["PassedEvent"], 'yellow', gps_key="stop.gps1", title_key="stop.name")
     #plot_markers(gmap, events["PassedEvent"], 'sandybrown', gps_key="stop.gps2")
 
-    #logging.info("Plotting ArrivedEvent")
+    #logger.info("Plotting ArrivedEvent")
     #this one: plot_markers(gmap, events["ArrivedEvent"], 'springgreen', title="Arrived 1")
     #plot_markers(gmap, events["ArrivedEvent"], 'lightblue', gps_key="gps2", title="Arrived 2")
     #this one: plot_markers(gmap, events["ArrivedEvent"], 'yellow', gps_key="stop.gps1", title_key="stop.name")
@@ -189,29 +206,90 @@ def run(input_file, output_file):
     #pprint.pprint(events["DepartedEvent"])
     #pprint.pprint(events)
 
-    #logging.info("Plotting DepartedEvent")
+    #logger.info("Plotting DepartedEvent")
     #plot_markers(gmap, events["DepartedEvent"], 'springgreen', title="Departed 1")
     #plot_markers(gmap, events["DepartedEvent"], 'lightblue', gps_key="gps2", title="Departed 2")
     #plot_markers(gmap, events["DepartedEvent"], 'orange', gps_key="stop.gps1", title_key="stop.name")
     #plot_markers(gmap, events["DepartedEvent"], 'violet', gps_key="stop.gps2", title="Departed 4")
 
-    logging.info("Drawing Google Maps, saving to: %s", output_file)
+    logger.info("Drawing Google Maps, saving to: %s", output_file)
     gmap.draw(output_file)
 
-    logging.info("Execution of eda.py finished!")
+    logger.info("Execution of eda.py finished!")
 
 
-def plot_unicolour_route(gmap, route_list):
-    for route in route_list:
-        plot_polygon(gmap, route, "cornflowerblue")
+def create_journeys(vehicle_id, positions_list, stops):
+    print_events = False
+    i = 0
+    journeys = []
+    for positions in positions_list:
+        if len(positions) < 2:
+            continue
+        line = positions[0]
+        route = positions[1:]
+        start_id = route[0]["event.id"]
+        #print("Start Pos: ", route[0])
+        journey = Journey(vehicle_id, line)
+
+        last_i = None
+        while i < len(stops):
+            if stops[i]["ref.id"] < start_id:
+                #print("Before Started: ", stops[i]["date"], stops[i]["event.type"], stops[i]["event.id"], stops[i]["ref.id"])
+                if stops[i]["event.type"] in ["ArrivedEvent", "PassedEvent"]:
+                    last_i = i
+                i += 1
+            else:
+                break
+        
+        if last_i is not None:
+            journey.add_stop(stops[last_i])
+
+        for pos in route:
+            if i == len(stops) or pos["event.id"] < stops[i]["ref.id"]:
+                journey.route.append(pos)
+                last_id = pos["event.id"]
+            else:
+                journey.add_stop(stops[i])
+                i += 1
+        else:
+            #print("Last added:", journey.route[-1])
+            
+            while i < len(stops):
+                if stops[i]["ref.id"] <= last_id:
+                    journey.add_stop(stops[i])
+                    i += 1
+                else:
+                    break
+        
+        journeys.append(journey)
+        if print_events:
+            last_print = None
+            for j, event in enumerate(journey.route):
+                if last_print is None or event["event.type"] != last_print:
+                    last_print = event["event.type"]
+                    if j > 0 and last_print != "ObservedPositionEvent":
+                        print(journey.route[j-1])
+                    print(event)
+                    print()
+                
+    print(i, len(stops))
+    return journeys
 
 
-def plot_route(gmap, route_list, line, line_to_colour=None):
+def plot_unicolour_route(gmap, journeys_list):
+    for vehicle_id, journeys in journeys_list.items():
+        for journey in journeys:
+            positions = filter(lambda e: e["event.type"] == "ObservedPositionEvent", journey.route)
+            plot_polygon(gmap, positions, "cornflowerblue")
+
+
+def plot_route(gmap, journeys_list, line, line_to_colour=None):
     if line_to_colour is None or line not in line_to_colour:
         return  # Do not plot this line.
-    for route in route_list:
-        logging.info(line, route[0])
-        plot_polygon(gmap, route, line_to_colour[line])
+    for vehicle_id, journeys in journeys_list.items():
+        for journey in journeys:
+            positions = filter(lambda e: e["event.type"] == "ObservedPositionEvent", journey.route)
+            plot_polygon(gmap, positions, line_to_colour[line])
 
 def plot_polygon(gmap, events, colour, gps_key="gps", edge_width=2):
     """Helper function that takes events, extracts latitudes and longitudes 
@@ -277,7 +355,7 @@ def group_events(events, field_list=[]):
 def read_stop_locations_from_file(file_name):
     data = json.load(open(file_name))
     if not "StopLocation" in data:
-        logging.error("No stop locations found in %s!", file_name)
+        logger.error("No stop locations found in %s!", file_name)
         return None
     return data["StopLocation"]
 
@@ -287,9 +365,9 @@ def read_events_from_file(file_name, skip_n=0, max_events=None, geofence=None, v
     Bus stops stopped at or passed are also recorded.
     """
     if max_events is None:
-        logging.info("Calculating number of events in file...")
+        logger.info("Calculating number of events in file...")
         T = file_len(file_name)
-        logging.info("File has %i events", T)
+        logger.info("File has %i events", T)
         T -= skip_n
     else:
         T = max_events
@@ -301,7 +379,7 @@ def read_events_from_file(file_name, skip_n=0, max_events=None, geofence=None, v
     events = defaultdict(list)
 
     with open(file_name, 'r', encoding="latin-1") as f:
-        logging.info("Skipping %s events", skip_n)
+        logger.info("Skipping %s events", skip_n)
         for _ in range(skip_n):
             f.readline()
         for i in range(T):
@@ -315,7 +393,8 @@ def read_events_from_file(file_name, skip_n=0, max_events=None, geofence=None, v
                 continue
             if geofence is not None and not is_inside(event, *geofence):
                 continue
-
+            
+            assert isinstance(event["date"], datetime.datetime)
             events[event["vehicle.id"]].append(event)
 
     for k, v in events.items():
@@ -366,7 +445,8 @@ def process_events(events):
         "stopped": [],
         "passed": [],
         "arrived": [],
-        "departed": []
+        "departed": [],
+        "all": []
     }
 
     state = "other"
@@ -393,7 +473,10 @@ def process_events(events):
                 elif event_type == "DepartedEvent":
                     print(event)
                     misc_events["departed"].append(event)
-                continue #  State we are currently not handling.
+                else:
+                    continue #  State we are currently not handling.
+                misc_events["all"].append(event)
+                continue #   new_state = None will mess with our state machine. Go to next event.
 
             if state == "assigned" and new_state == "completed":  
                 # Edge-case: New journey was assigned before old completed.
@@ -403,7 +486,8 @@ def process_events(events):
                 # else: History does not exists for old route. Route started in previous log (thus it is split between logs) 
             state = new_state
 
-            processed_events[state].append(current_events[state])
+            if (current_events[state]):
+                processed_events[state].append(current_events[state])
             if state == "started":
                 current_events[state] = [event["line"]]
             else:
@@ -453,9 +537,9 @@ def read_events_from_file_old(file_name, vehicle_id=None, max_events=None, creat
         events = defaultdict(list)
     timeline_events = []
     if max_events is None:
-        logging.info("Calculating number of events in file...")
+        logger.info("Calculating number of events in file...")
         T = file_len(file_name)
-        logging.info("File has %i events", T)
+        logger.info("File has %i events", T)
     else:
         T = max_events
     percent = T // 100
@@ -485,9 +569,9 @@ def read_events_from_file_old(file_name, vehicle_id=None, max_events=None, creat
 
 def get_event_types_list(file_name, max_events=None):
     if max_events is None:
-        logging.info("Calculating number of events in file...")
+        logger.info("Calculating number of events in file...")
         T = file_len(file_name)
-        logging.info("File has %i events", T)
+        logger.info("File has %i events", T)
     else:
         T = max_events
     percent = T // 100
@@ -502,7 +586,10 @@ def get_event_types_list(file_name, max_events=None):
     return types
             
 
-def get_event_type(line):
+def get_event_type(line, filter_vehicle="Bus"):
+    if filter_vehicle is not None and filter_vehicle not in line:
+        return None  # Filter out entries with different vehicle type
+
     header, _ = line.split("|||")
     header_fields = header.split("|")    
 
@@ -557,13 +644,15 @@ def parse_obspos_event(header_fields, body_fields):
     Body: 0.0 (?)| vehicle (Bus/Train) | junk | gid | vehicle_id | gps (lat, lon) | gps repeat | dir | speed | 3061889 (?)
     """
     return {
-        "date": header_fields[0],
+        "date": dateutil.parser.parse(header_fields[0]),
         "event.type": header_fields[2],
         "event.id": int(header_fields[3]),
         "vehicle.type": body_fields[1],
         "gid": int(body_fields[3]),
         "vehicle.id": int(body_fields[4]),
-        "gps": str_gps_to_tuple(body_fields[5])
+        "gps": str_gps_to_tuple(body_fields[5]),
+        "dir": float(body_fields[7]),
+        "speed": float(body_fields[8])
     }
 
 def parse_invalidpos_event(header_fields, body_fields):
@@ -572,7 +661,7 @@ def parse_invalidpos_event(header_fields, body_fields):
     Body: vehicle (Bus/Train) | junk | gid | vehicle_id | gps (lat, lon)
     """
     return {
-        "date": header_fields[0],
+        "date": dateutil.parser.parse(header_fields[0]),
         "event.type": header_fields[2],
         "event.id": int(header_fields[3]),
         "vehicle.type": body_fields[0],
@@ -590,7 +679,7 @@ def parse_startstop_event(header_fields, body_fields):
     Body: vehicle | junk | gid | vehicle_id | gps (lat, lon)
     """
     return {
-        "date": header_fields[0],
+        "date": dateutil.parser.parse(header_fields[0]),
         "event.type": header_fields[2],
         "event.id": int(header_fields[3]),
         "ref.id": int(header_fields[5]),
@@ -626,7 +715,7 @@ def parse_arrived_event(header_fields, body_fields):
     """
     #print(header_fields, body_fields)
     return {
-        "date": header_fields[0],
+        "date": dateutil.parser.parse(header_fields[0]),
         "event.type": header_fields[2],
         "event.id": int(header_fields[3]),
         "ref.id": int(header_fields[5]),
@@ -675,7 +764,7 @@ def parse_departed_event(header_fields, body_fields):
     """
     #print(header_fields, body_fields)
     return {
-        "date": header_fields[0],
+        "date": dateutil.parser.parse(header_fields[0]),
         "event.type": header_fields[2],
         "event.id": int(header_fields[3]),
         "ref.id": int(header_fields[5]),
@@ -725,7 +814,7 @@ def parse_passed_event(header_fields, body_fields):
     """
     #print(header_fields, body_fields)
     return {
-        "date": header_fields[0],
+        "date": dateutil.parser.parse(header_fields[0]),
         "event.type": header_fields[2],
         "event.id": int(header_fields[3]),
         "ref.id": int(header_fields[5]),
@@ -780,7 +869,7 @@ def parse_paramchanged_event(header_fields, body_fields):
     """
     #print(header_fields, body_fields)
     return {
-        "date": header_fields[0],
+        "date": dateutil.parser.parse(header_fields[0]),
         "event.type": header_fields[2],
         "event.id": int(header_fields[3]),
         "ref.id": int(header_fields[5]),
@@ -809,7 +898,7 @@ def parse_journeyassigned_event(header_fields, body_fields):
     """
     #print(header_fields, body_fields)
     return {
-        "date": header_fields[0],
+        "date": dateutil.parser.parse(header_fields[0]),
         "event.type": header_fields[2],
         "event.id": int(header_fields[3]),
         "ref.id": int(header_fields[5]),
@@ -835,7 +924,7 @@ def parse_journeystartend_event(header_fields, body_fields):
     """
     #print(header_fields, body_fields)
     return {
-        "date": header_fields[0],
+        "date": dateutil.parser.parse(header_fields[0]),
         "event.type": header_fields[2],
         "event.id": int(header_fields[3]),
         "ref.id": int(header_fields[5]),
@@ -849,4 +938,5 @@ def parse_journeystartend_event(header_fields, body_fields):
 
 
 if __name__ == "__main__":
+    logger = setup_logging("eda.py", "main.log")
     main(sys.argv[1:])

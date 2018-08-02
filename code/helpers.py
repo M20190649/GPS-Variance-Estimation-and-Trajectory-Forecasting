@@ -6,23 +6,35 @@ import seaborn as sns
 import pandas as pd
 from decimal import Decimal
 
-def setup_logging():
+def setup_logging(logger_name, file_name):
     """
     Setup logging to file and to output.
     Clears up previous active logging.
     """
-    # Clear potential previous mess
-    logging.shutdown()
+    logger = logging.getLogger(logger_name)
+    logger.propagate = False
 
     # Configure logging to log to file and to output.
-    logging.basicConfig(
-        format='%(asctime)s:%(name)s:%(levelname)s:	 %(message)s',
-        datefmt='%H:%M:%S',
-        level=logging.DEBUG,
-        handlers=[logging.FileHandler("main.log"), logging.StreamHandler()])
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler(file_name)
+    fh.setLevel(logging.DEBUG)
+
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter(
+        fmt='%(asctime)s:%(levelname)s:	 %(message)s', 
+        datefmt='%H:%M:%S'
+    )
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+
+    logger.addHandler(fh)
+    logger.addHandler(ch)
 
     # Logging all set up and ready to be used for this run.
-    logging.info('--------Starting a fresh run-----------')
+    logger.info('--------Starting a fresh run-----------')
+    return logger
 
 
 def print_progress_bar(iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
@@ -55,9 +67,12 @@ def plot_types(types, output_file="types_barplot.pdf"):
     plt.figure(figsize=(16, 5))
     sns.set_color_codes("pastel")
     ax = (df.event.value_counts(normalize=True)*100).plot(kind='bar', fontsize=12, rot=45, title="Event type distribution")
+    ax.set_yscale('log')
     ax.title.set_size(24)
     for p in ax.patches:
-        ax.annotate(str(round(Decimal(p.get_height()), 2)) + "%", (p.get_x(), p.get_height() + 1))
+        v = Decimal(p.get_height())
+        if v > 0.1:
+            ax.annotate(str(round(v, 2)) + "%", (p.get_x() * 0.99 , p.get_height() * 1.12))
     plt.ylabel('Percentage', fontsize=18)
     plt.xlabel('Event types', fontsize=18)
     plt.xticks(ha='right')
