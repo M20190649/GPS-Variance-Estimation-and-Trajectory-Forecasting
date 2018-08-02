@@ -3,21 +3,23 @@
 
 \section{Motivation}
 \label{sec:motivation}
+\todo{Work In Progress}
+This question explores what kind of data the dataset contains.
+The dataset is a novel dataset which has not been worked on before.
+The provided documentation is minimal, which makes this question non-trivial and the insights from the question even more valuable.
 
 \section{Aim}
 \label{sec:aim}
 The aim of this thesis project is to explore a novel dataset and formulate problems and solution suggestions which could be interesting to not only the dataset provider but also in a broader context.
 The dataset is currently used to provide time forecasts on the public transportation available in Östergötland county.
 
-
-
 \section{Research Questions}
 \label{sec:research-questions}
-The specific research questions treated in this thesis project is presented in this section.
+The specific research questions treated in this thesis project are presented in this section.
 They are divided into three groups: \textit{Metadata Questions}, \textit{Higher-Level Problem Questions}, and \textit{Problem Specific Questions}.
-The \textit{Metadata Questions} investigate and explore the provided dataset in depth.
+The \textit{Metadata Questions} investigate and explore the provided dataset in depth, using Exploratory Data Analysis (EDA).
 They cover issues such as pre-processing, data noise and outliers.
-The questions can be seen as a pre-study to Machine Learning.
+These questions can be seen as a pre-study before machine learning techniques are applied.
 The insights from these questions are the basis for the \textit{Higher-Level Problem Questions}.
 The \textit{Higher-Level Problem Questions} formulate various high-level problems by using the information available both internally in the dataset and externally from sources outside the provided dataset.
 High-level problems are problems which are not inherent in the dataset but rather problems which can be solved by using the information available in the dataset.
@@ -28,52 +30,79 @@ The \textit{Problem Specific Questions} are questions related to a specific prob
   \item \textbf{Metadata Questions:}
   \begin{enumerate}
     \item \textit{What kind of information is available in the dataset provided by Östgötatrafiken AB?} \newline
-    This question explores what kind of data the dataset contains.
-    The dataset is a novel dataset which has not been worked on before.
-    The provided documentation is minimal, which makes this question non-trivial and the insights from the question even more valuable.
-    It analyses the features of the dataset, e.g. different event types, event parameters, and event structure.
+    What kind of data does the dataset contain?
+    Which features exist in the dataset, such as different event types, event parameters, and event structures?
+    What does these features mean and how do they relate to each other?
+    Are some features more important than others?
+    Are there any features missing from the given dataset?
     \item \textit{What pre-processing needs to be done in order to solve higher-level problems?} \newline
     The higher-level problems are here defined as problems which are not inherent inside the dataset but rather problems which can be solved by using the dataset.
     The pre-processing focuses instead of solving problems inherent in the dataset, such as processing events and extracting relevant information from them or building a knowledge base by looking at the order of events.
+    What are some pre-processing methods that could be applied to this dataset?
+    How can the raw data in the dataset be transformed to useful features?
+    How does the ordering of the raw data affect the solutions for higher-level problems?
+    How can the raw data be transformed into trajectories?
+    How can information from different event types be added to the trajectories?
     \item \textit{How can noisy measurements be detected?} \newline
     Noisy measurements can affect the solutions for higher-level problems negatively.
     Various anomaly detection algorithms can be applied to detect such cases, but they could also be solved using dataset-tailored algorithms.
+    Which manual inspection methods could be used to detect noisy measurements?
+    Which general anomaly detection algorithms could be applied?
+    How could a dataset-tailored algorithm be implemented?
+    How does the general anomaly detection algorithm differ from the dataset-tailored algorithm?
     \item \textit{How is the provided dataset related to external data sources and how can they be combined?} \newline
     There are external data sources available which could complement the data in the provided dataset.
-    This question explores if these sources could be combined in order to solve problems on a higher level. 
+    This question explores if these sources could be combined in order to solve problems on a higher level.
+    Which external sources exist and what further information could be gathered from the external data sources?
+    How compatible is the data from the external sources with the data in the given dataset?
+    Does the external sources contain any of the features that were deemed missing from the given dataset (in \textit{Metadata Question} 1)? 
   \end{enumerate}
 
   \item \textbf{Higher-Level Problem Questions:}
   \begin{enumerate}
-    \item \textit{What are some of the higher-level problems which can be formulated using the available data?} \newline
-    These problems can utilise both the data available in the provided dataset and any complementary external data.
-    The answer to this question will not be a complete list of all possible problems, but rather a short list of a few interesting examples.
-    Each formulated problem will have its core problem explained.
-    \todo{Fråga: Ska jag lista de problem jag har redan här? Annars blir det svårt att fortsätta med Problem Specific Question.}
-    \item \textit{What are some of the solutions to the formulated problems?} \newline
-    The list of solutions for each formulated problem will not be a complete list of all possible solutions.
-    The solutions will be tackling the core of each formulated problem.
+    \item \textit{What interesting higher-level problems can be investigated and solved based on the available data?} \newline
+    The higher-level problems can utilise both the data available in the provided dataset and any complementary external data.
+    What problems span over the areas of GPS Positioning and Trajectory Forecasting?
+    What are the core problems for each area?
+    How could the existing system that generated the dataset be improved?
+    \item \textit{How can these problems be solved?} \newline
+    The solutions will tackle the core of each problem.
     Each solution will explicitly state if there is a baseline available for comparison or if one could be easily created.
-    \item \textit{Who could benefit from the solutions?} \newline
+    How can problems with GPS Positioning and Trajectory Forecasting be solved?
+    \item \textit{How does solutions to these problems benefit society and the industry?} \newline
     This question analyses the solutions in a broader context, e.g. from a societal or ethical point of view.
-    For example, a solution could yield great results for the industry at the cost of consumer privacy.
+    What value do the solutions offer to the industry?
+    How is consumer privacy affected by the solutions?
   \end{enumerate}
 
   \item \textbf{Problem Specific Questions}
   \begin{enumerate}
-    \item \textit{How can GPS variance estimation be solved with combined Gaussian Processes Regression using a local trajectory model?} \newline
-    \todo{This question is very explicit and stems from the results from asking the questions in the two previous groups. Is this okay, or do I need to add more information after each question in the previous groups? In one way this question kind of pops up from nowhere.}
-    \item \textit{How can the GPS variance estimation model be evaluated?} \newline
-    The method employed makes certain assumptions regarding the inherent noise of the data.
-    The kernels applied to the model need to evaluated.
-    The local trajectory model shall be compared with a global trajectory model.
-    \item \textit{How can Trajectory Forecasting be realised with Gaussian Processes Regression using a local trajectory model?} \newline
-    \item \textit{How can the Trajectory Forecasting model be evaluated in the context of information gain?} \newline
-    The Trajectory Forecasting model could, for example, be evaluated by comparing the new forecasts with the existing forecasts from the baseline created by the internal system of Östgötatrafiken AB.
-    This evaluation leads to information regarding which model to use to get more precise forecasts.
-    The model could also be evaluated by looking at what kind of information and insights are available from the output of the model.
-    A model which returns a probability distribution of arrival times, which are updated in real-time, should be evaluated in a broader context than precision of a single forecast.
-    \todo{Det här kanske inte hör hemma här. Det är väldigt klumpigt skrivet iaf.}
+    \item \textit{How can the spatio-temporal varying GPS variance be estimated from sets of observed trajectories over extended periods of time?}
+    Can recent Gaussian Processes Regression (GPR) based trajectory modelling approaches be used to solve this problem?
+    How can the GPR-based approach scale with multiple trajectory models?
+    How can potential periodicity of the data be handled in the approach?
+    How can the model be trained on extended periods of time?
+    \item \textit{How can the approach to estimate the spatio-temporal varying GPS variance be evaluated?} \newline
+    What assumptions are made regarding the inherent noise of the data?
+    How can kernels be evaluated if a GPR-based approach is applied?
+    How can trajectories be evaluated?
+    Which evaluation criteria can be applied to evaluate the approach?
+
+    \item \textit{How can Trajectory Forecasting be implemented from sets of observed trajectories?} \newline
+    Can GRP-based trajectory modelling approaches be used to solve this problem?
+    Which modifications need to be done to the approach in order to produce trajectory forecasts?
+    How can features from observed trajectories over extended periods of time be used to improve the forecasts?
+
+    \item \textit{How can the Trajectory Forecasting model be evaluated?} \newline
+    Can the existing forecasts from Östgötatrafiken AB be used to create an evaluation baseline?
+    How can new forecasts be compared with the baseline?
+    Which insights could be made from the information available in the output of the Trajectory Forecasting model?
+    How can the model respond to immediate real-time changes?
+    How can the performance of a single forecast be evaluated?
+    How can the overall performance of the model be evaluated?
+    Which evaluation criteria can be applied to evaluate the forecasts?
+    Can the new model be combined with the existing model in order to produce more precise forecasts?
+    Are there any benefits to return a probability distribution over arrival times compared to returning the expected arrival time?
   \end{enumerate}
 \end{description}
 
@@ -82,3 +111,6 @@ The \textit{Problem Specific Questions} are questions related to a specific prob
 The dataset is provided by Östgötatrafiken AB and is not available for public use.
 This thesis project will only focus on the bus data in the dataset, data from public transportation trains will be ignored.
 In order to support manual inspection of the data in the dataset, the data is filtered to only contain data from a certain geographical area.
+
+\section{Structure}
+\todo{Analysis of Opportunities Enabled by the Data in chapters...}

@@ -1,7 +1,7 @@
 \chapter{Data}
 \label{cha:data}
 
-This chapter describes the spatiotemporal dataset used in the thesis project.
+This chapter describes the spatio-temporal dataset used in the thesis project.
 The dataset provider is briefly mentioned alongside the data gathering process, followed by the structure of the data.
 The structure of the data describes the different event types in the dataset and how they were used in the thesis project.
 After the basic characteristics of the dataset has been described the pre-processing steps applied are described and motivated.
@@ -36,7 +36,7 @@ The process of gathering the data used in this thesis project can be generally d
 Figure \ref{fig:data-gathering} illustrates the procedure.
 The collection of logs is the dataset used in this thesis project.
 The logs contain the GPS data from the buses and also events created by the "Internal Analysis" component in the system.
-The "Internal Analysis" component is simplified and is beyond the scope of this thesis project.
+The precise implementation of the "Internal Analysis" component is unknown.
 
 \section{Structure} \label{sec:data-structure}
 A document in the dataset is made up of a large number of events representing a single day.
@@ -75,7 +75,7 @@ In this example the header and body contain seven key parameters:
 
 \subsection{Event Types}
 The dataset contains 20 unique event types.
-Figure \ref{fig:types-barplot} visualises the distribution of event types for a random day \todo{Should we instead do a boxplot of the whole dataset? Will take a lot of time to create!} in the dataset.
+Figure \ref{fig:types-barplot} visualises the distribution of event types for an arbitrary day \todo{Should we instead do a boxplot of the whole dataset? Will take a lot of time to create!} in the dataset.
 The figure only gives an indication of what the true distribution could be, as it is computationally expensive to calculate the true distribution for the given dataset, due to its size.
 Knowledge about the true distribution is not required in order to reason about the event types.
 As the figure shows, the majority of events that occur are of the type \texttt{ObservedPositionEvent}, which is the event containing an updated GPS position for a vehicle.
@@ -111,7 +111,6 @@ The 12 event types used in this thesis project were:
     These two event types are used by the "Internal Analysis" component to identify bus stops.
     The \textit{EnteredEvent} is produced by the system when the vehicle is within a certain predefined distance to a bus stop.
     The \textit{ExitedEvent} is similarly produced when the vehicle leaves the predefined distance to the bus stop.
-    \todo{Wasnt it something like this Östgötatrafiken did? @Mattias}
     These event types could, for example, be used in an algorithm which improves the bus stop detection.
     
     \item \textit{PassedEvent}, \textit{ArrivedEvent}, and \textit{DepartedEvent}:
@@ -194,8 +193,10 @@ This ordering breaks the logical ordering of events: a journey needs to be compl
     \centering
     \includegraphics[width=0.75\textwidth]{figures/assigned_completed_problem_long}
     \caption{Example illustrating when the real ordering of events breaks the logical ordering.
-    The bus is assigned a new bus line long before reaching the final bus stop (at the end of "Björkliden").
-    The last part of the journey is thus assigned to a new state "Assigned", instead of the actual, logical state "Started".}
+    The bus is assigned a new bus line long before reaching the final bus stop.
+    The final bus stop is marked with a circle.
+    The rectangle marks the position of the bus when it is assigned a new bus line.
+    The last part of the journey (the path between the rectangle and the circle) is thus assigned to a new state "Assigned", instead of the actual, logical state "Started".}
     \label{fig:assigned-before-completed-long}
 \end{figure}
 
@@ -203,8 +204,10 @@ This ordering breaks the logical ordering of events: a journey needs to be compl
     \centering
     \includegraphics[width=0.75\textwidth]{figures/assigned_completed_problem}
     \caption{Another example illustrating two cases where a bus is assigned a new bus line before completing the started one.
-    The bus at the crossing of "C-Ring" and "Järnvägsgatan", in the bottom-right corner, is assigned a new bus line long before reaching the final bus stop.
-    The two small green clusters highlight when the \textit{JourneyCompletedEvent} types were received.}
+    The two circles (green and blue) denote the final bus stops for the respective bus lines.
+    One of the buses is assigned a new bus line at the blue rectangle in the bottom-right corner, long before reaching the final bus stop.
+    The other bus is assigned a new bus line at the green rectangle, which is closer to the final bus stops.
+    This example demonstrates that the assignment to a new bus line is independent of the distance to the final bus stop.}
     \label{fig:assigned-before-completed}
 \end{figure}
 
@@ -248,7 +251,7 @@ The "Internal Analysis" component never deems the journey as completed in these 
 This scenario is easy to detect in historical data, but in real-time certain assumptions need to be made.
 For example, if the journey is compared with an average journey, the anomaly could be detected early.
 However, it would be uncertain if the anomaly is due to a journey being stopped early or if the bus driver took a wrong turn on the highway.
-A time constraint threshold would have to be introduced to th8e system in order to separate these two cases.
+A time constraint threshold would have to be introduced to the system in order to separate these two cases.
 In the case of a wrong turn, the bus would eventually converge to the average journey, while in the early-stopping scenario the journey would most likely never converge.
 
 \begin{figure}[ht!]
