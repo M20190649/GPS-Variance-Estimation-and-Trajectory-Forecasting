@@ -1,2 +1,158 @@
 \chapter{GPS Variation Estimation}
 \label{cha:GPS-variation-estimation}
+
+The main component of the dataset is the GPS positional update events from the vehicles.
+They contribute to roughly 96\% of the events in the data, as shown by Figure \ref{fig:types-barplot} in Section \ref{sec:data-structure}.
+An interesting high-level problem is thus the estimation of the variance in the GPS positions.
+The hypotheses are that the GPS positions vary depending on:
+\begin{enumerate}
+    \item \textit{Environment (Spatial Locality):} 
+    The surrounding environment impacts the visibility of GPS satellites. \todo{source?}
+    For example, in an environment with a lot of reflections and obstacles, the precision of the GPS position will decrease.
+    On the other hand, in open fields the precision will increase, as there are fewer obstacles blocking the GPS satellite signals.
+    The environment can vary between different road segments, but also inside one road segment, e.g., a road can be partly covered by houses or trees.
+    The variance could either be seen as continuous, where each point on the journey has its own variance, or as road segments, where each road segment has its own variance.
+    In the continuous case, neighbouring pairs of points would be connected and thus exhibit more similar variance, depending on the distance between the points (granularity) in a journey.
+    In the case of road segments, different segments would exhibit a, potentially, larger difference in variance.
+    
+    Road segments could either be created geographically, e.g., a segment is the road between two bus stops or between crossings, or contextually from the output of the continuous case.
+    A geographical road segmentation would most likely get a higher average variance, as the environment could change within the segment.
+    The contextual segmentation would look at sequences of points in the journey, and group the sequential points which exhibit similar variance.
+    The result would potentially be segments where the inherent variance of each segment is lower than between different segments.
+
+    Figure \ref{fig:gps-variation} illustrates how the GPS variance can differ for different road segments.
+    In the shown scenario, the difference between geographical segmentation between crossings and contextual segmentation would be minor, as the variance seems to be similar for a given road segment.
+    However, the difference would be major if the geographical segmentation was done between bus stops.
+    The number of road segments would be higher in the crossing-geographical approach than in the contextual approach, as, for example, "Järnvägsgatan" have many crossings but exhibit similar variance. 
+    
+
+    \item \textit{GPS Sensor Calibration:}
+    Each bus has its own GPS sensor, where different buses could have different models with their own calibrations.
+    In the general case the different GPS sensors show small variance due to different calibrations.
+    However, occasionally they can vary, e.g., by some constant factor, as shown in Figure \ref{fig:gps-sensor-calibration}.
+    The single orange-coloured bus journey seems to have a constant offset compared to the rest of the journeys for that particular bus line.
+    The shown scenario is quite extreme, as the offset is large enough to cause problems with the Bus Stop Detection Algorithm in the "Internal Analysis" component.
+    No bus stops are detected in this particular scenario.
+    These extreme situations can thus be detected by combining the positional events with the bus stop events.
+    However, differences in calibrations which yield smaller offsets cannot be detected with this combining approach.
+
+
+    \item \textit{Time:}
+    The timestamp of the position events affects the precision of the GPS sensor.
+    At a single given point of the journey the precision could vary depending on the positions of satellites and the amount of satellites visible.
+    The hypothesis is that there is a constant bias to the GPS positions depending on the timestamp.
+    The positions of the satellites thus cause a small offset to occur in the GPS position.
+    This parameter probably has some periodicity, which could be fitted using a Gaussian Process with a periodical kernel.
+    
+\end{enumerate} 
+
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/gps_variation}
+    \caption{Visualisation of multiple journeys by different buses in the same area.
+    Each blue line is a journey in the "Started" state.
+    The variance differs between different road segments, as shown around "World Class Linköping" compared to "Järnvägsgatan".}
+    \label{fig:gps-variation}
+\end{figure}
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/gps_sensor_calibration}
+    \caption{Illustrates the case of a poorly calibrated GPS sensor on an individual bus.
+    The orange lines creating the thicker line are all the other journeys for the same bus line, but done by other buses.
+    The thin orange line is one bus with an extremely poorly calibrated GPS sensor.
+    It seems to have a constant offset compared to the rest.
+    This real-world scenario shows that the calibration of GPS sensors is important in order to produce useful data.}
+    \label{fig:gps-sensor-calibration}
+\end{figure}
+
+\subsection{Road Segment Data}
+Google Maps provides a Roads API\footnote{https://developers.google.com/maps/documentation/roads/intro} to map GPS coordinates to the closest road segment.
+The road segments could, for example, be used to create a model calculating the orthogonal variance of GPS coordinates with respect to the road segments.
+\todo{Bild?}
+However, the variance of GPS positions does not only occur orthogonal to a given road segment. \todo{Vart vill jag komma med det här?} 
+
+Manual inspection of journeys done in the pre-processing step highlights scenarios with discrepancies between roads in Google Maps and actual roads the buses drove.
+The Google Maps roads are in these scenarios usually incorrectly drawn or has missing roads or buildings.
+Figure \ref{fig:gps-map-problem} shows such a real-world example.
+The discrepancies would cause problems if used naïvely together with the Google Maps Roads API.
+These journeys would have to be detected and either handled or ignored.
+The detection could be done by looking at the distances to the closest Google Maps Roads segments.
+The distances would roughly be similar for all the journeys, as in Figure \ref{fig:gps-map-problem}.
+Since the distances would be roughly similar they could be averaged and interpreted as a bias to the roads.
+Applying the bias-interpretation methodology would result in a more generalised model using the Google Maps Roads API.
+Ignoring the journeys with discrepancies could also be seen as feasible, given that the occurrence is rare.
+Before using the simpler approach of ignoring journeys with discrepancies, a deeper analysis needs to be conducted.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/gps_map_problem}
+    \caption{Real-world example of multiple buses driving on a road not correctly modelled by Google Maps.
+    For example, at "Sjukhusvägen" the buses are driving through a building according to Google Maps.
+    In this particular scenario the area has received major road re-structuring and renovation.
+    The Google Maps representation is thus likely outdated.}
+    \label{fig:gps-map-problem}
+\end{figure}
+
+\section{Methodology}
+
+The method used in this thesis project to solve the higher-level GPS Variation Estimation problem is based on combined Gaussian Processes (GPs).
+The method is described by 5 steps:
+
+\begin{enumerate}
+    \item \textit{Stop Compression:}
+    Each stop present in the journey causes an imbalance of points being clustered around each stop.
+    The longer the stop is, the more points are present.
+    This results in problems with the GP, as certain coordinates would be denser than others.
+    Positions sent while a bus has stopped are averaged into a single coordinate.
+    The time of the stop is also adjusted.
+    The result is journey consisting of a sequence of coordinates where stops are invisible both time-wise and position-wise.
+
+    \item \textit{Segment Journeys:}
+    Each bus journey in the dataset is fitted with its own GPs.
+    Journeys are analysed in order to detect self-overlapping, which would cause problems for the fitted GPs.
+    Journeys with self-overlap are split at the overlapping points into two segments.
+    The process recursively analyses each resulting segment and proceeds with splitting the segments as long as self-overlapping is present.
+    If a journey has multiple segments, each segment is fitted with its own GPs.
+
+    The first GP fits $x$, $y$ (latitude, longitude) coordinates to a new time parameter $\tau$:
+    \begin{equation} \label{eq:gps-var-f1}
+       f_1: x, y \longmapsto \tau
+    \end{equation}
+    $\tau$ is the relative time of the journey, denoting the progress of the bus in completing the journey.
+    The second and third GP fits $\tau$ to a new $x$ and $y$, respectively:
+    \begin{equation} \label{eq:gps-var-f2}
+        f_2: \tau \longmapsto x
+    \end{equation}
+    \begin{equation} \label{eq:gps-var-f3}
+        f_3: \tau \longmapsto y
+    \end{equation}
+
+    \item \textit{Point-Wise Combining of GP:}
+    The GPs $f_2$ (Eq. \ref{eq:gps-var-f2}) and $f_3$ (Eq. \ref{eq:gps-var-f3}) each describe the variance ($\sigma_2^2$ and $\sigma_3^2$, respectively) at each point in the fitted segment or journey.
+    The GPs describing the variances are point-wise combined using Equation \ref{eq:mean-point-wise-combined} and \ref{eq:var-point-wise-combined}, creating the GPs $f_4$ (Eq. \ref{eq:gps-var-f4}) and $f_5$ (Eq. \ref{eq:gps-var-f5}), respectively.
+    
+    \begin{equation} \label{eq:mean-point-wise-combined}
+        \mu(x^*) = \frac{\sum_{j=1}^{J} N_j\mu_j(x^*)}{\sum_{j=1}^{J} N_j},
+    \end{equation}
+
+    \begin{equation} \label{eq:var-point-wise-combined}
+        \sigma^2(x^*) = \frac{\sum_{j=1}^{J} N_j(\sigma_j^2(x^*) + \mu_j^2(x^*))}{\sum_{j=1}^{J} N_j} - \mu(x^*)^2,
+    \end{equation}
+
+    \begin{equation} \label{eq:gps-var-f4}
+        f_4: \tau \longmapsto \sigma_4^2
+    \end{equation}
+    \begin{equation} \label{eq:gps-var-f5}
+        f_5: \tau \longmapsto \sigma_5^2
+    \end{equation}
+    where $\sigma_4^2$ is the variation in latitude and $\sigma_5^2$ the variation in longitude.
+
+    \item \textit{Visualisation:}
+    The resulting $f_4$ and $f_5$ GPs are then visualised. \todo{hur?}
+
+    \item \textit{Comparison:}
+    The visualised GPs are compared and different routes are compared at the same spatial area.
+    The comparison analyses if there is a periodicity to the variation or if the variation is purely based on spatial locality.
+\end{enumerate} 

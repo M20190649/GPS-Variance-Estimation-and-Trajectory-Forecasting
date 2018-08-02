@@ -1,11 +1,90 @@
 \chapter{Background}
 \label{cha:background}
 
+\section{Binary Search}
+Binary search is a common algorithm for searching through a sequence for a target value.
+The algorithm utilises a binary tree for the search.
+The algorithm can be described by the following steps, from Knuth \cite{Knuth1971}:
+\begin{enumerate}
+    \item If the tree has no root node, the search is unsuccessful. 
+    The target value is not in the tree, as the tree is empty.
+    \item If the root node has the target value, the search is successful.
+    The position of the target value is found.
+    \item If the target value is smaller than the root value, the left side of the binary tree is explored.
+    The algorithm returns to the first step of the procedure.
+    This time the tree is the left half of the binary tree, with the new root node being the left child of the previous root node.
+    \item If the target value is greater than the root value, the right side of the binary tree is explored.
+    The algorithm returns to the first step, but this time the tree is the right subtree of the binary tree.
+    The new root node is the right child of the previous root node.
+\end{enumerate}
+The procedure is illustrated in Figure \ref{fig:binary-search-algorithm}.
+The algorithm has a complexity of $O(log_2 n)$, as the search space is in the binary case divided in two after each comparison.
+However, the algorithm requires a sorted sequence of values.
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/binary_search_algorithm}
+    \caption{Example of a binary search algorithm run.
+    The target value is 42.
+    First the root node 50 is compared, but as $42 < 50$ the left subtree is explored.
+    The new root node is 33 and $42 > 30$, so the right subtree is explored.
+    The new root node is 45 and $42 < 45$.
+    The algorithm should search the left subtree, which in this case only consists of one node, with the target value.
+    The search is successful.}
+    \label{fig:binary-search-algorithm}
+\end{figure}
+
 \section{Gaussian Processes}
-In \cite{Rasmussen2004} everything we need to know about Gaussian Processes (GP) is written, good huh? \todo{Obviously edit this and fill out the section!}
+Definition \ref{def:gaussian-process} is the formal definition of a Gaussian process (GP) given by Rasmussen et al. in \cite{Rasmussen2006}.
+
+\begin{definition} \label{def:gaussian-process}
+    A Gaussian process is a collection of random variables, any infinite number of which have a joint Gaussian distribution.
+\end{definition}
+
+A GP is denoted by the equation
+\[f(x) \sim \mathcal{GP}(m(x), k(x, x')),\]
+where 
+\begin{itemize}
+    \item $m(x) = \mathbb{E}[f(x)]$ is the mean function;
+    \item $k(x, x') = \mathbb{E}[(f(x) - m(x))(f(x') - m(x'))]$ is the covariance function.
+    $x$ and $x'$ are two inputs.
+\end{itemize}
+A GP is thus completely described by its mean and covariance function, where the mean function is taken to be zero for notational simplicity \cite{Rasmussen2006}.
+It can be seen as a probability distribution over functions.
+The covariance function can be expressed in the form of a \textit{kernel}, where kernels exhibit different characteristics.
+A comparison between common kernels is illustrated in Figure \ref{fig:gp-kernels} from \cite{Bishop2006} by Bishop.
+
+\begin{figure} [t!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/gp_kernels}
+    \caption{Samples from GP priors defined by common covariance functions. 
+    The functions exhibit different characteristics depending on the choice of kernel.}
+    \label{fig:gp-kernels}
+\end{figure}
 
 \section{Combining GPs}
 \todo{...}
+
+\section{Finite-State Machines}
+Finite-state machines (FSM) are well-defined mathematical models which can have numerous representations.
+The formal notation used here are from the excellent book "Automata and Computability" by Kozen \cite{Kozen1997}.
+A FSM is defined as states with potentially multiple transitions between each state.
+The FSM can only be in one given state at any time.
+
+Formally a FSM is given by the structure
+\[M = (Q, \Sigma, \delta, s, F),\]
+where
+\begin{itemize}
+    \item Q is a finite set of states.
+    \item $\Sigma$ is the input alphabet of the FSM.
+    \item $\delta : Q \times \Sigma \rightarrow Q$ is the transition function for the FSM.
+    It can intuitively be seen as the function which tells the FSM which state to transition to in response to an input.
+    For example, if M is in state $q$ and receives input $x$ it should move to state $\delta(q, x)$.
+    \item $s \in Q$ is the start state.
+    \item $F \subset Q$; where the elements of $F$ are the final states of the FSM.
+\end{itemize}
+
+A FSM can be modelled with various representations \cite{Kozen1997}, e.g, in tabular form, as a transition diagram or as a regular expression.
 
 \section{Exploratory Data Analysis}
 Exploratory Data Analysis (EDA) is a broad concept containing various techniques \cite{Anselin1999, Gelman2003, Hoaglin2003, Tukey1977, Velleman1981} for exploring and analysing data.

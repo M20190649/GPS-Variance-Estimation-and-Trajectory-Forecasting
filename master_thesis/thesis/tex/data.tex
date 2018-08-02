@@ -4,9 +4,10 @@
 This chapter describes the spatio-temporal dataset used in the thesis project.
 The dataset provider is briefly mentioned alongside the data gathering process, followed by the structure of the data.
 The structure of the data describes the different event types in the dataset and how they were used in the thesis project.
-After the basic characteristics of the dataset has been described the pre-processing steps applied are described and motivated.
-The pre-processing section also covers problems inherent in the dataset and the solutions employed to remedy them.
-The problems are visualised by real-world examples.
+After the basic characteristics of the dataset has been described a pre-study of the dataset is conducted.
+\todo{It analyses the dataset in-depth and identifies problems which occur...}
+The pre-processing section covers solutions employed to remedy the described problems inherent in the dataset.
+The problems are illustrated by real-world examples.
 
 \section{Background}
 The dataset was provided by Östgötatrafiken AB and contains \todo{300?}GB of data.
@@ -133,7 +134,74 @@ The 12 event types used in this thesis project were:
     This event type is accompanied by a \textit{ParameterChangedEvent} to denote when a bus changes its journey.
 \end{itemize}
 
-\section{Pre-processing Events}
+\section{Dataset Pre-Study}
+The dataset pre-study was conducted after the basic characteristics were identified.
+It analysed the dataset in greater depth, identifying interesting scenarios that occurred in the data.
+The analysis was conducted by manually parsing the data.
+This manual task used EDA methods to simplify the process; the focus was put on visualising the data in order to detect patterns and outliers.
+All of the data was initially used for this task.
+Anomalies occurring when all of the data was used were isolated and categorised by applying the binary search algorithm. 
+Any anomalies visible when usingparts of the data
+
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/edge_case_early_quit}
+    \caption{Example of early stopping in a journey.
+    The three markers are the final three stops of a particular bus line.
+    Instead of following the pre-determined route of the bus line, the final three stops are skipped.
+    This results in the journey never being deemed completed.}
+    \label{fig:human-error-early-stopping-1}
+\end{figure}
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.65\textwidth]{figures/lazy_driver_2}
+    \caption{Another example of early stopping in a journey.
+    The red dashed line is the planned route of the bus line.
+    The blue line at "Nya Ledbergsvägen" is the actual route the bus drove.
+    This results in the journey never being deemed completed, creating a erroneous ordering of contextual events.}
+    \label{fig:human-error-early-stopping-2}
+\end{figure}
+
+\subsection{Human Error: Early Stopping}
+Figure \ref{fig:human-error-early-stopping-1} and \ref{fig:human-error-early-stopping-2} illustrate two scenarios when the \textit{JourneyCompletedEvent} type for a started journey would be missing.
+In Figure \ref{fig:human-error-early-stopping-1}, the bus driver is supposed to visit the three markers in order to complete the journey for a particular line.
+In Figure \ref{fig:human-error-early-stopping-2}, the dashed line highlights the route of the bus line, while the blue line is the actual route the bus drove.
+In both these real-world examples, the bus drivers ignore the final stops of the journeys.
+
+The "Internal Analysis" component never deems the journey as completed in these scenarios, which results in the \textit{JourneyCompletedEvent} type never being produced.
+This scenario is easy to detect in historical data, but in real-time certain assumptions need to be made.
+For example, if the journey is compared with an average journey, the anomaly could be detected early.
+However, it would be uncertain if the anomaly is due to a journey being stopped early or if the bus driver took a wrong turn on the highway.
+A time constraint threshold would have to be introduced to the system in order to separate these two cases.
+In the case of a wrong turn, the bus would eventually converge to the average journey, while in the early-stopping scenario the journey would most likely never converge.
+
+
+\subsection{Imprecise Algorithms: Final Bus Stop Missed}
+This scenario occurs due to a mix of imprecision in the bus stop detection algorithm and human error.
+The scenario is illustrated in Figure \ref{fig:stopped-before-end}.
+The bus driver completes the journey of a particular bus line and reaches the final bus stop.
+However, the "Internal Analysis" component does not detect that the bus stop has been reached.
+This is due to the bus driver stopping the bus slightly roughly 45 meters before the final bus stop.
+The bus stops there for a few minutes, before it drives to the first bus stop for the new bus line number which was assigned.
+
+This systematically occurs at certain bus stops, due to there being a "waiting" space commonly used by bus drivers while waiting for a new journey to be assigned.
+The scenario highlights a problem with the implemented bus stop detection algorithm.
+The bus stop detection algorithm can be improved to both handle these scenarios and yield more precise bus stop detection.
+An improved bus stop detection algorithm is proposed in Section \ref{sec:improving-bus-stop-detection}.
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/stopped_before_end}
+    \caption{Real-world example of a bus driver stopping roughly 45 meters before reaching the final bus stop.
+    The red marker is the GPS position where the bus stopped and the bus icon on the map is the pre-determined position of the bus stop.
+    The bus stops there for a few minutes before it drives off to the first bus stop for a new journey.
+    The bus detection algorithm systematically does not identify these cases.}
+    \label{fig:stopped-before-end}
+\end{figure}
+
+\section{Pre-Processing Events}
 The first step deemed necessary in order to use the data in the provided dataset was to transform it from strings to object with attributes.
 Figure \ref{fig:data-ex-1} visualises which attributes an \textit{ObservedPositionEvent} object contains.
 Similar structures were created for each of the mentioned event types.
@@ -156,7 +224,7 @@ The geo-fence applied in this thesis project is shown in Figure \ref{fig:geo-fen
     \centering
     \includegraphics[width=0.7\textwidth]{figures/context-state-machine}
     \caption{Finite-state machine providing context to \textit{ObservedPositionEvent}s. 
-    The constructed finite-state machine is simplified to illustrate the best-case scenario.
+    The constructed FSM is simplified to illustrate the best-case scenario.
     The "Assigned" state is the starting state.
     \textit{ObservedPositionEvent}s are assigned to the current state the state machine is in.
     }
@@ -165,11 +233,10 @@ The geo-fence applied in this thesis project is shown in Figure \ref{fig:geo-fen
 
 After the parsing and filtering step the idea was to provide context to \textit{ObservedPositionEvent}s.
 Only using this one contextless event type greatly reduces the span of potential problems one could solve with the provided dataset.
-Context was provided by constructing a finite-state machine.
+Context was provided by constructing a FSM.
 
 \subsection{Context-Providing Finite-State Machine}
-Finite-state machines are well-defined \todo{what is the formal definition?} and can be modelled with simple algorithmic structures \todo{source?}.
-The context-providing finite-state machine constructed in this thesis project is shown in Figure \ref{fig:context-state-machine}.
+The context-providing FSM constructed in this thesis project is shown in Figure \ref{fig:context-state-machine}.
 The shown state machine is illustrating the best-case scenario, when the actual order of events is equal to the logical ordering of events, see Figure \ref{fig:assigned-before-completed-working} for a real-world example.
 However, this is not always the case when working with real world data, as shown in Figures \ref{fig:assigned-before-completed-long} and \ref{fig:assigned-before-completed}.
 Occasionally the timing of events gets mixed up, e.g. a bus in the "Started" state receives a \textit{JourneyAssignedEvent} before it receives a \textit{JourneyCompletedEvent}.
@@ -218,76 +285,20 @@ The \textit{ObservedPositionEvent}s would have to be placed in a temporary buffe
 Once the \textit{JourneyCompletedEvent} type is finally received, the data in the buffer could be retroactively added to the "Started" state.
 The "Started" state would then correctly contain all \textit{ObservedPositionEvent}s received from the starting bus stop to the final bus stop.
 
-\begin{figure}[t!]
-    \centering
-    \includegraphics[width=0.6\textwidth]{figures/edge_case_early_quit}
-    \caption{Example of early stopping in a journey.
-    The three markers are the final three stops of a particular bus line.
-    Instead of following the pre-determined route of the bus line, the final three stops are skipped.
-    This results in the journey never being deemed completed.}
-    \label{fig:human-error-early-stopping-1}
-\end{figure}
-
-\begin{figure}[t!]
-    \centering
-    \includegraphics[width=0.65\textwidth]{figures/lazy_driver_2}
-    \caption{Another example of early stopping in a journey.
-    The red dashed line is the planned route of the bus line.
-    The blue line at "Nya Ledbergsvägen" is the actual route the bus drove.
-    This results in the journey never being deemed completed, creating a erroneous ordering of contextual events.}
-    \label{fig:human-error-early-stopping-2}
-\end{figure}
-
 Unfortunately, it is not always the case that the \textit{JourneyCompletedEvent} type is in an erroneous ordering.
 Occasionally the type is missing from the sequence of events due to either human errors or imprecise algorithms in the "Internal Analysis" component.
 
-\subsection{Human Error: Early Stopping}
-Figure \ref{fig:human-error-early-stopping-1} and \ref{fig:human-error-early-stopping-2} illustrate two scenarios when the \textit{JourneyCompletedEvent} type for a started journey would be missing.
-In Figure \ref{fig:human-error-early-stopping-1}, the bus driver is supposed to visit the three markers in order to complete the journey for a particular line.
-In Figure \ref{fig:human-error-early-stopping-2}, the dashed line highlights the route of the bus line, while the blue line is the actual route the bus drove.
-In both these real-world examples, the bus drivers ignore the final stops of the journeys.
-
-The "Internal Analysis" component never deems the journey as completed in these scenarios, which results in the \textit{JourneyCompletedEvent} type never being produced.
-This scenario is easy to detect in historical data, but in real-time certain assumptions need to be made.
-For example, if the journey is compared with an average journey, the anomaly could be detected early.
-However, it would be uncertain if the anomaly is due to a journey being stopped early or if the bus driver took a wrong turn on the highway.
-A time constraint threshold would have to be introduced to the system in order to separate these two cases.
-In the case of a wrong turn, the bus would eventually converge to the average journey, while in the early-stopping scenario the journey would most likely never converge.
-
-\begin{figure}[ht!]
-    \centering
-    \includegraphics[width=0.6\textwidth]{figures/stopped_before_end}
-    \caption{Real-world example of a bus driver stopping roughly 45 meters before reaching the final bus stop.
-    The red marker is the GPS position where the bus stopped and the bus icon on the map is the pre-determined position of the bus stop.
-    The bus stops there for a few minutes before it drives off to the first bus stop for a new journey.
-    The bus detection algorithm systematically does not identify these cases.}
-    \label{fig:stopped-before-end}
-\end{figure}
-
-\subsection{Imprecise Algorithms: Final Bus Stop Missed}
-This scenario occurs due to a mix of imprecision in the bus stop detection algorithm and human error.
-The scenario is illustrated in Figure \ref{fig:stopped-before-end}.
-The bus driver completes the journey of a particular bus line and reaches the final bus stop.
-However, the "Internal Analysis" component does not detect that the bus stop has been reached.
-This is due to the bus driver stopping the bus slightly roughly 45 meters before the final bus stop.
-The bus stops there for a few minutes, before it drives to the first bus stop for the new bus line number which was assigned.
-
-This systematically occurs at certain bus stops, due to there being a "waiting" space commonly used by bus drivers while waiting for a new journey to be assigned.
-The scenario highlights a problem with the implemented bus stop detection algorithm.
-The bus stop detection algorithm can be improved to both handle these scenarios and yield more precise bus stop detection.
-An improved bus stop detection algorithm is proposed in Section \ref{sec:improving-bus-stop-detection}.
-
 \subsection{Bus Stops}
-Using the finite-state machine provides context to the \textit{ObservedPositionEvent} types.
+Using the FSM provides context to the \textit{ObservedPositionEvent} types.
 The states introduced yield a simple way to visualise contextual paths, e.g. actual journeys for a particular bus line or the path a bus drives to start a journey under a new bus line number.
-However, the context-providing finite-state machine solution does not handle events about a bus arriving, departing or passing a bus stop on the journey.
+However, the context-providing FSM solution does not handle events about a bus arriving, departing or passing a bus stop on the journey.
 Handling this type of data could be a critical step in detecting imprecisions in the bus stop detection algorithm or early stopping due to human error.
-The "Started" state in the finite-state machine can easily be extended to not only include \textit{ObservedPositionEvent} types, but also \textit{ArrivedEvent}, \textit{DepartedEvent}, and \textit{PassedEvent} types.
+The "Started" state in the FSM can easily be extended to not only include \textit{ObservedPositionEvent} types, but also \textit{ArrivedEvent}, \textit{DepartedEvent}, and \textit{PassedEvent} types.
 For example, a missed final bus stop could be identified by looking at all the bus stops added to the "Started" state for that journey and compare them to the bus stops in other journeys for that particular bus line.
 
 \subsection{Results}
 The results of the pre-processing step is a collection of journeys for each bus line.
-A journey consists of all the \textit{ObservedPositionEvent}s sent by the bus while the finite-state machine was in the "Started" state and all the bus stops the bus arrived at, departed from or passed by.
+A journey consists of all the \textit{ObservedPositionEvent}s sent by the bus while the FSM was in the "Started" state and all the bus stops the bus arrived at, departed from or passed by.
 Erroneous event type ordering was solved by sorting the events based on \textit{Event ID} and retroactively adding \textit{ObservedPositionEvent} in the "Assigned" state to the "Started" state in the case of early journey assignment.
 Journeys with early stopping or missed final bus stops are still prevalent in the collection of journeys.
 These can be detected by analysing the bus stops registered during a journey.
@@ -301,6 +312,3 @@ The fraction of faulty journeys can be calculated and used as a baseline when co
 Faulty journeys can be categorised based on the error in the journey, e.g. a missed starting bus stop is a different error compared with a missed final bus stop.
 The categorisation of faults could provide deeper insights into the dataset.
 For example, the insights could be used to improve the bus stop detection algorithm or identify journeys where a particular error occurs regularly.    
-
-
-
