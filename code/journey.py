@@ -10,6 +10,36 @@ class Journey:
         self.route = []
         self.bus_stops = []
 
+
+    def segment_at(self, bus_stop_name):
+        """ Nice function which takes a bus_stop_name and 
+        segments the journey into two journeys.
+
+        For example: The journey (A->B->C->D->E) segmented at C
+        returns two new journeys: (A->B->C) and (C->D->E).
+        """
+        if bus_stop_name == self.bus_stops[-1]: # No segmentation needed
+            return None, None
+        seg1 = Journey(self.vehicle_id, self.line_number)
+        seg2 = Journey(self.vehicle_id, self.line_number)
+        bus_stop_seg_index = self.bus_stops.index(bus_stop_name)
+        seg1.bus_stops = self.bus_stops[:bus_stop_seg_index+1] # Include stop we segment at!
+        seg2.bus_stops = self.bus_stops[bus_stop_seg_index:]
+
+        seg_index = None
+        # Get route index at segmentation:
+        for i, event in enumerate(self.route):
+            if "stop.name" in event and event["stop.name"] == bus_stop_name:
+                seg_index = i
+                break
+        if seg_index is None:
+            return None, None
+
+        seg1.route = self.route[:seg_index+1]
+        seg2.route = self.route[seg_index:]
+        return seg1, seg2
+
+
     def add_stop(self, stop):
         if stop["event.type"] in ["ArrivedEvent", "DepartedEvent", "PassedEvent"]:
             name = stop["stop.name"]
