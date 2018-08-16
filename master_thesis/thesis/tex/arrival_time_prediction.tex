@@ -110,7 +110,7 @@ Four sequential segments are visualised, with the relative time (in seconds) for
 
 The result of the bus stop segmentation step is a collection of segments and segment arrival times for each trajectory.
 
-\section{Trajectory Segment Forecasting}
+\section{Trajectory Segment Forecasting Models}
 The collection of segments and arrival times are used to create features for the arrival time prediction model.
 Two different GP models are created and are given by
 \begin{align}
@@ -123,6 +123,7 @@ Two different GP models are created and are given by
     \item $v$ is the speed of the bus at $\tau$. 
 \end{itemize}  
 
+\subsection{Model Comparison $f_A$ and $f_B$}
 \begin{table}
     \centering
     \caption[Arrival time prediction with the $f_B$ GP model]%
@@ -157,31 +158,12 @@ Two different GP models are created and are given by
     \end{tabular}
 \end{table}
 
-A comparison between GP models $f_A$ and $f_B$ is executed in order to find the best model for arrival time prediction.
-In the comparison, both GP models use a Matérn kernel with $\nu =3/2$.
-
-Table \ref{table:f_B-examples} shows the evaluation results of GP model $f_B$.
-GP model $f_B$ is used to predict the arrival time for a particular bus driving in segment $S_0$.
-GP model $f^{(1)}_{B_0}$ is trained with the same data produced by the particular bus the GP models are evaluated with.
-GP model $f^{(2)}_{B_0}$ is trained on data produced by another bus.
-The results from the GP model $f^{(0)}_{B_0}$ does not come with any surprises, as the model is trained on the same data used to evaluate it.
-However, GP model $f^{(2)}_{B_0}$ performs extremely poorly on unseen data; which is an indication that the model does not generalise well for unseen data points.
-
-Table \ref{table:f_A-examples} show the evaluation results of GP model $f_A$.
-The same approach is used in the evaluation:
-\begin{itemize}
-    \item All models are evaluated with the same data
-    \item GP model $f^{(1)}_{A_0}$ is trained on the same data used for the evaluation.
-    \item GP model $f^{(2)}_{A_0}$ is trained on different data, but for the same segment $S_0$.
-    \item The right column contains the true arrival times for the evaluation data.
-\end{itemize}
-
- \begin{table}
+\begin{table}
     \centering
     \caption[Arrival time prediction with the $f_A$ GP model]%
     {{\small Arrival time prediction with the $f_A$ GP model.
     The GP model predicts the arrival time for a bus driving in segment $S_0$.
-    This table contains only a part of the segment $S_0$.
+    This table contains the full trajectory segment $S_0$.
     Two GP models trained on segment $S_0$ are used for the prediction: $f^{(1)}_{A_0}$ and $f^{(2)}_{A_0}$.
     The right column contains the true arrival time (in seconds remaining) for the bus.}}
     \label{table:f_A-examples} 
@@ -242,9 +224,193 @@ The same approach is used in the evaluation:
     \end{tabular}
 \end{table}
 
+A comparison between GP models $f_A$ and $f_B$ is executed in order to find the best model for arrival time prediction.
+In the comparison, both GP models use a Matérn kernel with $\nu =3/2$.
 
+Table \ref{table:f_B-examples} shows the evaluation results of GP model $f_B$.
+GP model $f_B$ is used to predict the arrival time for a particular bus driving in segment $S_0$.
+GP model $f^{(1)}_{B_0}$ is trained with the same data produced by the particular bus the GP models are evaluated with.
+GP model $f^{(2)}_{B_0}$ is trained on data produced by another bus.
+The results from the GP model $f^{(0)}_{B_0}$ does not come with any surprises, as the model is trained on the same data used to evaluate it.
+However, GP model $f^{(2)}_{B_0}$ performs extremely poorly on unseen data; which is an indication that the model does not generalise well.
 
-\section{Results}
+Table \ref{table:f_A-examples} show the evaluation results of GP model $f_A$.
+The same approach is used in the evaluation:
+\begin{itemize}
+    \item Both models are evaluated on the same data
+    \item GP model $f^{(1)}_{A_0}$ is trained on the same data used for the evaluation.
+    \item GP model $f^{(2)}_{A_0}$ is trained on different data, but for the same segment $S_0$.
+    \item The right column contains the true arrival times for the evaluation data.
+\end{itemize}
+
+The evaluation resulted in heavier focus on the $f_A$ GP model.
+Different kernels are tested and evaluated for the $f_A$, together with varying the hyperparameters.
+The follow kernels are tested:
+\begin{enumerate}
+    \item Linear 
+    \item White
+    \item RBF
+    \item RBF+Linear
+    \item Matern32
+\end{enumerate}
+The different $f_A$ models are compared by calculating the following two metrics for each model:
+\begin{enumerate}
+    \item Root Mean Square Error (RMSE)
+    \item Mean Absolute Error (MAE)
+\end{enumerate}
+The evaluation is similar to the evaluation between GP models $f_B$ and $f_A$.
+
+The metric scores and the visual representation of the different GPs are taken into consider when choosing the best, appropriate model.
+The best setting is used for the remainder of the thesis project.
+GPflow also supports a wide range of optimisation algorithms.
+This thesis project uses the standard L-BFGS-B algorithm.
+
+\begin{table}
+    \centering
+    \caption[Metric scores for $f_A$ GP models]%
+    {{\small Metric scores for $f_A$ GP models.
+    The GP models predict the arrival time for a bus driving in segment $S_0$.
+    The metrics are calculated by comparing the predicted arrival time to the true arrival time. 
+    Two GP models are trained for each choice of kernel. 
+    The model $f^{(1)}_{A_0}$ is trained on the same data as it is evaluated by.
+    Model $f^{(2)}_{A_0}$ is evaluated on the same data as $f^{(1)}_{A_0}$, but is trained on different data.}}
+    \label{table:metric-scores} 
+    \begin{tabular}{ |c|r|r|r|r| } 
+        \hline
+        Kernel & RMSE $f^{(1)}_{A_0}$ & RMSE $f^{(2)}_{A_0}$ & MAE $f^{(1)}_{A_0}$ & MAE $f^{(2)}_{A_0}$ \\ [0.5ex] 
+        \hline
+        Linear & 24.85 & 25.26 & 20.56 & 21.49 \\
+        White & 26.80 & 26.80 & 22.38 & 22.38 \\
+        RBF & \textbf{1.56} & \textbf{13.53} & \textbf{0.84} & \textbf{11.69} \\
+        RBF+Linear & \textbf{1.56} & 13.60 & \textbf{0.84} & 11.84 \\
+        Matern32 & 11.19 & 13.56 & 9.34 & 11.75 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.475\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/forecasting/gp_3_18_rbf}
+        \caption[]%
+        {{\small Model of trajectory 3, segment 18,using the RBF kernel.}}    
+        \label{fig:3-18-rbf}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.475\textwidth}  
+        \centering 
+        \includegraphics[width=\textwidth]{figures/forecasting/gp_3_18_rbf_linear}
+        \caption[]%
+        {{\small Model of trajectory 3, segment 18, using the RBF+Linear kernel.}}    
+        \label{fig:3-18-rbf-linear}
+    \end{subfigure}
+    \vskip\baselineskip
+    \begin{subfigure}[b]{0.475\textwidth}   
+        \centering
+        \includegraphics[width=\textwidth]{figures/forecasting/gp_5_18_rbf}
+        \caption[]%
+        {{\small Model of trajectory 5, segment 18, using the RBF kernel.}}    
+        \label{fig:5-18-rbf}
+    \end{subfigure}
+    \quad
+    \begin{subfigure}[b]{0.475\textwidth}   
+        \centering 
+        \includegraphics[width=\textwidth]{figures/forecasting/gp_5_18_rbf_linear}
+        \caption[]%
+        {{\small Model of trajectory 5, segment 18, using the RBF+Linear kernel.}}    
+        \label{fig:5-18-rbf-linear}
+    \end{subfigure}
+    \caption[ Visualisation of $f_A$ models with different kernels ]
+    {{\small Visualisation of $f_A$ models with different kernels.
+    Each figure contains the predictive mean and variance of the model, alongside the training data points.  
+    The X-axis is the $\tau$ values of the trajectory segment and the Y-axis is the arrival time to the end of the segment, in seconds.}} 
+    \label{fig:5-18-3-18-models}
+\end{figure}
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.475\textwidth]{figures/forecasting/gp_3_18_rbf_linear_log}
+    \caption[RBF+Linear kernel with logarithmised input.]%
+    {{\small RBF+Linear kernel with logarithmised input. 
+    The model is trained on data from trajectory 3, segment 18.
+    }}
+    \label{fig:3-18-log}
+\end{figure}
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.475\textwidth]{figures/forecasting/gp_3_18_linear}
+    \caption[Linear kernel component of the RBF+Linear model.]%
+    {{\small Linear kernel component of the RBF+Linear model. 
+    The model is trained on data from trajectory 3, segment 18.
+    }}
+    \label{fig:3-18-linear}
+\end{figure}
+
+\subsection{Model Evaluation $f_A$}
+The results of the $f_A$ GP model evaluation are presented in Table \ref{table:metric-scores}.
+The RBF kernel and the combined RBF+Linear kernel achieved the lowest scores.
+In the general case, the RBF kernel and the RBF+Linear kernel performed equally well.
+However, in some segments the different choice of kernels greatly affected the robustness of the GP model.
+Figure \ref{fig:5-18-3-18-models} shows a segment for two different trajectories, were either only the RBF kernel performs well or only the RBF+Linear kernel.
+While the two kernels work equally well in the general case, there are segments were neither work, depending on the trajectory.
+Manual analysis of the different segments show that most segments follow a linear trend with occasional curvature.
+This suggests that a RBF+Linear kernel could be more suitable in the general case.
+While GPflow optimises the hyperparameters of the model, it seems like the models occasionally get stuck in a local minima, as shown in Figure \ref{fig:3-18-rbf-linear} and \ref{fig:5-18-rbf}.
+
+Figure \ref{fig:3-18-log} shows how the model in \ref{fig:3-18-rbf-linear} performs better if the natural logarithm is applied to the input data.
+The improved performance indicates that the RBF+Linear model performs better if the input values are closer, or around zero.
+In Figure \ref{fig:3-18-linear}, only the Linear kernel component from the RBF+Linear model shown in Figure \ref{fig:3-18-rbf-linear} is visualised.
+The figure indicates that the Linear kernel component takes over the combined kernel.
+In order to try and resolve the problems, the initial hyperparameters of the RBF+Linear model are varied manually, until a stable model is acquired.
+
+Figure \ref{fig:good-kernel-results} shows the RBF+Linear model with the following initial hyperparameters:
+\begin{enumerate}
+    \item $l_{RBF}=0.1$, where $l_{RBF}$ is the length-scale of the RBF kernel in the combined RBF+Linear model.
+    \item $\sigma_{Linear}^2=500$, where $\sigma_{Linear}^2$ is a prior on the variance of the Linear kernel in the combined RBF+Linear model.
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.475\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/forecasting/gp_2_0_rbf_linear}
+        \caption[]%
+        {{\small Model of trajectory 2, segment 0, using the RBF+Linear kernel.}}    
+        \label{fig:2-0-rbf-linear}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.475\textwidth}  
+        \centering 
+        \includegraphics[width=\textwidth]{figures/forecasting/gp_4_15_rbf_linear}
+        \caption[]%
+        {{\small Model of trajectory 4, segment 15, using the RBF+Linear kernel.}}    
+        \label{fig:4-15-rbf-linear}
+    \end{subfigure}
+    \vskip\baselineskip
+    \begin{subfigure}[b]{0.475\textwidth}   
+        \centering
+        \includegraphics[width=\textwidth]{figures/forecasting/gp_16_4_rbf_linear}
+        \caption[]%
+        {{\small Model of trajectory 16, segment 4, using the RBF+Linear kernel.}}    
+        \label{fig:16-4-rbf-linear}
+    \end{subfigure}
+    \quad
+    \begin{subfigure}[b]{0.475\textwidth}   
+        \centering 
+        \includegraphics[width=\textwidth]{figures/forecasting/gp_26_18_rbf_linear}
+        \caption[]%
+        {{\small Model of trajectory 26, segment 18, using the RBF+Linear kernel.}}    
+        \label{fig:26-18-rbf-linear}
+    \end{subfigure}
+    \caption[ Visualisation of arbitrary segments with the RBF+Linear kernel ]
+    {{\small Visualisation of segments with the RBF+Linear kernel.
+    Each figure contains the predictive mean and variance of the model, alongside the training data points.  
+    The X-axis is the $\tau$ values of the trajectory segment and the Y-axis is the arrival time to the end of the segment, in seconds.}} 
+    \label{fig:good-kernel-results}
+\end{figure}
+
 
 \section{Discussion}
 

@@ -69,7 +69,7 @@ def run(line_number, load_model):
     #speed_scaler = model["speed_scaler"]
     #tau_scalers = model["tau_scalers"]
 
-    segments_list, arrival_times_list = segment_trajectories(all_trajectories[31:32], level=0, f1_gp=f1_gp)
+    segments_list, arrival_times_list = segment_trajectories(all_trajectories[0:1], level=0, f1_gp=f1_gp)
     #hlp.plot_coordinates(all_trajectories[31:32])
     #hlp.plot_speed_time(all_trajectories[31:32][0][1], filter_speed=-1, file_id="bug_31")
 
@@ -84,7 +84,7 @@ def run(line_number, load_model):
     for j, (segments, arrival_times) in enumerate(zip(segments_list, arrival_times_list)):
         segment_results = []
         for i, (segment, arrival_time) in enumerate(zip(segments, arrival_times)):
-            if i != 18: continue
+            if i != 0: continue
             #speeds = np.vstack([e["speed"] for e in segment])
             #speeds = speed_scaler.transform(speeds)
             #pos = np.vstack([e["gps"][::-1] for e in segment])
@@ -107,9 +107,11 @@ def run(line_number, load_model):
                     mae = mean_absolute_error(truth, mean)
                     if mae > 50:
                         logger.warn("{}, {}: {}".format(j, i, mae))
+                    mse = mean_squared_error(truth, mean)
                     metrics = {
                         "mae": mae,
-                        "mse": mean_squared_error(truth, mean),
+                        "mse": mse,
+                        "rmse": np.sqrt(mse),
                         "median_abs_err": median_absolute_error(truth, mean),
                         "max_err": max(abs_errors),
                         "min_err": min(abs_errors)
@@ -166,7 +168,7 @@ def load_forecasting_model(kernels=None):
     for kernel in kernels:
         models = sorted([f.split("_")[1:] for f in os.listdir("{}segment_GPs/{}/".format(BASE_DIR, kernel)) if "model_" in f], key=lambda x: (int(x[0]), int(x[1])))
         for j, i in models:
-            if int(j) > 0: break
+            if int(j) > 1: break
             logger.info("Loading GPs for trajectory #%s, %s", j, i)
             path = BASE_DIR + "segment_GPs/{}/model_{}_{}".format(kernel, j, i)
             gp = loader.load(path)

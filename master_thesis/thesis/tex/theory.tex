@@ -68,7 +68,21 @@ A GP is thus completely described by its mean and covariance function, where the
 It can be seen as a probability distribution over functions.
 The covariance function can be expressed in the form of a \textit{kernel}, where kernels exhibit different characteristics.
 A comparison between common kernels is illustrated in Figure \ref{fig:gp-kernels}.
-The approach is Bayesian as \(f(x) \sim \mathcal{GP}\) encodes a prior belief about the unknown $f(\cdot)$.
+The radial basis function (RBF or SE) kernel and Matérn kernel are given by equations \ref{eq:rbf} and \ref{eq:matern}, respectively
+\begin{align}
+k_{\textrm{SE}}(r) &= \exp{\Big(-\frac{r^2}{2\ell^2}\Big)} \label{eq:rbf} \\
+k_{\textrm{Matern}}(r) &= \frac{2^{1-\nu}}{\Gamma(\nu)} \Big(\frac{\sqrt{2\nu}r}{\ell}\Big)^\nu K_\nu\Big(\frac{\sqrt{2\nu}r}{\ell}\Big), \label{eq:matern}
+\end{align}
+where $\nu$ and $\ell$ are positive parameters, $K_\nu$ is a modified Bessel function and $r = |x-x'|$ \cite{Rasmussen2006}.
+
+If $\nu = 3/2$ in the Matérn kernel, the equation can be simplified to eq. \ref{eq:matern32}.
+When $\nu \rightarrow \infty$, the Matérn kernel becomes the RBF \cite{Rasmussen2006}.
+
+\begin{equation} \label{eq:matern32}
+    k_{\nu=3/2}(r) = \Big(1+\frac{\sqrt{3}r}{\ell}\Big)\exp{\Big(-\frac{\sqrt{3}r}{\ell}\Big)},
+\end{equation}
+
+The GP approach is Bayesian as \(f(x) \sim \mathcal{GP}\) encodes a prior belief about the unknown $f(\cdot)$.
 
 \begin{figure} [t!]
     \centering
@@ -105,7 +119,26 @@ where $K(x_\star, x), K(x, x)$, and $K(x, x_\star)$ each are a covariance (Gram)
 \section{Combining GPs}
 \todo{...}
 
-\subsection{GPflow}
+\section{Evaluation Metrics}
+Common evaluation metrics when comparing regression models are mean square error (MSE), mean squared logarithmic error (MSLE), and mean absolute error (MAE).
+
+\begin{align}
+    MSE(y, \hat{y_i}) &= \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y_i})^2 \label{eq:rmse} \\
+    MSLE(y, \hat{y_i}) &= \frac{1}{n} \sum_{i=1}^{n} \big( \textrm{ln}(1+y_i) - \textrm{ln}(1+\hat{y_i}) \big)^2 \label{eq:msle} \\
+    MAE(y, \hat{y_i}) &= \textrm{median}(|y_1-\hat{y_1}|, \ldots, |y_n-\hat{y_n}|)\label{eq:mae}
+\end{align}
+
+Typically, the root of the MSE (RMSE) is used as a metric
+\begin{equation}
+    RMSE(y, \hat{y_i}) = \sqrt{MSE(y, \hat{y_i})}
+\end{equation}
+RMSE is susceptible to outliers affecting the performance of the metric, as it causes a large variability of the errors \cite{Willmott2005}.
+MSLE partly solves the variability of large errors by applying the natural logarithm to the targets $y_i$ and $\hat{y_i}$, respectively.
+MAE is resistant to outliers, as it only looks at the median of all errors.
+MAE is praised in \cite{Willmott2005} by Willmott et al., while Chai et al. defend the use of RMSE in \cite{Chai2014}.
+For example, RMSE is shown in \cite{Chai2014} to be useful metric if the errors follow a Gaussian distribution.
+
+\section{GPflow}
 GPflow\footnote{https://gpflow.readthedocs.io/en/latest/index.html} \cite{GPflow2017} is a GP framework for the Python programming language \footnote{https://www.python.org/} using TensorFlow\footnote{https://www.tensorflow.org/}.
 It is an open-source software which has its origins from the contributors of GPy\footnote{https://sheffieldml.github.io/GPy/}, another famous framework for implementing GPs in Python.
 As GPflow is built upon TensorFlow, it achieves better performance when using GPUs for processing \cite{GPflow2017}.
