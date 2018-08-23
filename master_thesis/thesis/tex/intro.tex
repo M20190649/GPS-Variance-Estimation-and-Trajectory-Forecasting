@@ -1,17 +1,28 @@
 \chapter{Introduction}
 \label{cha:introduction}
 
-\section{Motivation}
-\label{sec:motivation}
-\todo{Work In Progress}
-This question explores what kind of data the dataset contains.
-The dataset is a novel dataset which has not been previously explored.
-The provided documentation is minimal, which makes this question non-trivial and the insights from the question even more valuable.
+%\section{Motivation}
+%\label{sec:motivation}
+Today, there is an increasing number of services built upon the use of spatio-temporal datasets.
+For example, public transportation companies use the data for route planning and arrival time prediction.
+Taxi companies use spatio-temporal data to track vehicles and, for example, assign the closest available vehicle to a new customer.
+Spatio-temporal datasets can also be used for city planning and analysing effects of rapid urbanisation \cite{Deng2009, Liu2005}.
+Service vehicles are today equipped with GPS sensors which collect behavioural data.
+The availability and usability of spatio-temporal datasets will only increase, e.g., the field of autonomous vehicles utilise spatio-temporal dataset for various applications \cite{Dickmanns1990, Peng2018}.
+
+The purpose of this thesis project is to perform analysis on a novel spatio-temporal dataset received from Östgötatrafiken AB.
+The goal is to analyse the dataset and define problems inherent in it.
+By solving the inherent problems of the dataset, the dataset can be used to provide new or improved services.
+For example, further knowledge could be gained about the flow of traffic, the arrival time prediction for service vehicles could also be improved or better position detection of vehicles.
+The provided documentation for the dataset is minimal, which makes the insights from the analysis even more valuable.
 
 \section{Aim}
 \label{sec:aim}
-The aim of this thesis project is to explore a novel dataset and formulate problems and solutions which could be interesting not only to the dataset provider but also in a broader context.\todo{Broader context, som vadå?}
+The aim of this thesis project is to explore a novel dataset and formulate problems and solutions which could be interesting not only to the dataset provider but also in a broader context, such as services relying on GPS positioning.
 The dataset is currently used to provide time forecasts on the public transportation available in Östergötland county.
+The aim is not to fully solve all possible problems with the dataset, but rather formulate outlines for a few interesting problems.
+Some of the outlines will be implemented with their outcomes presented in the thesis.
+
 
 \section{Research Questions}
 \label{sec:research-questions}
@@ -30,13 +41,12 @@ The \textit{Problem Specific Questions} are questions related to a specific prob
   \item \textbf{Metadata Questions:}
   \begin{enumerate}
     \item \textit{What kind of information is available in the dataset provided by Östgötatrafiken AB?} \newline
-    What kind of data does the dataset contain?
     Which features exist in the dataset, such as different event types, event parameters, and event structures?
     What does these features mean and how do they relate to each other?
     Are some features more important than others?
     Are there any features missing from the given dataset?
     \item \textit{What pre-processing needs to be done in order to solve higher-level problems?} \newline
-    The pre-processing focuses of solving problems inherent in the dataset, such as processing events and extracting relevant information from them or building a knowledge base by looking at the ordering of events.
+    The pre-processing focuses on solving problems inherent in the dataset, such as processing events and extracting relevant information from them.
     What are some pre-processing methods that could be applied to this dataset?
     How can the raw data in the dataset be transformed to useful features?
     How does the ordering of the raw data affect the solutions for higher-level problems?
@@ -50,7 +60,7 @@ The \textit{Problem Specific Questions} are questions related to a specific prob
     How could a dataset-tailored algorithm be implemented?
     How does the general anomaly detection algorithm differ from the dataset-tailored algorithm?
     \item \textit{How is the provided dataset related to external data sources and how can they be combined?} \newline
-    There are external data sources available which could complement the data in the provided dataset.
+    There are external data sources available which could complement the data in the provided dataset, such as Google Roads API\footnote{https://developers.google.com/maps/documentation/roads/intro} and the website of Östgötatrafiken\footnote{https://www.ostgotatrafiken.se/}.
     This question explores if these sources could be combined in order to solve problems on a higher level.
     Which external sources exist and what further information could be gathered from the external data sources?
     How compatible is the data from the external sources with the data in the given dataset?
@@ -88,7 +98,7 @@ The \textit{Problem Specific Questions} are questions related to a specific prob
     Which evaluation criteria can be applied to evaluate the approach?
 
     \item \textit{How can Trajectory Forecasting be implemented from sets of observed trajectories?} \newline
-    Can GRP-based trajectory modelling approaches be used to solve this problem?
+    Can GPR-based trajectory modelling approaches be used to solve this problem?
     Which modifications need to be done to the approach in order to produce trajectory forecasts?
     How can features from observed trajectories over extended periods of time be used to improve the forecasts?
 
@@ -105,11 +115,29 @@ The \textit{Problem Specific Questions} are questions related to a specific prob
   \end{enumerate}
 \end{description}
 
-\section{Delimitations}
+\section{Delimitations and Limitations}
 \label{sec:delimitations}
 The dataset is provided by Östgötatrafiken AB and is not available for public use.
-This thesis project will only focus on the bus data in the dataset, data from public transportation trains will be ignored.
+This thesis project will only focus on the data from buses; data from public transportation trains will be ignored.
 In order to support manual inspection of the data in the dataset, the data is filtered to only contain data from a certain geographical area.
+The data gathering process cannot be changed or affected during the span of this thesis project; the dataset is thus as-is, which means that information missing in the dataset cannot be retrieved from other sources.
+Bugs in the data gathering process cannot be solved either.
 
-\section{Structure}
-\todo{Analysis of Opportunities Enabled by the Data in chapters...}
+The models used in the thesis project will be trained and evaluated on a MacBook Pro (early 2015), with a 2,7 GHz Intel Core i5 processor and 8GB 1867 MHz DDR3 memory.
+The setup is by no means optimal, as the MacBook Pro cannot fully utilise the TensorFlow library, as it benefits from GPU acceleration.
+
+\section{Structure of the Report}
+Chapter \ref{cha:background} covers the background concepts used in the report.
+Relevant work is also described, alongside the methodology employed in the thesis project.
+Chapter \ref{cha:data} analyses the data in depth.
+The data gathering process is explained together with the structure and characteristics of the dataset.
+In the dataset pre-study, problems inherent in the dataset are explained and solutions to the problems are either outlined or implemented.
+Interesting problems from real-world scenarios are visualised and used to explain various pre-processing steps.
+The data chapter acts as a stepping stone to the higher-level problems described in Chapters \ref{cha:bus-stop-detection}-\ref{cha:arrival-time-prediction}.
+Chapter \ref{cha:bus-stop-detection} covers the problem of poorly detected bus stops, which causes a large proportion of the problems in the dataset.
+The chapter explains the problem and proposes a solution to it.
+Chapter \ref{cha:GPS-variation-estimation} focuses on the positional data in the dataset.
+It attempts to estimate the GPS variation of journeys for a bus line.
+If the proposed methodology yields good results, the overall precision of positional data could be improved for the dataset.
+Chapter \ref{cha:arrival-time-prediction} proposes a method to predict the arrival time of buses, using processed data from the spatio-temporal dataset.
+The chapter covers the description of the problem, the methodology, and the results of the implemented solution.

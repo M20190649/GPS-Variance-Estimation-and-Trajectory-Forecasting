@@ -7,7 +7,7 @@ An interesting high-level problem is thus the estimation of the variance in the 
 The hypotheses are that the GPS positions vary depending on:
 \begin{enumerate}
     \item \textit{Environment (Spatial Locality):} 
-    The surrounding environment impacts the visibility of GPS satellites. \todo{source?}
+    The surrounding environment impacts the visibility of GPS satellites.
     For example, in an environment with a lot of reflections and obstacles, the precision of the GPS position will decrease.
     On the other hand, in open fields the precision will increase, as there are fewer obstacles blocking the GPS satellite signals.
     The environment can vary between different road segments, but also inside one road segment, e.g., a road can be partly covered by houses or trees.
@@ -26,15 +26,19 @@ The hypotheses are that the GPS positions vary depending on:
     The number of road segments would be higher in the crossing-geographical approach than in the contextual approach, as, for example, "Järnvägsgatan" has many crossings but exhibit similar variance. 
     
 
-    \item \textit{GPS Sensor Calibration:}
+    \item \textit{GPS Sensor Calibration / Local Minima:}
     Each bus has its own GPS sensor, where different buses could have different models with their own calibrations.
     In the general case the different GPS sensors show small variance due to different calibrations.
     However, occasionally they can vary, e.g., by some constant factor, as shown in Figure \ref{fig:gps-sensor-calibration}.
     The single orange-coloured bus journey seems to have a constant offset compared to the rest of the journeys for that particular bus line.
     The shown scenario is quite extreme, as the offset is large enough to cause problems with the Bus Stop Detection Algorithm in the "Internal Analysis" component.
     No bus stops are detected in this particular scenario.
-    These extreme situations can thus be detected by combining the positional events with the bus stop events.
-    However, differences in calibrations which yield smaller offsets cannot be detected with this combining approach.
+    The GPS position determination is done by the sensor through an optimisation process.
+    The optimisation process could get stuck in a local minima, which would affect the accuracy of the GPS position.
+    A local minima could also be the explanation to the constant bias observed in the extreme scenarios.
+    If it was due to a local minima, the accuracy of the GPS position would improve over time.
+    The extreme situations can fortunately be detected by combining the positional events with the bus stop events.
+    However, differences in calibrations or local minima which yield smaller offsets cannot be detected with this combining approach.
 
 
     \item \textit{Time:}
@@ -49,7 +53,7 @@ The hypotheses are that the GPS positions vary depending on:
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/gps_variation}
+    \includegraphics[width=0.7\textwidth]{figures/gps_variation}
     \caption[Visualisation of multiple journeys by different buses in the same area]
     {\small Visualisation of multiple journeys by different buses in the same area.
     Each blue line is a journey in the "Started" state.
@@ -59,7 +63,7 @@ The hypotheses are that the GPS positions vary depending on:
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/gps_sensor_calibration}
+    \includegraphics[width=0.7\textwidth]{figures/gps_sensor_calibration}
     \caption[Illustrates the case of a poorly calibrated GPS sensor on an individual bus]
     {\small Illustrates the case of a poorly calibrated GPS sensor on an individual bus.
     The orange lines creating the thicker line are all the other journeys for the same bus line, but done by other buses.
@@ -69,27 +73,13 @@ The hypotheses are that the GPS positions vary depending on:
     \label{fig:gps-sensor-calibration}
 \end{figure}
 
-\subsection{Road Segment Data}
-Google Maps provides a Roads API\footnote{https://developers.google.com/maps/documentation/roads/intro} to map GPS coordinates to the closest road segment.
-The road segments could, for example, be used to create a model calculating the orthogonal variance of GPS coordinates with respect to the road segments.
-\todo{Bild?}
-However, the variance of GPS positions does not only occur orthogonal to a given road segment. \todo{Vart vill jag komma med det här?} 
-
-Manual inspection of journeys done in the pre-processing step highlights scenarios with discrepancies between roads in Google Maps and actual roads the buses drove.
-The Google Maps roads are in these scenarios usually incorrectly drawn or has missing roads.
-Figure \ref{fig:gps-map-problem} shows such a real-world example.
-The discrepancies would cause problems if used naïvely together with the Google Maps Roads API.
-These journeys would have to be detected and either handled or ignored.
-The detection could be done by looking at the distances to the closest Google Maps Roads segments.
-The distances would be roughly similar for all the journeys, as in Figure \ref{fig:gps-map-problem}.
-Since the distances would be roughly similar they could be averaged and interpreted as a bias to the roads.
-Applying the bias-interpretation methodology would result in a more generalised model using the Google Maps Roads API.
-Ignoring the journeys with discrepancies could also be seen as feasible, given that the occurrence is rare.
-Before using the simpler approach of ignoring journeys with discrepancies, a deeper analysis needs to be conducted.
+In this thesis project, 37 trajectories from a single day is used.
+Sections \ref{sec:stop-compression}-\ref{sec:probability-models} cover the methodology used for the GPS variation estimation.
+The results are presented in Section \ref{sec:gps-var-result} and discussed in Section \ref{sec:gps-var-discussion}.  
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/gps_map_problem}
+    \includegraphics[width=0.7\textwidth]{figures/gps_map_problem}
     \caption[Real-world example of multiple buses driving on a road not correctly modelled by Google Maps]
     {\small Real-world example of multiple buses driving on a road not correctly modelled by Google Maps.
     For example, at "Sjukhusvägen" the buses are driving through a building according to Google Maps.
@@ -158,19 +148,101 @@ The synchronisation is achieved by introducing a global bus line GP $f_1$, given
     f_1: (x, y) \longmapsto \tau,
  \end{equation}
 where $(x, y)$ is the (longitude, latitude)-pair and $\tau$ the synchronised \textit{time} parameter.
-Each bus line has its own $f_1$ GP, which is trained on a chosen trajectory for that bus line.
+Each bus line has its own $f_1$ GP, which is trained on a tailored trajectory for that bus line.
+The trajectory is tailored by pre-processing it with a stricter stop compression algorithm.
+Two approaches were tested and implemented:
+\begin{enumerate}
+    \item \textbf{\textit{Speed} value of 3}:
+    Instead of discarding \texttt{ObservedPositionEvent}s with a \textit{Speed} value lower than $0.1$ m/s, the threshold is increased to $3$ m/s.
+    The reason behind this is to reduce the impact from stops and traffic on the trained model.
+    The trajectory used for the training was arbitrarily chosen from a pool of trajectories occurring in the middle of the night, as during night-time, the buses stop at fewer bus stops and the traffic is generally lighter.
+    \item \textbf{Distance Filtering}:
+    With the distance filtering approach, all \texttt{ObservedPositionEvent}s were included, regardless of their respective \textit{Speed} values.
+    Instead, the filtering was done by looking at the distance between each \texttt{ObservedPositionEvent}.
+    The fifth decimal roughly corresponds to changes in metres \footnote{World Geodetic System: http://epsg.io/7030-ellipsoid}.
+    The distance filter is set to remove a point with a distance smaller than $6\times10^{-5}$ to the previous, accepted point.
+\end{enumerate}
 
-Before the model is trained on the trajectory the data is pre-processed with a stricter stop compression algorithm.
-Instead of discarding \texttt{ObservedPositionEvent}s with a \textit{Speed} value lower than $0.1$ m/s, the threshold is increased to $3$ m/s.
-The reason behind this is to reduce the impact from stops and traffic on the model training.
-The trajectory used for the training was arbitrarily chosen from a pool of trajectories occurring in the middle of the night, as during night-time, the buses stop at fewer bus stops and the traffic is lighter.
+\begin{figure}[t]   
+    \centering 
+    \includegraphics[width=0.775\textwidth]{figures/f1_gp/f1_gp_small_all_data}
+    \caption[$f_1$ GP from the first approach]%
+    {{\small $f_1$ GP from the first approach.
+    The coloured, outlined circles are training data points.
+    The black data points are observed \texttt{ObservedPositionEvent}s from all trajectories.
+    The regression field is visualised by the gradient background.}}    
+    \label{fig:f1-gp-bad}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.475\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/f1_gp/f1_gp_6e-5_filter}
+        \caption[Segment1]%
+        {{\small $f_1$ GP trained with a distance filter of $6\times10^{-5}$, which corresponds to a few metres.}}    
+        \label{fig:f1-gp-1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.475\textwidth}  
+        \centering 
+        \includegraphics[width=\textwidth]{figures/f1_gp/f1_gp_middle}
+        \caption[]%
+        {{\small Same $f_1$ GP as in \ref{fig:f1-gp-1}, but visualised on a bigger grid.}}    
+        \label{fig:f1-gp-2}
+    \end{subfigure}
+    \vskip\baselineskip
+    \begin{subfigure}[b]{0.475\textwidth}   
+        \centering 
+        \includegraphics[width=\textwidth]{figures/f1_gp/f1_gp_ARD_1e-2}
+        \caption[]%
+        {{\small The first segment has been removed from all trajectories.
+        Observation noise $\sigma_n^2$ fixed to $10^{-2}$.}}    
+        \label{fig:f1-gp-3}
+    \end{subfigure}
+    \quad
+    \begin{subfigure}[b]{0.475\textwidth}   
+        \centering 
+        \includegraphics[width=\textwidth]{figures/f1_gp/f1_gp_ARD_1e-5}
+        \caption[]%
+        {{\small The first segment has been removed from all trajectories. 
+        Observation noise $\sigma_n^2$ fixed to $10^{-5}$.}}    
+        \label{fig:f1-gp-4}
+    \end{subfigure}
+    \caption[ $f_1$ GPs from the second approach ]
+    {{\small $f_1$ GPs from the second approach. The coloured circles are the training data points.
+    The small black points are observed data points from other trajectories.
+    The background shows how points are assigned to different $\tau$ values.}} 
+    \label{fig:segments}
+\end{figure}
+
+The first approach achieved poor results, see Figure \ref{fig:f1-gp-bad}, as points in the beginning of the trajectory were not properly modelled by the $f_1$ GP, since most points had a \textit{Speed} value less than 0.1 m/s.
+The coloured, outlined circles are data points used for training the GP.
+The black points are \texttt{ObservedPositionEvent}s from trajectories.
+The regression field is shown in the gradient background; the colour maps to a $\tau$ value.
+The second approach achieves better results.
+Figures \ref{fig:f1-gp-1} and \ref{fig:f1-gp-2} show the same model visualised on different grids.
+The model does not generalise well, as seen in the larger grid by the blue coloured area in the bottom right corner of \ref{fig:f1-gp-2}.
+
+Figure \ref{fig:f1-gp-3} shows an attempt to improve the general performance of the $f_1$ GP.
+The distance filter is the same as in the model shown in \ref{fig:f1-gp-1} and \ref{fig:f1-gp-2}.
+However, the first segment has been removed from all trajectories, as the curvature created instabilities in the model.
+The effect of the curvature are similar to those which stem from trajectories with self-overlap.
+The variance is fixed to $10^{-2}$ in an attempt to prevent overfitting, as many points in the trajectory are close to each other.
+This causes the model to underestimate the variance of observations.
+Similar results would be achieved if the trajectory was downsampled to only use every $n$ data point.
+The fixed variance is too large for the model, which causes extremely poor regression.
+
+Figure \ref{fig:f1-gp-4} locks the variance to $10^{-5}$, which corresponds to a few metres in longitude and latitude, similar to the distance filtering.
+The specific GPS sensors used in the buses are unknown, but they are in this thesis assumed to have similar precision as GPS-enabled smartphones.
+The precision is typically around the range of ca. 5 metres \cite{van2015}.
 
 GP models also assume zero mean for the input data, which in this thesis project is achieved by fitting a global scaler model to the input data.
 The same trajectory used for $f_1$ is used to fit this scaler.
 All trajectory coordinates are centralised and normalised by the same scaler.
-\todo{@Mattias: Homogenously scaled data is good, om jag minns mina praktiska machine learning kurser från ETH}
-
 The GPflow framework \cite{GPflow2017} is used to implement all GP functionality in this thesis work. 
+The $f_1$ GPs were trained with a RBF kernel and the hyperparameters were automatically optimised using the GPflow framework.
+Automatic Relevance Determination \cite{Rasmussen2006} was used with the RBF kernel to allow for different length-scales in different dimensions.
 
 \section{Segment Self-Overlapping Journeys} \label{sec:segment-self-overlapping-journeys}
 After the input space synchronisation, each trajectory if fitted with two GPs.
@@ -185,10 +257,13 @@ If a journey has multiple segments, each segment is fitted with its own two GPs
 $\tau$ is the relative time of the journey, denoting the progress the bus has made on its journey, $x$ the longitude, and $y$ the latitude.
 The $\tau$ values are from the $f_1$ GP, evaluated on the trajectory data.
 
-Once $f2_k$ and $f3_k$ have been trained for each trajectory $k$, the GPs are evaluated on a $N$ long interval ($[0,1]$) of $\tau$ values.
-The result is a sequence of longitude and latitude means and variances.
+Once $f_{2_k}$ and $f_{3_k}$ have been trained for each trajectory $k$, the GPs are evaluated on a grid of longitude and latitude points.
+The grid is fed to the $f_1$ GP in order to produce a grid of $\tau$ values.
+The $\tau$ values are given to the $f_2$ and $f_3$ models and the result is a grid where each point has a longitude and latitude mean and variance, respectively.
+The grid is then visualised alongside the observed \texttt{ObservedPositionEvent}s, in order to compare the variance variation.
+The $f_2$ and $f_3$ models have a locked data noise $\sigma^2_n$ of $10^{-3}$, separate from the data noise used in GP $f_1$.
 
-\section{Probability Models}
+\section{Probability Models} \label{sec:probability-models}
 The GPs $f_2$ and $f_3$ each describe the mean ($\mu_x$ and $\mu_y$, respectively) and variance ($\sigma_x^2$ and $\sigma_y^2$, respectively) at each point in the fitted segment or journey.
 The probability for various coordinate pairs $p((x_\star,y_\star))$ is of interest in this thesis project, which can be calculated with two different approaches.
 
@@ -199,7 +274,7 @@ The prior on the MoGP model is assumed to be Uniform.
 The probability of $(x_\star, y_\star)$ for each trajectory model $k$ is 
 \(
     p_k((x_\star,y_\star)) = \mathcal{N}((x_\star,y_\star); \mu_k, \Sigma_k)
-\)\todo{borde det inte vara $\sim$ istället för $=$?}, where
+\), where
 \begin{align}
 \mu_k &= \begin{bmatrix} \mu_{k_x} \\ \mu_{k_y} \end{bmatrix} \\
 \Sigma_k &= \begin{bmatrix} \sigma^2_{k_x} & 0 \\ 0 & \sigma^2_{k_y} \end{bmatrix}
@@ -208,17 +283,21 @@ is the mean and covariance of the point evaluated at $(x_\star,y_\star)$.
 In the covariance matrix $\Sigma_k$, longitude and latitude is assumed to be independent.
 As the MoGP prior is Uniform, the probability of $(x_\star, y_\star)$ is given by
 \begin{equation}
-    p((x_\star, y_\star)) = \frac{1}{K}\sum_{k=1}^K p_k((x_\star,y_\star)) 
+    p((x_\star, y_\star)) = \frac{1}{K}\sum_{k=1}^K p_k((x_\star,y_\star)),
 \end{equation}
+where $K$ is the number of trajectory models.
 
 \subsection{Unimodal Mixture of Gaussian Process Model by Combining}
 In order to create a unimodal MoGP model, $f_{2_k}$ and $f_{3_k}$ are point-wise combined for each trajectory $k$.
-The equations \ref{eq:mean-point-wise-combined} and \ref{eq:var-point-wise-combined} from Section \ref{sec:trajectory-aggregation} are applied as follows:
+The aggregation is done by using the Combining equations \ref{eq:combining-mean} and \ref{eq:combining-var} from Section \ref{sec:trajectory-aggregation}.
+The Combining approach is preferred over the Fusion approach in this particular problem, as the model is trying to capture the variation of GPS positions.
+It is thus beneficial to use an aggregation approach which tries to capture and aggregate the variance of each local trajectory model.
+They are applied as follows (with the notation changed to represent the notation used in this chapter):
 \begin{align}
-    \mu_x(x^*) &= \frac{\sum_{k=1}^{K} M_k\mu_{k_x}(x^*)}{\sum_{k=1}^{K} M_k} \label{eq:combined-mu-x} \\
-    \mu_y(y^*) &= \frac{\sum_{k=1}^{K} M_k\mu_{k_y}(y^*)}{\sum_{k=1}^{K} M_k} \label{eq:combined-mu-y} \\
-    \sigma_x^2(x^*) &= \frac{\sum_{k=1}^{K} M_k\Big(\sigma_{k_x}^2(x^*) + \mu_{k_x}^2(x^*)\Big)}{\sum_{k=1}^{K} M_k} - \mu_x(x^*)^2 \label{eq:combined-var-x} \\
-    \sigma_y^2(y^*) &= \frac{\sum_{k=1}^{K} M_k\Big(\sigma_{k_y}^2(y^*) + \mu_{k_y}^2(y^*)\Big)}{\sum_{k=1}^{K} M_k} - \mu_y(y^*)^2 \label{eq:combined-var-y}
+    \mu_x(x^*) &= \frac{\sum_{k=1}^{K} M_k\mu_{k_x}(x^*)}{\sum_{k=1}^{K} M_k}, \label{eq:combined-mu-x} \\
+    \mu_y(y^*) &= \frac{\sum_{k=1}^{K} M_k\mu_{k_y}(y^*)}{\sum_{k=1}^{K} M_k}, \label{eq:combined-mu-y} \\
+    \sigma_x^2(x^*) &= \frac{\sum_{k=1}^{K} M_k\Big(\sigma_{k_x}^2(x^*) + \mu_{k_x}^2(x^*)\Big)}{\sum_{k=1}^{K} M_k} - \mu_x(x^*)^2, \label{eq:combined-var-x} \\
+    \sigma_y^2(y^*) &= \frac{\sum_{k=1}^{K} M_k\Big(\sigma_{k_y}^2(y^*) + \mu_{k_y}^2(y^*)\Big)}{\sum_{k=1}^{K} M_k} - \mu_y(y^*)^2, \label{eq:combined-var-y}
 \end{align}
 where
 \begin{itemize}
@@ -242,69 +321,130 @@ The equations \ref{eq:simplified-combined-mu-x}-\ref{eq:simplified-combined-var-
 \mu((x^*, y^*)) &= \begin{bmatrix} \mu_x(x^*) \\ \mu_y(y^*) \end{bmatrix} \\
 \Sigma((x^*, y^*)) &= \begin{bmatrix} \sigma^2_x(x^*) & 0 \\ 0 & \sigma^2_y(y^*) \end{bmatrix}
 \end{align}
-which gives the probability of an arbitrary point $(x_\star, y_\star)$: $p(x_\star, y_\star) = \mathcal{N}((x_\star, y_\star), \mu, \Sigma)$
-\todo{@Mattias: Är osäker på exakt hur jag ska formulera matematiskt det vi gör. Försöker hitta liknande notaitoner i litteraturen, men finner inget bra exempel.}
+which gives the probability of an arbitrary point $(x_\star, y_\star)$: $p(x_\star, y_\star) = \mathcal{N}((x_\star, y_\star); \mu, \Sigma)$
 
-\section{Results}
+\section{GPS Variance Estimation Results} \label{sec:gps-var-result}
 
-The unimodal MoGP model is visualised by evaluating the MoGP model on a grid of (longitude, latitude) values.
-Figure \ref{fig:predictive-mean-combined-gp} shows the predictive mean for the unimodal MoGP model.
-The trajectory shown is thus the predicted mean of observing new data points for the bus line.
-The MoGP model consists of 37 trajectories from a single day. 
-Figure \ref{fig:predictive-var-combined-gp1} shows the predictive variance of the starting segment for the bus line and Figure \ref{fig:starting-segment-trajectory} shows this starting segment on Google Maps, where the red lines are trajectories for the bus line.
-Figure \ref{fig:fig:predictive-var-combined-gp2} shows a predictive variance for a segment of the trajectory containing a bus stop.
-\begin{figure}[t!]
+The unimodal MoGP model is visualised by evaluating the MoGP model on a grid of longitude and latitude values.
+The grid is fed to the $f_1$ GP and thus converted into a grid of $\tau$ values.
+The $\tau$ values are given to the $f_2$ and $f_3$ GPs, which returns the predicted longitude and latitude mean and variance, respectively. 
+The predicted means and variances are used to create Gaussian distributions for each longitude and latitude pair in the grid.
+The probability density function (PDF) is calculated for each Gaussian distribution and is integrated with the grid resolution in order to create a probability distribution.
+Figure \ref{fig:gps-variation-estimation} shows the GPS variation for three segments of a bus line.
+
+\begin{figure}
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/combined_gp}
-    \caption[Predictive mean of the unimodal MoGP model]
-    {\small Predictive mean of the unimodal MoGP model. 
-    The trajectory shown is the mean trajectory of 37 trajectories.}
-    \label{fig:predictive-mean-combined-gp}
+    \begin{subfigure}[b]{0.475\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/gps_var/f1_ard_contour_segment1_combine}
+        \caption[]%
+        {{\small Segment 1 - Beginning of bus line.}}    
+        \label{fig:contour-segment-1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.475\textwidth}  
+        \centering 
+        \includegraphics[width=\textwidth]{figures/gps_var/f1_ard_contour_segment2_combine}
+        \caption[]%
+        {{\small Segment 2 - Middle of the bus line.}}    
+        \label{fig:contour-segment-2}
+    \end{subfigure}
+    \vskip\baselineskip
+    \begin{subfigure}[b]{0.475\textwidth}   
+        \centering
+        \includegraphics[width=\textwidth]{figures/gps_var/f1_ard_contour_segment3_combine}
+        \caption[]%
+        {{\small Segment 3 - End of the bus line.}}    
+        \label{fig:contour-segment-3}
+    \end{subfigure}
+    \caption[ GPS variance variation estimation ]
+    {{\small GPS variance variation estimation.
+    Shows the probability that a GPS position is observed for a given bus line.
+    The model uses a fixed data noise of $10^{-3}$.
+    The red dots are \texttt{ObservedPositionEvent}s from the data set.
+    The Y-axis is the latitude coordinates and the X-axis is the longitude coordinates.}} 
+    \label{fig:gps-variation-estimation}
 \end{figure}
 
-\begin{figure}[h!]
-    \centering
-    \begin{subfigure}[t]{0.6\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/0_1000x1000}
-        \caption[Heatmap of the predictive variance of the unimodal MoGP model]
-        {\small Heatmap of the predictive variance of the unimodal MoGP model.}
-        \label{fig:predictive-var-combined-gp1}
-    \end{subfigure}
-    ~
-    \begin{subfigure}[t]{0.5\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/starting_segment}
-        \caption[]
-        {\small Starting segment with bus line journeys (trajectories) drawn with red lines.}
-        \label{fig:starting-segment-trajectory}
-    \end{subfigure}
-    \caption[The predictive variance and the trajectories for the starting segment $S_0$]
-    {\small The predictive variance and the trajectories for the starting segment $S_0$.}
-\end{figure}
+\section{Discussion} \label{sec:gps-var-discussion}
 
-\begin{figure}[h!]
-    \centering
-    \begin{subfigure}[t]{0.9\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/2_1000x1000}
-        \caption[]
-        {\small Segment containing a bus stop.
-        The bus stop occurs immediately after top curve.}
-    \end{subfigure}
-    ~
-    \begin{subfigure}[t]{0.9\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/3_1000x1000}
-        \caption[]
-        {\small The bus stop is zoomed in to show the increase in predictive variance around the bus stop.}
-    \end{subfigure}
-    \caption[Predictive variance of the unimodal MoGP model]
-    {\small Predictive variance of the unimodal MoGP model.
-    The segment shown contains a bus stop.}
-    \label{fig:predictive-var-combined-gp2}
-\end{figure}
+The results presented in Figure \ref{fig:gps-variation-estimation} all show low probabilities of observing certain GPS positions, even if the grid position is surrounded by observed data points.
+This is probably due to a few things:
+    \begin{enumerate}
+        \item Though the $f_1$ GP is improved compared to the first approach, it is still not perfect and generalises poorly.
+        It creates large areas of uncertainty, were similar values are mapped to the same $\tau$ value.
+        This affects the training of the $f_2$ and $f_3$ GPS, as the data is dependent on the transformation (synchronisation) from $f_1$.
+        \item Individual longitude or latitude coordinates close to a cluster of observed positions achieve a probability of ca. 0.8-0.9.
+        However, it is generally the case that if the probability of a longitude coordinate is high, then the probability of the latitude coordinate for that grid point is low.
+        As the longitude and latitude coordinates are assumed independent, the probability for a grid point is $p(lat_point) * p(lng_point)$, where one is close to 1 and the other one small (< 0.1).
+        This is partially solved if the PDF is integrated on a larger interval, as more of the probability density is captured in one point.
+    \end{enumerate}
 
-\section{Discussion}
+The variance variation is larger at certain locations on the bus line.
+In the end segment shown in Figure \ref{fig:contour-segment-3}, this occurs in an environment surrounded by tall buildings.
+This might be a reason for the increased variation, though it is not adequately reflected in the observed training data.
+The reason for the increased variation might also be a poor generalisation from the $f_1$ GP, which perhaps handles the sharp turn poorly.
+The $f_1$ GP might have performed better if it was trained on segments of the trajectory, instead of trying to learn the full trajectory.
+The removal of the first segment from all trajectories were a necessary step in order to try and improve the generalisation of the $f_1$ GP.
+However, as discussed above, it might not have been enough in order to create a generally robust model.
+
+\subsection{Evaluation and Assumptions}
+In this thesis project, the variation was evaluated visually.
+Ideally, other metrics would be applied, such as determining locations where the variation was the smallest and the biggest.
+These metrics could be useful when looking at the impact of the surrounding environment on the GPS variance.
+The kernels used were evaluated both visually and by looking at the resulting hyperparameters after the optimisation step.
+If the likelihood of the data were optimised to be small ($10^{-6}$), it could be a result of overfitting to the linear trend of the data.
+
+In this thesis project, the data was assumed to have an inherent noise of $10^{-5}$, which is the measured accuracy of GPS-enabled smartphones.
+The noise specified for the $f_2$ and $f_3$ GPs were fixed to $10^{-3}$.
+They were tested with a data noise of $10^{-5}$, as in the case of $f_1$, but this resulted in barely any variation visible.
+The variation shown in Figure \ref{fig:gps-variation-estimation} is thus dependent on the fixed noise of the observed data.
+This parameter needs further investigating, as the current choice results in perhaps larger variation than expected.
+
+\subsection{Model Optimisation}
+The models were in this thesis project optimised using the L-BFGS-B algorithm implemented in open-source software Scipy\footnote{https://docs.scipy.org/doc/scipy/reference/index.html}.
+It would perhaps have been better to optimise the hyperparameters through Markov chain Monte Carlo (MCMC) using Hamiltonian Monte Carlo (HMC) sampling, implemented in the GPflow framework.
+The use of sampling to optimise hyperparameters would definitely be useful to investigate in future work.
+
+\subsection{Trajectories}
+Due to limited time and limited processing power, the number of trajectories used for the models were restricted to 37.
+The trajectories were all collected from the same day.
+It took, on average, ca. 8 hours on the to retrain all the models, which caused changes to be expensive time-wise.
+It was not always immediately clear if a change would generalise well or not.
+For example, some configurations showed extremely poor results on only a small number of trajectories, while the results were average on the others.
+The training time proved to be a huge drain on the effectivity of the feature extraction and model optimisation.
+
+The aim of the thesis project was to use trajectories from multiple days in order to determine an eventual bias of the positions depending on day and time.
+This thesis project creates a foundation were this analysis is possible in a future work.   
+
+Only trajectories from buses were analysed in this thesis project.
+It would have been interesting to see how the data from trains differed and how their variance variation compared to the variation from the buses.
 
 \section{Future Work}
+There are a few aspects which could be improved in future work.
+The improvement of the $f_1$ GP would be a main priority, given more time to the thesis project.
+The $f_1$ GP is the backbone of the $f_2$ and $f_3$ models trained for the GPS variance variation estimation.
+The idea of splitting a trajectory into smaller segments and train one $f_1$ GP for each segment is sound.
+
+\subsection{Variation Over Multiple Days}
+Future improvements of the GPS variation estimation would be to train the models on data from different days, using the day and time of the day as a feature.
+This would allow for the analysis of how the GPS variation changes throughout a day and over a span of days.
+The use of a periodic kernel would perhaps also be useful, in order to capture the periodicity of satellites.
+Improvements made to the dataset could further benefit this analysis.
+For example, information about the number of satellites used, or which satellites were available, would give information about the potential periodicity of the variation.
+
+\subsection{Road Segments}
+Another area not investigated in this thesis project is the use of the Google Maps Roads API\footnote{https://developers.google.com/maps/documentation/roads/intro}.
+The API maps GPS coordinates to the closest geographical road segment.
+The road segments could, for example, in future work be used as a "truth" when determining the variation of GPS signals.
+However, manual inspection of journeys done in the pre-processing step highlights scenarios with discrepancies between roads in Google Maps and actual roads the buses drove.
+The Google Maps roads are in these scenarios usually incorrectly drawn or has missing roads.
+Figure \ref{fig:gps-map-problem} shows such a real-world example.
+The discrepancies would cause problems if used naïvely together with the Google Maps Roads API.
+These journeys would have to be detected and either handled or ignored.
+The detection could be done by looking at the distances to the closest Google Maps Roads segments.
+The distances would be roughly similar for all the journeys, as in Figure \ref{fig:gps-map-problem}.
+Since the distances would be roughly similar they could be averaged and interpreted as a bias to the roads.
+Applying the bias-interpretation methodology would result in a more generalised model using the Google Maps Roads API.
+Ignoring the journeys with discrepancies could also be seen as feasible, given that the occurrence is rare.
+Before using the simpler approach of ignoring journeys with discrepancies, a deeper analysis needs to be conducted.

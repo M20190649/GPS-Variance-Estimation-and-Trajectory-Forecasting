@@ -49,12 +49,12 @@ def distance(p1, p2):
     return np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
 
 
-def load_f1_GP_revamped(session, logger, base_dir):
-    f1_gp = session.load(base_dir + "f1_gp")
+def load_f1_GP_revamped(session, logger, base_dir, version=""):
+    f1_gp = session.load(base_dir + "f1_gp{}".format(version))
     f1_scaler = load_array("f1_scaler", logger, base_dir)
     return f1_gp, f1_scaler
 
-def create_f1_GP_revamped(route, session, logger, base_dir, load_model):
+def create_f1_GP_revamped(route, session, logger, base_dir, load_model, version=""):
     events = [e for e in route if e["event.type"] == "ObservedPositionEvent" and e["speed"] > -1]
     events = filter_duplicates(events)
     prev_point = events[0]
@@ -64,17 +64,18 @@ def create_f1_GP_revamped(route, session, logger, base_dir, load_model):
         if  dist > 6e-05:
             distance_filtered_events.append(event)
             prev_point = event
+    
             
     X = np.vstack([e["gps"][::-1] for e in distance_filtered_events])
     Y = np.linspace(0, 1, num = X.shape[0]).reshape(-1,1)
     
     if load_model:
-        f1_gp, f1_scaler = load_f1_GP_revamped(session, logger, base_dir)
+        f1_gp, f1_scaler = load_f1_GP_revamped(session, logger, base_dir, version)
     else:
         f1_scaler = StandardScaler().fit(X)
         X_fitted = f1_scaler.transform(X)
         f1_gp = train_f1_gp_revamped(X_fitted, Y, logger, constrain=True)
-        session.save(base_dir + "f1_gp_constrained", f1_gp)
+        session.save(base_dir + "f1_gp{}".format(version), f1_gp)
         save_array(f1_scaler, "f1_scaler", logger, base_dir)
     
     return {
@@ -87,14 +88,14 @@ def create_f1_GP_revamped(route, session, logger, base_dir, load_model):
 
 def get_all_trajectories(trajectories, trajectory_key):
     trajectory_start, trajectory_end = trajectory_key.split(":")
-    all_trajectories = trajectories[trajectory_key]
-    
+    all_trajectories = []
     for key, values in trajectories.items():
         k_start, k_end = key.split(":")
-        if trajectory_start == k_start and trajectory_end != k_end:
+        if trajectory_start == k_start:
             for vehicle_id, journey in values:
-                segmented_journey, _ = journey.segment_at(trajectory_end)
-                all_trajectories.append((vehicle_id, segmented_journey))
+                segmented_journey, _rest = journey.segment_at(trajectory_end)
+                _start, main_journey = segmented_journey.segment_at("Mariedalsgatan")
+                all_trajectories.append((vehicle_id, main_journey))
     return all_trajectories
 
 
@@ -102,7 +103,8 @@ def visualise_f1_gp_revamped(X, Y, f1_gp, f1_scaler, other_points, file_name="f1
     res = 200
     #lat, lng = np.mgrid[58.410317:58.427006:res*1j, 15.490352:15.523200:res*1j] # Big Grid
     #lat, lng = np.mgrid[58.416317:58.42256:res*1j, 15.494352:15.503200:res*1j] # Middle Grid
-    lat, lng = np.mgrid[58.4173:58.419:res*1j, 15.4965:15.499:res*1j] # Small Grid
+    #lat, lng = np.mgrid[58.4173:58.419:res*1j, 15.4965:15.499:res*1j] # Small Grid
+    lat, lng = np.mgrid[58.4190:58.422:res*1j, 15.500:15.502:res*1j] # Small Grid (new start)
 
     pos_grid = np.dstack((lng, lat)).reshape(-1, 2)
     print("Grid created.")
@@ -119,7 +121,7 @@ def visualise_f1_gp_revamped(X, Y, f1_gp, f1_scaler, other_points, file_name="f1
     #proj_points_inv = f1_scaler.inverse_transform(proj_points)
     #print(proj_points_inv)
     print(len(X))
-    X_test = X[:29]
+    X_test = X[:42]
     X_test_fitted = f1_scaler.transform(X_test)
     means, _var = f1_gp.predict_y(X_test_fitted)
     #means_fitted = inv_scaler.transform(means)
@@ -131,6 +133,7 @@ def visualise_f1_gp_revamped(X, Y, f1_gp, f1_scaler, other_points, file_name="f1
     #    print(x, test_proj_points_inv[i])
     plt.figure()
     plt.title(title)
+    plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
     #plt.scatter(pos_grid[:,0], pos_grid[:,1]),#, c=grid_tau_mapped[:,0], cmap="cool", s=0.5)
     min_x = min(pos_grid[:,0])
     max_x = max(pos_grid[:,0])
@@ -161,9 +164,10 @@ def train_f1_gp_revamped(X_train, Y_train, logger, constrain=False):
     """GP which maps lng, lat -> Tau.
     X_train should be standardised and should not contain any stops."""
     with gpflow.defer_build():
-        m = gpflow.models.GPR(X_train, Y_train, kern=gpflow.kernels.RBF(2, lengthscales=0.01))
+        #m = gpflow.models.GPR(X_train, Y_train, kern=gpflow.kernels.RBF(2, lengthscales=0.01))
+        m = gpflow.models.GPR(X_train, Y_train, kern=gpflow.kernels.RBF(2, ARD=True))
         if constrain:
-            m.likelihood.variance = 1e-04
+            m.likelihood.variance = 1e-05
             m.likelihood.variance.trainable = False
         else:
             m.likelihood.variance = 30

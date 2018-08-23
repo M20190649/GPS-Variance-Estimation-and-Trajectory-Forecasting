@@ -35,11 +35,14 @@ Below is a brief description of the steps already covered, with alterations high
     \item \textit{Synchronising Input Space:}
     The input space is synchronised using by training a global GP model $f_1$, given by eq. \ref{eq:gps-var-f1} in Section \ref{sec:synchronisation}.
     The model is thus
-    \begin{equation*} \label{eq:gps-var-f1}
+    \begin{equation} \label{eq:gps-var-f1}
         f_1: (x, y) \longmapsto \tau,
-    \end{equation*}
+    \end{equation}
     and is implemented using the GPflow \cite{GPflow2017} framework.
-    The GP is implemented using a Matérn covariance function (kernel) with hyperparameter $\nu =3/2$, commonly referred to as a \textit{Matern32} kernel.
+    The training trajectory is distance filtered with a threshold of $6 \times 10^{-5}$, which roughly corresponds to a few metres.
+    The GP is implemented using a RBF kernel with ARD for the length-scale parameter.
+    The data noise variance parameter $\sigma^2_n$ is fixed at $10^{-5}$.
+    The $f_1$ GP is thus the same as the one used in Chapter \ref{cha:GPS-variation-estimation}.
 
     \item \textit{Segment Self-Overlapping Journeys:}
     Self-overlapping trajectories are segmented until no self-overlapping is occurring for the trajectory.
@@ -47,6 +50,11 @@ Below is a brief description of the steps already covered, with alterations high
     Each segment will have a small model overlap, which means that neighbouring segments will share a few data points.
     This improves the robustness of the model, as it retains the desired shape close to the borders \cite{Tiger2018-gp-motion-pattern}.
     The overlap used in this thesis project is set to 5 \texttt{ObservedPositionEvent}s, which is roughly 6.5\% of an average-length segment (ca. 77 \texttt{ObservedPositionEvent}s).
+
+    \item \textit{Remove First Segment:}
+    As briefly discussed in Chapter \ref{cha:GPS-variation-estimation}, the performance of the $f_1$ GP is poor when training on the start of the trajectory.
+    Therefore, the first segment is removed from all trajectories.
+
 \end{enumerate}
 
 Once these three steps are executed, the approach majorly diverges compared to the approach described in Chapter \ref{cha:GPS-variation-estimation}.
@@ -129,7 +137,7 @@ Two different GP models are created and are given by
     \caption[Arrival time prediction with the $f_B$ GP model]%
     {{\small Arrival time prediction with the $f_B$ GP model.
     The GP model predicts the arrival time for a bus driving in segment $S_0$.
-    This table contains only a part of the segment $S_0$.
+    This table contains only a part of segment $S_0$ .
     Two GP models trained on segment $S_0$ are used for the prediction: $f^{(1)}_{B_0}$ and $f^{(2)}_{B_0}$.
     The right column contains the true arrival time (in seconds remaining) for the bus.}}
     \label{table:f_B-examples} 
@@ -163,7 +171,7 @@ Two different GP models are created and are given by
     \caption[Arrival time prediction with the $f_A$ GP model]%
     {{\small Arrival time prediction with the $f_A$ GP model.
     The GP model predicts the arrival time for a bus driving in segment $S_0$.
-    This table contains the full trajectory segment $S_0$.
+    This table contains only a part of segment $S_0$.
     Two GP models trained on segment $S_0$ are used for the prediction: $f^{(1)}_{A_0}$ and $f^{(2)}_{A_0}$.
     The right column contains the true arrival time (in seconds remaining) for the bus.}}
     \label{table:f_A-examples} 
@@ -188,38 +196,6 @@ Two different GP models are created and are given by
         19.80148649 & 49.37658565 & 34.0 \\
         19.21908983 & 48.68000806 & 33.0 \\
         18.63669317 & 47.65352869 & 32.0 \\
-        18.05429651 & 46.02520827 & 31.0 \\
-        17.47189984 & 44.1262408 & 30.0 \\
-        16.88950318 & 42.15228012 & 29.0 \\
-        16.30710652 & 40.15343929 & 28.0 \\
-        15.72470986 & 38.24670063 & 27.0 \\
-        15.1423132 & 36.48232127 & 26.0 \\
-        14.55991654 & 34.88608213 & 25.0 \\
-        13.97751987 & 33.27055723 & 24.0 \\
-        13.39512321 & 31.60546199 & 23.0 \\
-        12.81272655 & 29.9831286 & 22.0 \\
-        12.23032989 & 28.31336581 & 21.0 \\
-        11.64793323 & 27.17332347 & 20.0 \\
-        11.06553657 & 25.93364806 & 19.0 \\
-        10.48313991 & 24.84461193 & 18.0 \\
-        9.90074324 & 24.03633668 & 17.0 \\
-        9.31834658 & 23.3454507 & 16.0 \\
-        8.73594992 & 22.37728688 & 15.0 \\
-        8.15355326 & 21.41980069 & 14.0 \\
-        7.5711566 & 20.52921774 & 13.0 \\
-        6.98875994 & 19.5353604 & 12.0 \\
-        6.40636328 & 18.51786328 & 11.0 \\
-        5.82396661 & 17.51855416 & 10.0 \\
-        5.24156995 & 16.5171758 & 9.0 \\
-        4.65917329 & 15.45255104 & 8.0 \\
-        4.07677663 & 14.2718466 & 7.0 \\
-        3.49437997 & 13.101716 & 6.0 \\
-        2.91198331 & 12.2061083 & 5.0 \\
-        2.32958665 & 11.09441227 & 4.0 \\
-        1.74718998 & 9.68280617 & 3.0 \\
-        1.16479332 & 8.31569843 & 2.0 \\
-        0.58239666 & 6.04183395 & 1.0 \\
-        0. & 1.62973611 & 0.0 \\
         \hline
     \end{tabular}
 \end{table}
@@ -243,7 +219,8 @@ The same approach is used in the evaluation:
     \item The right column contains the true arrival times for the evaluation data.
 \end{itemize}
 
-The evaluation resulted in heavier focus on the $f_A$ GP model.
+It is surprising that the $f^{(1)}_{A_0}$ performs poorly when evaluated on training data.
+However, as both models perform moderately well on both testing and training data, the $f_A$ model will be the focus on the remainder of this thesis project.
 Different kernels are tested and evaluated for the $f_A$, together with varying the hyperparameters.
 The follow kernels are tested:
 \begin{enumerate}
@@ -264,6 +241,17 @@ The metric scores and the visual representation of the different GPs are taken i
 The best setting is used for the remainder of the thesis project.
 GPflow also supports a wide range of optimisation algorithms.
 This thesis project uses the standard L-BFGS-B algorithm.
+
+\subsection{Model Evaluation $f_A$}
+The results of the $f_A$ GP model evaluation are presented in Table \ref{table:metric-scores}.
+The RBF kernel and the combined RBF+Linear kernel achieved the best scores.
+However, in some segments the different choice of kernels greatly affected the robustness of the GP model.
+Figure \ref{fig:5-18-3-18-models} shows a segment for two different trajectories, were either only the RBF kernel performs well or only the RBF+Linear kernel.
+While the two kernels work equally well in the general case, there are segments were neither work, depending on the trajectory.
+Manual analysis of the different segments show that most segments follow a linear trend with occasional curvature.
+This suggests that a RBF+Linear kernel could be more suitable in the general case. 
+While GPflow optimises the hyperparameters of the model, it seems like the models occasionally get stuck in a local minima, as shown in Figure \ref{fig:3-18-rbf-linear} and \ref{fig:5-18-rbf}.
+The problem with poor performance could thus be solved by changing the hyperparameter initialisation.
 
 \begin{table}
     \centering
@@ -294,70 +282,67 @@ This thesis project uses the standard L-BFGS-B algorithm.
         \centering
         \includegraphics[width=\textwidth]{figures/forecasting/gp_3_18_rbf}
         \caption[]%
-        {{\small Model of trajectory 3, segment 18,using the RBF kernel.}}    
+        {{\small Model of trajectory 3, segment 18, using the RBF kernel.}}    
         \label{fig:3-18-rbf}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.475\textwidth}  
         \centering 
         \includegraphics[width=\textwidth]{figures/forecasting/gp_3_18_rbf_linear}
-        \caption[]%
-        {{\small Model of trajectory 3, segment 18, using the RBF+Linear kernel.}}    
-        \label{fig:3-18-rbf-linear}
-    \end{subfigure}
-    \vskip\baselineskip
+            \caption[]%
+            {{\small Model of trajectory 3, segment 18, using the RBF+Linear kernel.}}    
+            \label{fig:3-18-rbf-linear}
+        \end{subfigure}
+        \vskip\baselineskip
+        \begin{subfigure}[b]{0.475\textwidth}   
+            \centering
+            \includegraphics[width=\textwidth]{figures/forecasting/gp_5_18_rbf}
+            \caption[]%
+            {{\small Model of trajectory 5, segment 18, using the RBF kernel.}}    
+            \label{fig:5-18-rbf}
+        \end{subfigure}
+        \quad
+        \begin{subfigure}[b]{0.475\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{figures/forecasting/gp_5_18_rbf_linear}
+            \caption[]%
+            {{\small Model of trajectory 5, segment 18, using the RBF+Linear kernel.}}    
+            \label{fig:5-18-rbf-linear}
+        \end{subfigure}
+        \caption[ Visualisation of $f_A$ models with different kernels ]
+        {{\small Visualisation of $f_A$ models with different kernels.
+        Each figure contains the predictive mean and variance of the model, alongside the training data points.  
+        The X-axis is the $\tau$ values of the trajectory segment and the Y-axis is the arrival time to the end of the segment, in seconds.}} 
+        \label{fig:5-18-3-18-models}
+    \end{figure}
+
+\begin{figure}
+    \centering
     \begin{subfigure}[b]{0.475\textwidth}   
         \centering
-        \includegraphics[width=\textwidth]{figures/forecasting/gp_5_18_rbf}
-        \caption[]%
-        {{\small Model of trajectory 5, segment 18, using the RBF kernel.}}    
-        \label{fig:5-18-rbf}
+        \includegraphics[width=\textwidth]{figures/forecasting/gp_3_18_rbf_linear_log}
+        \caption[RBF+Linear kernel with logarithmised input.]%
+        {{\small RBF+Linear kernel with logarithmised input. 
+        The model is trained on data from trajectory 3, segment 18.
+        }}
+        \label{fig:3-18-log}
     \end{subfigure}
     \quad
     \begin{subfigure}[b]{0.475\textwidth}   
         \centering 
-        \includegraphics[width=\textwidth]{figures/forecasting/gp_5_18_rbf_linear}
-        \caption[]%
-        {{\small Model of trajectory 5, segment 18, using the RBF+Linear kernel.}}    
-        \label{fig:5-18-rbf-linear}
+        \includegraphics[width=\textwidth]{figures/forecasting/gp_3_18_linear}
+        \caption[Linear kernel component of the RBF+Linear model.]%
+        {{\small Linear kernel component of the RBF+Linear model. 
+        The model is trained on data from trajectory 3, segment 18.
+        }}
+        \label{fig:3-18-linear}
     \end{subfigure}
-    \caption[ Visualisation of $f_A$ models with different kernels ]
-    {{\small Visualisation of $f_A$ models with different kernels.
+    \caption[ Visualisation of arbitrary segments with the RBF+Linear kernel ]
+    {{\small Visualisation of segments with the RBF+Linear kernel.
     Each figure contains the predictive mean and variance of the model, alongside the training data points.  
     The X-axis is the $\tau$ values of the trajectory segment and the Y-axis is the arrival time to the end of the segment, in seconds.}} 
-    \label{fig:5-18-3-18-models}
+    \label{fig:3-18-variations}
 \end{figure}
-
-\begin{figure}[t!]
-    \centering
-    \includegraphics[width=0.475\textwidth]{figures/forecasting/gp_3_18_rbf_linear_log}
-    \caption[RBF+Linear kernel with logarithmised input.]%
-    {{\small RBF+Linear kernel with logarithmised input. 
-    The model is trained on data from trajectory 3, segment 18.
-    }}
-    \label{fig:3-18-log}
-\end{figure}
-
-\begin{figure}[t!]
-    \centering
-    \includegraphics[width=0.475\textwidth]{figures/forecasting/gp_3_18_linear}
-    \caption[Linear kernel component of the RBF+Linear model.]%
-    {{\small Linear kernel component of the RBF+Linear model. 
-    The model is trained on data from trajectory 3, segment 18.
-    }}
-    \label{fig:3-18-linear}
-\end{figure}
-
-\subsection{Model Evaluation $f_A$}
-The results of the $f_A$ GP model evaluation are presented in Table \ref{table:metric-scores}.
-The RBF kernel and the combined RBF+Linear kernel achieved the lowest scores.
-In the general case, the RBF kernel and the RBF+Linear kernel performed equally well.
-However, in some segments the different choice of kernels greatly affected the robustness of the GP model.
-Figure \ref{fig:5-18-3-18-models} shows a segment for two different trajectories, were either only the RBF kernel performs well or only the RBF+Linear kernel.
-While the two kernels work equally well in the general case, there are segments were neither work, depending on the trajectory.
-Manual analysis of the different segments show that most segments follow a linear trend with occasional curvature.
-This suggests that a RBF+Linear kernel could be more suitable in the general case.
-While GPflow optimises the hyperparameters of the model, it seems like the models occasionally get stuck in a local minima, as shown in Figure \ref{fig:3-18-rbf-linear} and \ref{fig:5-18-rbf}.
 
 Figure \ref{fig:3-18-log} shows how the model in \ref{fig:3-18-rbf-linear} performs better if the natural logarithm is applied to the input data.
 The improved performance indicates that the RBF+Linear model performs better if the input values are closer, or around zero.
@@ -365,7 +350,8 @@ In Figure \ref{fig:3-18-linear}, only the Linear kernel component from the RBF+L
 The figure indicates that the Linear kernel component takes over the combined kernel.
 In order to try and resolve the problems, the initial hyperparameters of the RBF+Linear model are varied manually, until a stable model is acquired.
 
-Figure \ref{fig:good-kernel-results} shows the RBF+Linear model with the following initial hyperparameters:
+\subsection{Final Model}
+Figure \ref{fig:good-kernel-results} shows the final RBF+Linear model with the following initial hyperparameters:
 \begin{enumerate}
     \item $l_{RBF}=0.1$, where $l_{RBF}$ is the length-scale of the RBF kernel in the combined RBF+Linear model.
     \item $\sigma_{Linear}^2=500$, where $\sigma_{Linear}^2$ is a prior on the variance of the Linear kernel in the combined RBF+Linear model.
@@ -373,22 +359,6 @@ Figure \ref{fig:good-kernel-results} shows the RBF+Linear model with the followi
 
 \begin{figure}
     \centering
-    \begin{subfigure}[b]{0.475\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/forecasting/gp_2_0_rbf_linear}
-        \caption[]%
-        {{\small Model of trajectory 2, segment 0, using the RBF+Linear kernel.}}    
-        \label{fig:2-0-rbf-linear}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.475\textwidth}  
-        \centering 
-        \includegraphics[width=\textwidth]{figures/forecasting/gp_4_15_rbf_linear}
-        \caption[]%
-        {{\small Model of trajectory 4, segment 15, using the RBF+Linear kernel.}}    
-        \label{fig:4-15-rbf-linear}
-    \end{subfigure}
-    \vskip\baselineskip
     \begin{subfigure}[b]{0.475\textwidth}   
         \centering
         \includegraphics[width=\textwidth]{figures/forecasting/gp_16_4_rbf_linear}
@@ -411,46 +381,234 @@ Figure \ref{fig:good-kernel-results} shows the RBF+Linear model with the followi
     \label{fig:good-kernel-results}
 \end{figure}
 
+The arrival time prediction model is evaluated with the Leave-One-Out (LOO) approach:
+\begin{enumerate}
+    \item One trajectory from the pool of 38 trajectories used in the thesis is randomly chosen as a test trajectory.
+    \item The test trajectory is used for evaluation on all $K-1$ models trained on different data.
+    In this case, the test trajectory is used to evaluate 37 models.
+    \item The first step is repeated, but with another trajectory.
+\end{enumerate}
+
+The evaluation is done by predicting the arrival time at each \texttt{ObservedPositionEvent} $p_i$ in the test trajectory.
+Each model gives a predictive mean and variance for the arrival time.
+The prediction is thus a mixture of Gaussian distributions.
+The mixture is in this thesis project assumed to have a Uniform prior.
+The predicted arrival time is chosen to be the mean of the mixture means.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.475\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/arrival_times/res_5_traj32_seg4}
+        \caption[]%
+        {{\small Predicted arrival time for trajectory 32 at segment 4.}}    
+        \label{fig:result-1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.475\textwidth}  
+        \centering 
+        \includegraphics[width=\textwidth]{figures/arrival_times/res_10_traj13_seg10}
+            \caption[]%
+            {{\small Predicted arrival time for trajectory 13 at segment 10.}}    
+        \label{fig:result-2}
+    \end{subfigure}
+    \vskip\baselineskip
+    \begin{subfigure}[b]{0.475\textwidth}   
+        \centering
+        \includegraphics[width=\textwidth]{figures/arrival_times/res_5_traj17_seg3}
+        \caption[]%
+        {{\small Predicted arrival time for trajectory 17 at segment 3.}}    
+        \label{fig:result-3}
+    \end{subfigure}
+    \quad
+    \begin{subfigure}[b]{0.475\textwidth}   
+        \centering 
+        \includegraphics[width=\textwidth]{figures/arrival_times/res_12_traj13_seg7}
+        \caption[]%
+        {{\small Predicted arrival time for trajectory 13 at segment 7.}}    
+        \label{fig:result-4}
+    \end{subfigure}
+    \caption[ Predicted arrival times ]
+    {{\small Predicted arrival times.
+    Each figure contains the predictive and true arrival time for the test trajectory, evaluating on 37 models trained on different trajectories.
+    The dashed line is the predicted arrival time from the mixture of Gaussian distributions.
+    The red line is the true arrival time.
+    The X-axis is the arrival time to the end of the segment, in seconds.
+    The Y-axis is the PDF of the Gaussian mixture. }} 
+    \label{fig:arrival-times}
+\end{figure}
+
+The evaluation metrics scores for the model is presented in Table \ref{tab:arrival-time-eval-metrics}.
+The RMSE and MAE is calculated for each segment and the table presents the mean and standard error of the metrics for all segments in a trajectory.
+The score is calculated by taking the mean and standard error RMSE and MAE from all segments.
+The standard error is given by 
+\begin{equation}
+    SE = \frac{\sigma}{\sqrt{n}},
+\end{equation}
+where $\sigma$ is the standard deviation calculated using Bessel's correction
+\begin{equation}
+    \sigma = \sqrt{\frac{\sum_{i=1}^n (x_i - \bar{x})^2}{n - 1}}
+\end{equation}
+
+\section{Results}
+The arrival times for an arbitrary \texttt{ObservedPositionEvent} are shown in Figure \ref{fig:arrival-times}.
+The dashed line is the predicted arrival time, the red line is the true arrival time.
+The X-axis is the arrival time to the next bus stop, in seconds.
+The Y-axis is the PDF of the Gaussian mixture.
+
+The RMSE and MAE scores for each trajectory, without considering individual segments, is presented in Table \ref{tab:arrival-time-metrics} 
+\todo{Jag är inte helt säker på vilken score som är bäst att använda. En kollar på medelscores från alla segment, medan den andre kolla på en trajektorie nivå.}
+
+\begin{table}[h!]
+    \centering
+    \caption[ Evaluation of arrival time prediction model ]%
+    {{\small Evaluation of arrival time prediction model.
+    The RMSE and MAE is calculated for each segment in each trajectory.
+    The average score is shown, together with the standard error using Bessel's correction.}}
+    \label{tab:arrival-time-eval-metrics} 
+    \begin{tabular}{ |c|r|r| }
+        \hline
+        Test Trajectory \# & RMSE [s] & MAE [s] \\
+        \hline
+        13 & 6.14 $\pm$ 1.9 & 5.18 $\pm$ 1.56\\
+        17 & 4.71 $\pm$ 0.64 & 4.18 $\pm$ 0.57 \\
+        18 & 7.22 $\pm$ 2.03 & 6.55 $\pm$ 2.0 \\
+        22 & 3.86 $\pm$ 0.88 & 3.35 $\pm$ 0.78 \\
+        32 & 7.47 $\pm$ 2.09 & 6.54 $\pm$ 1.81 \\
+        35 & 5.68 $\pm$ 1.17 & 4.83 $\pm$ 1.06 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \caption[ Evaluation of arrival time prediction model ]%
+    {{\small Evaluation of arrival time prediction model.
+    The RMSE and MAE is calculated for each trajectory.}}
+    \label{tab:arrival-time-metrics} 
+    \begin{tabular}{ |c|r|r| }
+        \hline
+        Test Trajectory \# & RMSE [s] & MAE [s] \\
+        \hline
+        13 & 16.94 & 10.8 \\
+        17 & 5.93 & 4.84 \\
+        18 & 19.52 & 12.79 \\
+        22 & 5.92 & 4.0 \\
+        32 & 19.04 & 12.44 \\
+        35 & 12.4 & 8.5 \\
+        \hline
+    \end{tabular}
+\end{table}
 
 \section{Discussion}
 
+The aggregation of predicted arrival times used in this thesis project is too simple.
+It is heavily affected by the number of models used and captures only the average of the predicted arrival times.
+The assumption that the mixture of Gaussian distributions have a Uniform prior is too naïve to give one correct prediction.
+This is obvious in the results, as the quality of the prediction wildly vary depending on test trajectory.
+The reason behind this is that while models do capture different trajectory behaviours for a single segment, e.g., heavy traffic compared with no traffic, the final prediction is only based upon the average of all models.
+If the typical model is traffic-free, then the predicted time will be skewed towards a traffic-free arrival time.
+However, if a few trained models capture extreme traffic, then those predictions also affect the mean of all predicted arrival times.
+The use of a mixture with an assumed Uniform prior is thus too simple to result in good predictions.
+
+A better approach would be to calculate the \textit{data log likelihood} of a set of observed data points, given a GP model.
+The data log likelihood would be used as a weight for each model.
+The larger the weight, the bigger the likelihood that the observed data is from a particular GP model.
+In the example above, where the majority of models are traffic-free and a few model heavy traffic, a test trajectory with heavy traffic would increase the weights of the predictions from the few models and reduce the weight of the predictions from the majority of the models.
+The result would be a better prediction of the arrival time.
+This method could be used either on each observed data point, in order to see which model best describes that point, or on a trace of observer data points.
+If a trace of observed data points were to be used instead, the weights would, over time, gravitate towards the models which best explain the observed data.
+For example, in the predicted arrival time distribution shown in \ref{fig:result-3}, the naïve approach performs poorly compared to the other visualised results.
+If the weighted approach was used instead, the idea would be that the modes closer to the red line would receive a larger weight than the majority of modes around the 20-27.5 second interval.
+
+The arrival time distribution created by the system has numerous benefits than compared with a single, most probable, arrival time.
+For example, the most likely arrival time can be calculated from the distribution, either as a mean of means as in the naïve approach, or by using various methods \cite{Carreira2000, Comaniciu2002, Pulkkinen2013}
+Further more, the probabilities of early arrival times and late arrival times can be calculated by integrating over the combined PDF from the model.
+
 \subsection{Kernels}
-Olika kernels (modeller) för samma segment.
-RBF vs RBF+Linear vs Linear
+Due to time limitations in the thesis project it was necessary to narrow down the model search space as development continued.
+The choice of kernel is a valid discussion to be had.
+The performance between the RBF kernel and the RBF+Linear kernel were so similar that the hyperparameter initialisation might have caused the RBF+Linear kernel to slightly perform better.
+The linear trend in the data could have been removed using a a de-trending method, e.g., differencing or model fitting.
+This pre-processing step would have been beneficial for the RBF kernel, which might have caused better performance overall.
 
-Log eller inte?
+The hyperparameters of the kernels could also have been optimised using HMC sampling, instead of the L-BFGS-B algorithm.
+This could have avoided the local minima problems with the hyperparameters. 
+It was a non-trivial problem to find a good initialisation for the hyperparameters, as they were used for over 700 GP models.
+Any one of those GPs might get stuck in local minima, which would require changes to the hyperparameter initialisation.
+The arrival time models took, on average, ca. 7 hours to train. 
 
-Hyperparameter initalisation.
-Optimisation?
+In hindsight, the use of ARD should have been investigated for the $f_B$ model, where the \textit{Speed} is a part of the feature.
+Using different kernels for different dimensions would also have been interesting to experiment with, as the model might have captured new patterns.
 
-700+ models, how to initialise hyperparameters so that all work well?
-
-$f_B$ vs $f_A$, olika kernels för olika dimensioner? Hastighet som feature?
 \subsection{Common Stops}
 In this thesis project only bus stops were regarded as a common stop, due to time limitations.
-The approaches available were:
+The following stop compression approaches are available:
 \begin{enumerate}
     \item \textit{Bus Stops:} 
     This is the approach used in the thesis project.
     Only bus stops were considered as common stops, as this was the simplest approach possible (beyond no segmentation at all).
     The approach would result in a probability distribution of arrival time predictions for the next bus stop.
-    Red lights would be a latent variable not being modelled by the approach, which would have an impact on the probability distribution.
+    Red lights and traffic would be a latent variable not being modelled by the approach, which could have an impact on the probability distribution.
+    However, with the improved arrival time aggregation, this approach would could model red lights and traffic as latent variables.
+    The simplicity of the model is maintained, which makes the model easy to understand, while increasing the complexity in the arrival time aggregation.
+
     \item \textit{Bus Stops and Red Lights:}
     Modelling common stops using both bus stops and red lights would probably be the optimal approach.
     Red lights are static phenomenons which either causes a change to the expected arrival time (if red light) or not (green light).
     However, deciding whether or not a stop occurred due to red lights or traffic is not trivial with the data available in the dataset.
     Stops in all trajectories for the same bus line could be compared and a common ground could be established, but what would the comparison be?
-    For example, if the same stop occurs in 90\% of all trajectories and it is not a bus stop, then it is most likely a red light\todo{Hur ofta händer det här?}.
-    However, traffic would still be a latent variable not modelled by the approach.
+    For example, if the same stop occurs in 90\% of all trajectories and it is not a bus stop, then it is most likely a red light, but how often does this occur?
+    Maybe a more reasonable approach would be to combine the data with information from Google Maps Roads API or OpenStreetMap\footnote{https://www.openstreetmap.org/}, as they contain information about crossings with red lights.
+    A crossing would then be more accurate labelled as having a red light or not, which could be modelled by the system.  
+    Nevertheless, traffic would still be a latent variable not modelled by the extended approach.
+    
     \item \textit{All Stops:}
     This extreme approach would model all stops in each trajectory as a common stop.
     The approach would create a larger number of segments compared to the previous, more restrictive, approaches.
     A trajectory suffering from heavy traffic would create multiple segments over a potentially short distance.
     The complexity of the model would thus explode as the number of segments grow.
-    However, with a large dataset this approach could be effective to also model the effects of traffic.
+    However, with a large dataset this approach could be effective to model the effects of traffic, but experiments are needed in order to determine the requirement on the dataset size. 
 \end{enumerate} 
 
+\subsection{Red Lights}
+If the second approach is applied to the arrival time prediction model, then valuable information could be gained by analysing the crossing with and without red lights.
+Dedicated red lights exist for public transportation vehicles, which instantly turn green once a bus is arriving at the crossing.
+By modelling crossings, the usefulness of such dedicated crossings could be investigated.
+For example, crossings with abnormally long waiting times could be detected and dedicated traffic lights could be either tested or simulated for these crossings.
+This information could prove to be a major benefit to the planning of roads and public transportation routes. 
+
 \subsection{Poor Bus Stop Detection}
-Resecentrum, stannar i 3 minuter => obalans i target.
+The poor bus stop detection algorithm resulted in bad arrival time prediction models when using the naïve arrival time aggregation method.
+Figure \ref{fig:bad-gp-rese-c} illustrates a scenario where the final bus has multiple modes, but the system does not register one of the modes as being part of the bus stop.
+As a result, the bus stops at the bus stop for slightly over 3 minutes before driving past a mode which the system recognises.
+As shown, this causes a large offset to occur in the arrival time prediction for the trained model.
+The platform (mode) where the bus stops at is a dedicated waiting space and drop-off space for passengers.
+As such, this platform should be included in the bus stop detection.
+With an improved bus stop detection algorithm, such problems could have been avoided.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/forecasting/bad_gp_rese_centrum}
+    \caption[Example of poor bus stop detection for a bus stop with multiple modes]%
+    {\small Example of poor bus stop detection for a bus stop with multiple modes.
+    The bus arrives to a platform dedicated to the drop-off of passenger.
+    This platform is not registered as a part of the bus stop by the system, which causes a large offset in the predicted arrival times.
+    The system registers the bus at the bus stop once the bus drives past the main mode (the main platform) of the bus stop.
+    }
+    \label{fig:bad-gp-rese-c}
+\end{figure}
+
+\subsection{Time and Day Model}
+An interesting concept that should be explored is the addition of time and day to the model as a feature.
+Different times of the day and different days are expected to exhibit different arrival time patterns.
+For example, traffic should be heavier in certain areas during rush hours and before holidays, while lighter on evenings and nights. 
+Modelling this could improve the accuracy of the arrival time prediction models. 
 
 \section{Future Work}
+Future work on arrival time prediction (trajectory forecasting) should be focused on improving the arrival time prediction aggregation.
+The weighted mixture method should be implemented and tested as a next step.
+One could also experiment with the different approaches to model common stops, by adding information from external sources, as this could be beneficial information to have when planning routes and road improvements.
+Naturally, more days from the dataset should be processed and added to the model, as this thesis project only utilised one day worth of data.
+The model should also be tested on the baseline available by Östgötatrafiken AB, by predicting the arrival time of buses in real-time, and compare with the prediction made by the existing system.
+

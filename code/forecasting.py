@@ -5,6 +5,7 @@ import warnings
 import logging
 import gpflow
 import os
+import math
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -80,11 +81,11 @@ def run_train_f1(line_number):
     
     trajectory_key = "Lötgatan:Linköpings resecentrum"
     kernels = ["rbf_linear"]
-
+    all_trajectories = hlp.get_all_trajectories(trajectories, trajectory_key)
     logging.info("Test GP f1...")
     F1_DIR = "f1_test/"
-    vehicle_id, journey = trajectories[trajectory_key][0]
-    model = hlp.create_f1_GP_revamped(journey.route, session, logger, F1_DIR, load_model=False)
+    vehicle_id, journey = all_trajectories[len(all_trajectories) //2]
+    model = hlp.create_f1_GP_revamped(journey.route, session, logger, F1_DIR, load_model=False, version="_ard")
     
     f1_gp = model["f1_gp"]
     f1_scaler = model["f1_scaler"]
@@ -92,11 +93,11 @@ def run_train_f1(line_number):
     Y = model["Y"]
     
     X_test = []
-    for vehicle_id, journey in hlp.get_all_trajectories(trajectories, trajectory_key)[1:]:
+    for vehicle_id, journey in all_trajectories[1:]:
         X_test.append(np.vstack([e["gps"][::-1] for e in journey.route if e["event.type"] == "ObservedPositionEvent" and e["speed"] > 0.1]))
     X_test = np.array(X_test)
 
-    hlp.visualise_f1_gp_revamped(X, Y, f1_gp, f1_scaler, X_test, file_name="f1_gp_constrained", base_dir=F1_DIR)
+    hlp.visualise_f1_gp_revamped(X, Y, f1_gp, f1_scaler, X_test, file_name="f1_gp_ARD", base_dir=F1_DIR)
 
 
 def run(line_number, load_model):
@@ -130,8 +131,8 @@ def create_trajectory_distributions(trajectory_results):
         segment_distributions = []
         for segment_i, segment_result in enumerate(test_trajectory_result):
             logger.info("Segment {} tested on {} GPs".format(segment_i, len(segment_result["pred"])))
-            # segment_result elements have 3 keys: 
-            # pred: Arrival time predictions (means, vars, kernel/gp)
+            # segment_result elements have 2 keys: 
+            # pred: Arrival time predictions (means, vars)
             # true: True arrival times.
             # metrics: Metrics for the prediction.
 
@@ -141,9 +142,12 @@ def create_trajectory_distributions(trajectory_results):
             # We also need to show the true arival time, so we can get a grasp of how far "off" we are.
             y_true = segment_result["true"]
             distribution = defaultdict(list)
-            for mu, var, kernel in segment_result["pred"]:
+            #print(segment_result["feature_fitted"])
+            #for mu, var, feature_fitted in zip(segment_result["pred"], segment_result["feature_fitted"]):
+            #    for point_i, (mu_i, std_i, feature_i) in enumerate(zip(mu, np.sqrt(var), feature_fitted)):
+            for mu, var in segment_result["pred"]:
                 for point_i, (mu_i, std_i) in enumerate(zip(mu, np.sqrt(var))):
-                    distribution[point_i].append(norm(mu_i, std_i))
+                    distribution[point_i].append(norm(mu_i, std_i))#, feature_i])
             segment_distributions.append((distribution, y_true))
         trajectory_distributions[test_id] = segment_distributions
     hlp.save_array(trajectory_distributions, "trajectory_distributions", logger, BASE_DIR)
@@ -154,6 +158,7 @@ def plot_arrival_time_distributions(trajectory_distributions):
     logger.info("Plot Arrival Time Prediction Distributions...")
     path = BASE_DIR + "arrival_time_distributions"
     hlp.ensure_dir(path)
+    precision = 1e-03
     for trajectory_i, segment_distributions in trajectory_distributions.items():
         logger.info("Trajectory {} has {} segment(s).".format(trajectory_i, len(segment_distributions)))
         traj_path = path + "/{}".format(trajectory_i)
@@ -162,14 +167,77 @@ def plot_arrival_time_distributions(trajectory_distributions):
             logger.info("Plotting Segment {}...".format(segment_i))
             seg_path = traj_path + "/{}".format(segment_i)
             hlp.ensure_dir(seg_path)
+            arrival_time_naive = []
             for point_i, distribution in point_distribution.items():
-                plt.figure()
-                plt.axvline(x=truth[point_i], color="r", linestyle='-', lw=0.5)
+            #temp    plt.figure()
+            #temp    plt.axvline(x=truth[point_i], color="r", linestyle='-', lw=0.5)
+            #temp    min_t = 1000
+            #temp    max_t = -1000
+            #temp    sum_of_weights = 0
+            #temp    for k in distribution:
+            #temp        min_t = min(min_t, math.floor(k.ppf(precision)[0]))
+            #temp        max_t = max(max_t, math.ceil(k.ppf(1-precision)[0]))
+                    #sum_of_weights += calculate_weight(feature, k)
+            #temp    pdf_res = np.zeros((max_t-min_t)*100)
+            #temp    pdf_res_weighted = np.zeros((max_t-min_t)*100)
+            #temp    xx = np.linspace(min_t, max_t, (max_t-min_t)*100)
+                distr_mean = 0
                 for k in distribution:
-                    xx = np.linspace(k.ppf(0.01), k.ppf(0.99), 100)
-                    plt.plot(xx, k.pdf(xx))
-                plt.savefig("{}/{}".format(seg_path, point_i))
-                plt.close()
+                    # TODO: Implement different things here.
+            #temp        pdf = k.pdf(xx)
+                    distr_mean += k.mean()
+            #temp        np.add(pdf_res, pdf, pdf_res) # naive mixture
+                    #weight = calculate_weight(feature, k)
+                    #np.add(pdf_res_weighted, pdf * (weight - sum_of_weights), pdf_res_weighted) # weighted mixture 
+            #temp        plt.plot(xx, pdf)
+                distr_mean = distr_mean / len(distribution)
+                arrival_time_naive.append(distr_mean)
+            #temp    plt.savefig("{}/{}".format(seg_path, point_i))
+            #temp    plt.close()
+            #temp    pdf_res = pdf_res / len(distribution)
+                #pdf_res_weighted = pdf_res_weighted / sum_of_weights
+
+                # naive mixture
+            #temp    plt.figure()
+            #temp    plt.axvline(x=distr_mean, color="k", linestyle="--", lw=0.5)
+            #temp    plt.axvline(x=truth[point_i], color="r", linestyle='-', lw=0.5)
+            #temp    plt.plot(xx, pdf_res)
+            #temp    plt.savefig("{}/res_{}".format(seg_path, point_i))
+            #temp    plt.close()
+
+                # weighted mixture TODO: No idea if this works
+                #plt.figure()
+                #plt.axvline(x=distr_mean, color="k", linestyle="--", lw=0.5)
+                #plt.axvline(x=truth[point_i], color="r", linestyle='-', lw=0.5)
+                #plt.plot(xx, pdf_res_weighted)
+                #plt.savefig("{}/weighted_res_{}".format(seg_path, point_i))
+                #plt.close()
+            # abs_errors = [abs(t - m) for t, m in zip(truth, arrival_time_naive)]
+            # mae = mean_absolute_error(truth, arrival_time_naive)
+            # mse = mean_squared_error(truth, arrival_time_naive)
+            # metrics = {
+            #     "mae": mae,
+            #     "mse": mse,
+            #     "rmse": np.sqrt(mse),
+            #     "median_abs_err": median_absolute_error(truth, arrival_time_naive),
+            #     "max_err": max(abs_errors),
+            #     "min_err": min(abs_errors)
+            # }
+            # logger.info(metrics)
+            hlp.save_array({"truth": truth, "predicted": arrival_time_naive}, "{}/predicted".format(seg_path))
+            # np.savetxt("{}/metrics.txt".format(seg_path), [
+            #     metrics["mae"], 
+            #     metrics["mse"], 
+            #     metrics["rmse"],
+            #     metrics["median_abs_err"],
+            #     metrics["max_err"],
+            #     metrics["min_err"]])
+
+
+def calculate_weight(feature, M_k):
+    # TODO: No idea if this works.
+    return ((-1/2) * (feature - M_k.mean()) * np.power(M_k.var(), -1) * (feature - M_k.mean())) - ((1/2) * np.log(M_k.var()))
+
 
     
 def test_model(test_ids, all_trajectories, model, logger):
@@ -201,21 +269,22 @@ def test_model(test_ids, all_trajectories, model, logger):
                 feature_fitted = segment_scalers[seg_i][gp_k].transform(feature)
                 mean, var = gp.predict_y(feature_fitted)
                 result["pred"].append([mean, var])
-                abs_errors = [abs(t - m) for t, m in zip(truth, mean)]
-                mae = mean_absolute_error(truth, mean)
-                if mae > 50:
-                    logger.warn("{}, {}: {}".format(traj_j, seg_i, mae))
-                mse = mean_squared_error(truth, mean)
-                metrics = {
-                    "mae": mae,
-                    "mse": mse,
-                    "rmse": np.sqrt(mse),
-                    "median_abs_err": median_absolute_error(truth, mean),
-                    "max_err": max(abs_errors),
-                    "min_err": min(abs_errors)
-                }
-                result["metrics"].append(metrics)
-                logger.info("Segment {}, GP {} metrics: {}".format(seg_i, gp_k, metrics))
+                result["feature_fitted"].append(feature_fitted)
+                #abs_errors = [abs(t - m) for t, m in zip(truth, mean)]
+                #mae = mean_absolute_error(truth, mean)
+                #if mae > 50:
+                #    logger.warn("{}, {}: {}".format(traj_j, seg_i, mae))
+                #mse = mean_squared_error(truth, mean)
+                #metrics = {
+                #    "mae": mae,
+                #    "mse": mse,
+                #    "rmse": np.sqrt(mse),
+                #    "median_abs_err": median_absolute_error(truth, mean),
+                #    "max_err": max(abs_errors),
+                #    "min_err": min(abs_errors)
+                #}
+                #result["metrics"].append(metrics)
+                #logger.info("Segment {}, GP {} metrics: {}".format(seg_i, gp_k, metrics))
 
             segment_results.append(result)
 
@@ -226,13 +295,13 @@ def test_model(test_ids, all_trajectories, model, logger):
 
 def load_forecasting_model(session):
     logger.info("Loading good f1 model...")
-    f1_gp, f1_scaler = hlp.load_f1_GP_revamped(session, logger, "f1_test/")
+    f1_gp, f1_scaler = hlp.load_f1_GP_revamped(session, logger, "f1_test/", version="_ard")
 
     segment_GPs = defaultdict(list)
     segment_scalers = defaultdict(list)
     models = sorted([f.split("_")[1:] for f in os.listdir(BASE_DIR + "GP/") if "model_" in f], key=lambda x: (int(x[0]), int(x[1])))
     for j, i in models:
-        #if int(j) > 1: break
+        #if int(j) > 3: break
         logger.info("Loading GPs for trajectory #%s, %s", j, i)
         gp = session.load(BASE_DIR + "GP/model_{}_{}".format(j, i))
         scaler = hlp.load_array("GP/scaler_{}_{}".format(j, i), logger, BASE_DIR)
@@ -250,7 +319,7 @@ def load_forecasting_model(session):
 
 def create_forecasting_model(all_trajectories, session):
     logger.info("Loading good f1 model...")
-    f1_gp, f1_scaler = hlp.load_f1_GP_revamped(session, logger, "f1_test/")
+    f1_gp, f1_scaler = hlp.load_f1_GP_revamped(session, logger, "f1_test/", version="_ard")
 
     logger.info("Creating Segments...")
     segments_list, arrival_times_list = segment_trajectories(all_trajectories, level=0)
@@ -272,15 +341,15 @@ def create_forecasting_model(all_trajectories, session):
             hlp.save_array(segment_scaler, "GP/scaler_{}_{}".format(j, i), logger, BASE_DIR)
             gp = train_arrival_time_gp(X_fitted, Y, number="{},{}".format(j, i))
             session.save(BASE_DIR + "GP/model_{}_{}".format(j, i), gp)
-            # Visualise:
-            #xx = np.linspace(min(X), max(X), 100)[:,None]
-            #mu, var = gp.predict_y(xx)
-            #plt.figure()
-            #plt.plot(xx, mu, "C1", lw=2)
-            #plt.fill_between(xx[:,0], mu[:,0] -  2*np.sqrt(var[:,0]), mu[:,0] +  2*np.sqrt(var[:,0]), color="C1", alpha=0.2)
-            #plt.plot(X, Y, 'kx', mew=2)
-            #plt.savefig("{}gp_{}_{}_{}.png".format(BASE_DIR, j, i, kernel))
-
+        
+            #  # Visualise:
+            # xx = np.linspace(min(X_fitted), max(X_fitted), 100)[:,None]
+            # mu, var = gp.predict_y(xx)
+            # plt.figure()
+            # plt.plot(xx, mu, "C1", lw=2)
+            # plt.fill_between(xx[:,0], mu[:,0] -  2*np.sqrt(var[:,0]), mu[:,0] +  2*np.sqrt(var[:,0]), color="C1", alpha=0.2)
+            # plt.plot(X, Y, 'kx', mew=2)
+            # plt.savefig("{}gp_{}_{}_{}.png".format(BASE_DIR, j, i, kernel))
 
 def event_to_tau(event, scaler, f1_gp):
     gps = [event["gps"][::-1]] # (lat, lng) -> (lng, lat)
@@ -396,7 +465,7 @@ def segment_trajectories(trajectories, level=0, f1_gp=None):
 
         # Do segmentation:
         segments = []
-        segment_overlap = 5
+        segment_overlap = 0
         start = 0
         for k, (indices, *_rest) in enumerate(segment_starts): #  We don't care about slice [2:] of the tuple (_types)
             if k == 0:

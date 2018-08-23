@@ -2,7 +2,7 @@
 \label{cha:bus-stop-detection}
 
 The first high-level problem is the problem with inaccurate bus stop detection.
-This causes the system to occasionally miss bus stops, which results in faulty or incomplete journeys.
+This causes the system to occasionally miss bus stops, which results in erroneous or incomplete journeys.
 Incomplete journeys require more pre-processing to be done in order to use the data.
 The pre-processing might also cause inaccuracies to occur in order to use the data.
 An example of this is shown in Figure \ref{fig:passed-before-departed}, where a bus passes a bus stop before the system registers that the bus departed from the previous bus stop.
@@ -23,8 +23,8 @@ This introduces an overhead to the system, where bus stop coordinates need to be
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/bus_stops}
-    \caption[Output from the bus stop detection algorithm from the "Internal Analysis" component]
-    {\small Output from the bus stop detection algorithm from the "Internal Analysis" component.
+    \caption[Output from the bus stop detection algorithm from the IA component]
+    {\small Output from the bus stop detection algorithm from the IA component.
     The green circles are the pre-determined coordinates for the bus stop.
     The bus stop shown has two platforms, depending on if the bus travels west (top road) or east (bottom road).
     The red and yellow clusters are the GPS positions of the bus when it arrives to the bus stop.
@@ -33,7 +33,7 @@ This introduces an overhead to the system, where bus stop coordinates need to be
     \label{fig:bus-stop-clusters}
 \end{figure}
 
-Figure \ref{fig:bus-stop-clusters} shows the results from the existing bus stop detection algorithm of the "Internal Analysis" component.
+Figure \ref{fig:bus-stop-clusters} shows the results from the existing bus stop detection algorithm of the IA component.
 Each bus produces seven GPS coordinates for each bus stop: one blue, two red, two yellow, and one green.
 \begin{itemize}
     \item \textbf{Green:} The green GPS coordinate is always the same between all buses for each bus stop; it is the pre-determined coordinate for the bus stop.

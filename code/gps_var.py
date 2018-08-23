@@ -93,10 +93,10 @@ def run(line_number, load_model):
     all_trajectories = hlp.get_all_trajectories(trajectories, trajectory_key)
 
     if load_model:
-        model = load_GPS_variation_GPs(session, load_only=2, constrained_f1=True)
-        output_file = "f1_fixed_var_2GPs"
+        model = load_GPS_variation_GPs(session, load_only="all", f1_version="_ard")
+        output_file = "f1_ard_contour_segment1_combine"
     else:
-        create_GPS_variation_GPs(all_trajectories, session)
+        create_GPS_variation_GPs(all_trajectories, session, f1_version="_ard")
         exit(0)
         
     f1_gp = model["f1_gp"]
@@ -112,7 +112,7 @@ def run(line_number, load_model):
     # exit(1)
 
 
-    res = 200
+    res = 50
     #lat_step = get_step_size(lat_start, lat_stop, res)
     #lng_step = get_step_size(lng_start, lng_stop, res)
 
@@ -120,8 +120,12 @@ def run(line_number, load_model):
     #lat, lng = np.mgrid[58.416317:58.42256:res*1j, 15.494352:15.503200:res*1j] # Middle Grid
     #lat, lng = np.mgrid[58.4173:58.419:res*1j, 15.4965:15.499:res*1j] # Small Grid
     #lat, lng = np.mgrid[58.4174:58.4178:res*1j, 15.4967:15.4974:res*1j] # Super small Grid (krök)
-    lat, lng = np.mgrid[58.4185:58.4188:res*1j, 15.4985:15.49875:res*1j] # Super small Grid (sträcka)
+    #lat, lng = np.mgrid[58.4185:58.4188:res*1j, 15.4985:15.49875:res*1j] # Super small Grid (sträcka)
 
+    lat, lng = np.mgrid[58.4190:58.422:res*1j, 15.500:15.502:res*1j] # Small Grid (new start)
+    #lat, lng = np.mgrid[58.4175:58.422:res*1j, 15.508:15.517:res*1j] # Small Grid (segment 2) 
+    #lat, lng = np.mgrid[58.408:58.418:res*1j, 15.61:15.63:res*1j] # Small Grid (segment 3, final) 
+    
     pos_grid = np.dstack((lng, lat)).reshape(-1, 2)
     logger.info("Grid created.")
     pos_grid_fitted = f1_scaler.transform(pos_grid)
@@ -132,9 +136,9 @@ def run(line_number, load_model):
     hlp.save_array(grid_tau, "grid_tau", logger, BASE_DIR)
 
     logger.info("Evaluate Grid with GPs...")
-    probs = calculate_prob_grip(grid_tau, f2_f3_GPs, f2_f3_scalers, pos_grid_fitted, res)
+    probs = calculate_prob_grip(grid_tau, f2_f3_GPs, f2_f3_scalers, pos_grid_fitted, res, combine=True)
 
-    visualise_probabilities(probs, all_trajectories, pos_grid, file_name=output_file)
+    visualise_probabilities(probs, all_trajectories, pos_grid, lat, lng, res, file_name=output_file)
     exit(1)
     # TODO: Just testing this. #MidnightIdeas
     # combined_f2_means = combine_mean(f2_means)
@@ -191,23 +195,24 @@ def run(line_number, load_model):
     # plt.clf()
     # plt.close()
 
-    combined_f2_means = combine_mean(f2_means)
-    combined_f2_variances = combine_variance(f2_variances, f2_means, combined_f2_means)
-    combined_f3_means = combine_mean(f3_means)
-    combined_f3_variances = combine_variance(f3_variances, f3_means, combined_f3_means)
+    # combined_f2_means = combine_mean(f2_means)
+    # combined_f2_variances = combine_variance(f2_variances, f2_means, combined_f2_means)
+    # combined_f3_means = combine_mean(f3_means)
+    # combined_f3_variances = combine_variance(f3_variances, f3_means, combined_f3_means)
 
-    visualise_combined_f2_f3_gp(combined_f2_means, combined_f2_variances, combined_f3_means, combined_f3_variances, scaler)
-    visualise_combined_f2_f3_gp_heatmap(combined_f2_means, combined_f2_variances, combined_f3_means, combined_f3_variances)
+    # visualise_combined_f2_f3_gp(combined_f2_means, combined_f2_variances, combined_f3_means, combined_f3_variances, scaler)
+    # visualise_combined_f2_f3_gp_heatmap(combined_f2_means, combined_f2_variances, combined_f3_means, combined_f3_variances)
 
 
-def visualise_probabilities(probs, all_trajectories, pos_grid, file_name):
+def visualise_probabilities(probs, all_trajectories, pos_grid, lat, lng, res, file_name):
     logger.info("Visualise probabilities...")
     X_test = []
     for vehicle_id, journey in all_trajectories:
         X_test.append(np.vstack([e["gps"][::-1] for e in journey.route if e["event.type"] == "ObservedPositionEvent" and e["speed"] > 0.1]))
     X_test = np.array(X_test)
 
-    plt.figure()
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
     plt.title("GPS Variance Estimation")
 
     min_x = min(pos_grid[:,0])
@@ -217,49 +222,75 @@ def visualise_probabilities(probs, all_trajectories, pos_grid, file_name):
     v_min = min(probs)
     v_max = max(probs)
 
-    #plt.scatter(X_test[:,0], X_test[:,1], c=means[:,0], edgecolors="w", vmin=v_min, vmax=v_max, cmap="cool", zorder=4)
-    #plt.scatter(X_test[:,0], X_test[:,1], color="w", s=0.25, zorder=5)
     tightness = 0
     plt.xlim(min_x - (max_x - min_x)*tightness, max_x + (max_x - min_x)*tightness)
     plt.ylim(min_y - (max_y - min_y)*tightness, max_y + (max_y - min_y)*tightness)
     
-    plt.scatter(pos_grid[:,0], pos_grid[:,1], c=probs, vmin=v_min, vmax=v_max, cmap="cool", s=3, zorder=1)
+    #sns.heatmap(probs.reshape(50, 50))
+    probs = probs.reshape(res, res)
+    plt.contourf(lng, lat, probs)
+    plt.ticklabel_format(useOffset=False)
+    for tick in ax.xaxis.get_ticklabels()[::2]:
+        tick.set_visible(False)
     plt.colorbar()
+    #plt.scatter(pos_grid[:,0], pos_grid[:,1], c=probs, vmin=v_min, vmax=v_max, cmap="cool", s=3, zorder=1)
     for points in X_test:
-        plt.scatter(points[:,0], points[:,1], color="k", s=0.2, zorder=3)
-    #plt.contourf(pos_grid, pos_grid[:,1], c=grid_tau_mapped[:,0], cmap="cool")
-    
-    #plt.plot(proj_points_inv[:,0], proj_points_inv[:,1], "kx", mew=2)
+        plt.scatter(points[:,0], points[:,1], color="r", s=0.2, zorder=3)
 
-    #plt.scatter(X[:,0], X[:,1], c=Y[:,0], cmap='coolwarm', s=0.5)
     plt.savefig("{}variance_plot/{}.png".format(BASE_DIR, file_name))
 
 
-def calculate_prob_grip(grid_tau, f2_f3_GPs, f2_f3_scalers, pos_grid_fitted, res):
+def calculate_prob_grip(grid_tau, f2_f3_GPs, f2_f3_scalers, pos_grid_fitted, res, combine=False):
     lng_ss_scaled = get_step_size(pos_grid_fitted[0][0], pos_grid_fitted[-1][0], res)
     lat_ss_scaled = get_step_size(pos_grid_fitted[0][1], pos_grid_fitted[-1][1], res)
 
     points = grid_tau.shape[0]
     probs = np.zeros(points)
+    if combine:
+        lng_means = []
+        lng_vars = []
+        lat_means = []
+        lat_vars = []
+    else:
+        result = defaultdict(list)
+    
     for traj_j, (f2_gp, f3_gp) in f2_f3_GPs.items():
-        logger.info("Probabilities being calculated from GP #{}.".format(traj_j))
         grid_tau_fitted = f2_f3_scalers[traj_j].transform(grid_tau)
         lng_mean, lng_var = f2_gp.predict_y(grid_tau_fitted)
         lat_mean, lat_var = f3_gp.predict_y(grid_tau_fitted)
-        
-        for grid_i, (lng_i, lat_i) in enumerate(pos_grid_fitted):
-            lng_mu_i = lng_mean[grid_i]
-            lng_var_i = lng_var[grid_i]
-            lat_mu_i = lat_mean[grid_i]
-            lat_var_i = lat_var[grid_i]
 
-            lng_prob = prob_of(lng_i, lng_ss_scaled, mean=lng_mu_i, variance=lng_var_i)
-            lat_prob = prob_of(lat_i, lat_ss_scaled, mean=lat_mu_i, variance=lat_var_i)
+        if combine:
+            lng_means.append(lng_mean)
+            lng_vars.append(lng_var)
+            lat_means.append(lat_mean)
+            lat_vars.append(lat_var)
+        else:
+            result[traj_j].extend((lng_mean, lng_var, lat_mean, lat_var))
 
+    if combine:
+        lng_means = np.array(lng_means)
+        lng_vars = np.array(lng_vars)
+        lat_means = np.array(lat_means)
+        lat_vars = np.array(lat_vars)
+        c_lng_means = combine_mean(lng_means)
+        c_lng_vars = combine_variance(lng_vars, lng_means, c_lng_means)
+        c_lat_means = combine_mean(lat_means)
+        c_lat_vars = combine_variance(lat_vars, lat_means, c_lat_means)
+    traj_count = len(f2_f3_GPs.keys())
+    for grid_i, (lng_i, lat_i) in enumerate(pos_grid_fitted):
+        if grid_i % 100 == 0:
+            logger.info(grid_i)
+        if combine:
+            lng_prob = prob_of(lng_i, lng_ss_scaled, c_lng_means[grid_i], c_lng_vars[grid_i])
+            lat_prob = prob_of(lat_i, lat_ss_scaled, c_lat_means[grid_i], c_lat_vars[grid_i])
             probs[grid_i] += lng_prob * lat_prob  # We assume independent!
-
-    probs = probs / len(f2_f3_GPs.keys())  # Make into a probability distribution
-    print(len(f2_f3_GPs.keys()))
+        else:
+            for traj_j, (lng_mean, lng_var, lat_mean, lat_var) in result.items():
+                lng_prob = prob_of(lng_i, lng_ss_scaled, lng_mean[grid_i], lng_var[grid_i])
+                lat_prob = prob_of(lat_i, lat_ss_scaled, lat_mean[grid_i], lat_var[grid_i])
+                probs[grid_i] += lng_prob * lat_prob  # We assume independent!
+            probs[grid_i] = probs[grid_i] / traj_count
+    print(traj_count)
     #probs[probs < 1e-03] = 0
     hlp.save_array(probs, "grid_probs", logger, BASE_DIR)
     return probs
@@ -267,32 +298,33 @@ def calculate_prob_grip(grid_tau, f2_f3_GPs, f2_f3_scalers, pos_grid_fitted, res
 
 def prob_of(observed_value, step_size, mean, variance):
     distr = norm(mean, np.sqrt(variance))  # standard deviation as parameter
-    half_step = step_size / 2
+    half_step = step_size
     prob, _ =  quad(distr.pdf, observed_value - half_step, observed_value + half_step)
+    print(mean, variance, prob)
     return prob
 
 def get_step_size(start, stop, points):
     return (stop - start) / (points - 1)
 
 
-def create_GPS_variation_GPs(all_trajectories, session):
+def create_GPS_variation_GPs(all_trajectories, session, f1_version):
     """ Function that creates and saves two GPS variation GPs,
     (f2=lat, f3=lng) for each trajectory.
     """
     logger.info("Loading good f1 model...")
-    f1_gp, f1_scaler = hlp.load_f1_GP_revamped(session, logger, "f1_test/")
+    f1_gp, f1_scaler = hlp.load_f1_GP_revamped(session, logger, "f1_test/", version=f1_version)
 
     logger.info("Creating new f2, and f3 for GPS variation estimation.")
     train_trajectory_GPs(all_trajectories, f1_gp, f1_scaler, session)
 
 
-def load_GPS_variation_GPs(session, load_only="all", load_specific=None, constrained_f1=False):
+def load_GPS_variation_GPs(session, load_only="all", load_specific=None, f1_version=""):
     """ 'load_only' is the number of GPs to load. Default is "all".
     If an int it will only load that number of GPs.
     'load_specific' loads a GP with that specific number."""
     logger.info("Loading GPs f1, f2, and f3 for GPS variation estimation.")
     
-    f1_gp = session.load("f1_test/f1_gp{}".format("_constrained" if constrained_f1 else ""))
+    f1_gp = session.load("f1_test/f1_gp{}".format(f1_version))
 
     path = BASE_DIR + "GP/"
     GPs = defaultdict(list)
@@ -512,6 +544,8 @@ def train_GP(X_tau, Y, session, number, gp_name):
     """GP which maps tau -> lng or lat."""
     with gpflow.defer_build():
         m = gpflow.models.GPR(X_tau, Y, kern=gpflow.kernels.RBF(1))
+        m.likelihood.variance = 1e-03
+        m.likelihood.variance.trainable = False
         m.compile()
         opt = gpflow.train.ScipyOptimizer()
         opt.minimize(m)

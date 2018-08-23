@@ -1,6 +1,9 @@
 \chapter{Background}
 \label{cha:background}
 
+This chapter briefly covers different methods and academic studies relevant to the thesis project.
+The evaluation metrics available are defined, alongside the GPflow framework used for the implementation.
+
 \section{Binary Search}
 Binary search is a common algorithm for searching through a sequence for a target value.
 The algorithm utilises a binary tree for the search.
@@ -101,7 +104,7 @@ The GPR model is given by
 where
 \[\epsilon \overset{iid}{\sim} \mathcal{N}(0, \sigma_{noise}^2)\]
 and $f(\cdot)$ is a prior.
-Here $\epsilon$ represents noisy observations, where $\epsilon$ is assumed to be additive independent identically distributed (iid) Gaussian noise.
+Here $\epsilon$ represents the noise in each observation, where $\epsilon$ is assumed to be additive independent identically distributed (iid) Gaussian noise.
 
 The posterior of a GP is also a GP \cite{Rasmussen2006}, with a Gaussian predictive distribution given by the posterior GP evaluated at the new point $x_\star$.
 The GP prediction (posterior) is defined by the equation
@@ -115,9 +118,45 @@ where $\bar{f}_\star$ and $cov(f_\star)$ are given by the equations
 \end{align}
 where $K(x_\star, x), K(x, x)$, and $K(x, x_\star)$ each are a covariance (Gram) matrix \cite{Rasmussen2006}.  
 
-\subsection{Related Work}
-\section{Combining GPs}
-\todo{...}
+\subsection{Related Work} \label{sec:trajectory-aggregation}
+GPs have been used with spatio-temporal datasets before in order to create local trajectory models \cite{Tiger2015-unsupervised-learning,Tiger2015-online-sparse, Tiger2018-gp-motion-pattern}.
+In \cite{Tiger2015-unsupervised-learning}, GPs are used to recognise common activities from spatio-temporal datasets.
+In \cite{Tiger2015-online-sparse}, sparse GPR is used in order to perform trajectory modelling.
+The methodology conducted can be adapted and implemented in this thesis project.
+For example, the equations to aggregate trajectory models can be directly applied in this thesis work.
+Tiger et al. specifies two ways to aggregate trajectory models by either Fusion or Combining \cite{Tiger2015-online-sparse}.
+The aggregation of trajectory models is useful in order to provide coherent predictions from multiple GPs.
+The Fusion formula on the predictive mean and variance is given by
+\begin{align}
+    \sigma^2(x^*) &= \frac{\sum_{j=1}^J N_j }{\sum_{j=1}^J N_j (\sigma^2_j(x^*))^{-1}}, \\
+    \mu(x^*) &= \sigma^2(x^*) \Bigg( \frac{\sum_{j=1}^J N_j (\sigma^2_j(x^*))^{-1} \mu_j(x^*)}{\sum_{j=1}^J N_j} \Bigg),
+\end{align}
+where $N_j$ is the number of trajectories used to train the $j$ trajectory model.
+The predictive mean function and predictive variance function are given by $\mu(x^*)$ and $\sigma^2(x^*)$, respectively.
+
+The Combining formula on the predictive mean and variance is given by
+\begin{align}
+    \mu(x^*) &= \frac{\sum_{j=1}^J N_j \mu_j(x^*) }{\sum_{j=1}^J N_j} \label{eq:combining-mean} \\
+    \sigma^2(x^*) &= \frac{\sum_{j=1}^J N_j \big(\sigma^2_j(x^*) + \mu^2_j(x^*)\big)}{\sum_{j=1}^J N_j} - \mu(x^*)^2 \label{eq:combining-var} 
+\end{align}
+
+
+The two approaches are visualised in Figure \ref{fig:aggregation}.
+The red Gaussian has mean 0 and variance 0.2, while the blue Gaussian has mean 2 and variance 0.5.
+As shown in the figure, the Combining approach creates a Gaussian which captures the variance of all local Gaussians.
+\begin{figure} [h!]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/aggregate_test}
+    \caption[Fusion and Combining two Gaussian distributions]
+    {\small Fusion and Combining two Gaussian distributions, with $N_1 = N_2 = 1$.
+    The red Gaussian distribution has mean 0 and variance 0.2. 
+    The blue Gaussian has mean 2 and variance 0.5.}
+    \label{fig:aggregation}
+\end{figure}
+
+\cite{Tiger2018-gp-motion-pattern}.
+
+
 
 \section{Evaluation Metrics}
 Common evaluation metrics when comparing regression models are mean square error (MSE), mean squared logarithmic error (MSLE), and mean absolute error (MAE).
@@ -139,14 +178,14 @@ MAE is praised in \cite{Willmott2005} by Willmott et al., while Chai et al. defe
 For example, RMSE is shown in \cite{Chai2014} to be useful metric if the errors follow a Gaussian distribution.
 
 \section{GPflow}
-GPflow\footnote{https://gpflow.readthedocs.io/en/latest/index.html} \cite{GPflow2017} is a GP framework for the Python programming language \footnote{https://www.python.org/} using TensorFlow\footnote{https://www.tensorflow.org/}.
+GPflow\footnote{https://gpflow.readthedocs.io/en/latest/index.html} \cite{GPflow2017} is a GP framework for the Python\footnote{https://www.python.org/} programming language, using TensorFlow\footnote{https://www.tensorflow.org/}.
 It is an open-source software which has its origins from the contributors of GPy\footnote{https://sheffieldml.github.io/GPy/}, another famous framework for implementing GPs in Python.
 As GPflow is built upon TensorFlow, it achieves better performance when using GPUs for processing \cite{GPflow2017}.
 Building GPflow on top of TensorFlow also allows the benefits of using TensorFlow methods for calculations, e.g., most gradient computations are handled by TensorFlow.
 
 \section{Finite-State Machines}
 Finite-state machines (FSM) are well-defined mathematical models which can have numerous representations.
-The formal notation used here are from the excellent book "Automata and Computability" by Kozen \cite{Kozen1997}.
+The formal notation used here are from the book "Automata and Computability" by Kozen \cite{Kozen1997}.
 A FSM is defined as states with potentially multiple transitions between each state.
 The FSM can only be in one given state at any time.
 
@@ -166,7 +205,7 @@ where
 A FSM can be modelled with various representations \cite{Kozen1997}, e.g, in tabular form, as a transition diagram or as a regular expression.
 
 \section{Exploratory Data Analysis}
-Exploratory Data Analysis (EDA) is a broad concept containing various techniques \cite{Anselin1999, Gelman2003, Hoaglin2003, Tukey1977, Velleman1981} for exploring and analysing data.
+Exploratory Data Analysis (EDA) is a broad concept containing various techniques for exploring and analysing data \cite{Anselin1999, Gelman2003, Hoaglin2003, Tukey1977, Velleman1981}.
 Early popular techniques include \emph{box plots} and \emph{stem-and-leaf} displays.
 A stem-and-leaf plot takes numbers and splits them into two groups.
 The first group contains the leading digit(s) and the second group contains the trailing digit(s).
@@ -187,13 +226,12 @@ EDA can also reveal subtle practical problems with the chosen model that can eas
 
 In \cite{Tukey1977}, Tukey describes how EDA can be used to answer research questions such as "What is the age distribution for the Vietnamese population?" and "Are there differences in
 the annual household per capita expenditures between the rural and urban populations in Vietnam?".
-Tukey uses plots to compare different groups and estimators to quantify the difference.
-For example, the sample mean estimator, or the \emph{winsorised} mean can be used \cite{Tukey1977}.
+Tukey uses plots to compare different groups and estimators, such as the sample mean estimator, or the \emph{winsorised} mean, to quantify the difference.
 The winsorised mean handles the case where tails of a distribution dominates the value space.  
 This would cause the sample mean estimator to poorly reflect on the "typical" data point, as it is skewed by the small tail population \cite{Tukey1977}.
 
 In \cite{Velleman1981}, Velleman et al. present different EDA techniques and highlights four key areas of EDA: displays (plots), residuals, re-expressions and resistance.
-Residuals is what remains after data analysis is performed.
+Residuals are what remain after data analysis is performed.
 Residuals could, for example, be what remains after fitting data to a model (the error of the fit) \cite{Velleman1981}.
 Re-expression is the notion of applying mathematical functions to the data.
 Re-expressing the data can help with the data analysis \cite{Hoaglin2003, Velleman1981}.

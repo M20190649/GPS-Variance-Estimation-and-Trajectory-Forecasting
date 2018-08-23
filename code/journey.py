@@ -19,7 +19,7 @@ class Journey:
         returns two new journeys: (A->B->C) and (C->D->E).
         """
         if bus_stop_name == self.bus_stops[-1]: # No segmentation needed
-            return None, None
+            return self, None
         seg1 = Journey(self.vehicle_id, self.line_number)
         seg2 = Journey(self.vehicle_id, self.line_number)
         bus_stop_seg_index = self.bus_stops.index(bus_stop_name)
