@@ -82,6 +82,10 @@ def run_train_f1(line_number):
     trajectory_key = "Lötgatan:Linköpings resecentrum"
     kernels = ["rbf_linear"]
     all_trajectories = hlp.get_all_trajectories(trajectories, trajectory_key)
+    # segments_list, arrival_times_list = segment_trajectories(all_trajectories[3:8], level=0)
+    # for segment in [3, 4, 5, 6]:
+    #     hlp.plot_speeds([segments[segment] for segments in segments_list], filter_speed=-1, file_id=segment)
+    # exit()
     logging.info("Test GP f1...")
     F1_DIR = "f1_test/"
     vehicle_id, journey = all_trajectories[len(all_trajectories) //2]
@@ -141,6 +145,7 @@ def create_trajectory_distributions(trajectory_results):
             # we get from the results. We can then plot the PDFs, as they are 1D on input.
             # We also need to show the true arival time, so we can get a grasp of how far "off" we are.
             y_true = segment_result["true"]
+            feature_fitted = segment_result["feature"]
             distribution = defaultdict(list)
             #print(segment_result["feature_fitted"])
             #for mu, var, feature_fitted in zip(segment_result["pred"], segment_result["feature_fitted"]):
@@ -148,7 +153,7 @@ def create_trajectory_distributions(trajectory_results):
             for mu, var in segment_result["pred"]:
                 for point_i, (mu_i, std_i) in enumerate(zip(mu, np.sqrt(var))):
                     distribution[point_i].append(norm(mu_i, std_i))#, feature_i])
-            segment_distributions.append((distribution, y_true))
+            segment_distributions.append((distribution, y_true, feature_fitted))
         trajectory_distributions[test_id] = segment_distributions
     hlp.save_array(trajectory_distributions, "trajectory_distributions", logger, BASE_DIR)
     return trajectory_distributions
@@ -163,7 +168,7 @@ def plot_arrival_time_distributions(trajectory_distributions):
         logger.info("Trajectory {} has {} segment(s).".format(trajectory_i, len(segment_distributions)))
         traj_path = path + "/{}".format(trajectory_i)
         hlp.ensure_dir(traj_path)
-        for segment_i, (point_distribution, truth) in enumerate(segment_distributions):
+        for segment_i, (point_distribution, truth, feature) in enumerate(segment_distributions):
             logger.info("Plotting Segment {}...".format(segment_i))
             seg_path = traj_path + "/{}".format(segment_i)
             hlp.ensure_dir(seg_path)
@@ -224,7 +229,7 @@ def plot_arrival_time_distributions(trajectory_distributions):
             #     "min_err": min(abs_errors)
             # }
             # logger.info(metrics)
-            hlp.save_array({"truth": truth, "predicted": arrival_time_naive}, "{}/predicted".format(seg_path))
+            hlp.save_array({"truth": truth, "predicted": arrival_time_naive, "feature": feature}, "{}/predicted".format(seg_path))
             # np.savetxt("{}/metrics.txt".format(seg_path), [
             #     metrics["mae"], 
             #     metrics["mse"], 
@@ -253,6 +258,7 @@ def test_model(test_ids, all_trajectories, model, logger):
 
     trajectory_results = defaultdict(object)
     for traj_j, (segments, arrival_times) in enumerate(zip(segments_list, arrival_times_list)):
+        logger.info("Testing model {}".format(traj_j))
         segment_results = []
         for seg_i, (segment, arrival_time) in enumerate(zip(segments, arrival_times)):
             #if i > 1: continue
@@ -262,6 +268,7 @@ def test_model(test_ids, all_trajectories, model, logger):
 
             result = defaultdict(list)
             result["true"] = truth
+            result["feature"] = feature
             for gp_k, gp in enumerate(segment_GPs[seg_i]):
                 if gp_k == test_ids[traj_j]: # GP is trained on this data
                     continue
@@ -269,7 +276,6 @@ def test_model(test_ids, all_trajectories, model, logger):
                 feature_fitted = segment_scalers[seg_i][gp_k].transform(feature)
                 mean, var = gp.predict_y(feature_fitted)
                 result["pred"].append([mean, var])
-                result["feature_fitted"].append(feature_fitted)
                 #abs_errors = [abs(t - m) for t, m in zip(truth, mean)]
                 #mae = mean_absolute_error(truth, mean)
                 #if mae > 50:
@@ -326,11 +332,11 @@ def create_forecasting_model(all_trajectories, session):
 
     logger.info("Training GPs...")
     for j, (segments, arrival_times) in enumerate(zip(segments_list, arrival_times_list)):
-        #if j < 16: continue
+        if j != 10 and j != 22: continue
         #if j != 34: continue
         for i, (segment, arrival_time) in enumerate(zip(segments, arrival_times)):
             #if j == 16 and i <= 18: continue
-            #if i != 3: continue
+            #if i != 13 and i != 6: continue
             #pprint(segment)
             #pprint(arrival_time)
             #print(arrival_time)
@@ -338,18 +344,20 @@ def create_forecasting_model(all_trajectories, session):
             Y = np.vstack([(arrival_time - e["date"]).total_seconds() for e in segment])
             segment_scaler = StandardScaler().fit(X)
             X_fitted = segment_scaler.transform(X)
-            hlp.save_array(segment_scaler, "GP/scaler_{}_{}".format(j, i), logger, BASE_DIR)
-            gp = train_arrival_time_gp(X_fitted, Y, number="{},{}".format(j, i))
-            session.save(BASE_DIR + "GP/model_{}_{}".format(j, i), gp)
-        
-            #  # Visualise:
-            # xx = np.linspace(min(X_fitted), max(X_fitted), 100)[:,None]
-            # mu, var = gp.predict_y(xx)
-            # plt.figure()
-            # plt.plot(xx, mu, "C1", lw=2)
-            # plt.fill_between(xx[:,0], mu[:,0] -  2*np.sqrt(var[:,0]), mu[:,0] +  2*np.sqrt(var[:,0]), color="C1", alpha=0.2)
-            # plt.plot(X, Y, 'kx', mew=2)
-            # plt.savefig("{}gp_{}_{}_{}.png".format(BASE_DIR, j, i, kernel))
+            #hlp.save_array(segment_scaler, "GP/scaler_{}_{}".format(j, i), logger, BASE_DIR)
+            
+            for kernel in ["rbf", "rbf_linear"]:
+                gp = train_arrival_time_gp(X_fitted, Y, number="{},{}".format(j, i), kernel=kernel)
+                #session.save(BASE_DIR + "GP/model_{}_{}".format(j, i), gp)
+            
+                # Visualise:
+                xx = np.linspace(min(X_fitted), max(X_fitted), 100)[:,None]
+                mu, var = gp.predict_y(xx)
+                plt.figure()
+                plt.plot(xx, mu, "C1", lw=2)
+                plt.fill_between(xx[:,0], mu[:,0] -  2*np.sqrt(var[:,0]), mu[:,0] +  2*np.sqrt(var[:,0]), color="C1", alpha=0.2)
+                plt.plot(X_fitted, Y, 'kx', mew=2)
+                plt.savefig("{}gp_vis_report/{}/{}_{}.png".format(BASE_DIR, kernel, j, i))
 
 def event_to_tau(event, scaler, f1_gp):
     gps = [event["gps"][::-1]] # (lat, lng) -> (lng, lat)

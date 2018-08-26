@@ -4,18 +4,21 @@
 The effort involved in analysing a larger dataset with poor documentation is tremendous, but worthwhile.
 Interesting characteristics are mentioned, such as imprecise algorithms and problems due to human errors.
 Real-world data is typically never perfect; pre-processing is a major part of transforming raw data into useful features.
-One of the first problems needing to be solved is to connect the different types of data available in the dataset.
-In this thesis project, this is done via a context-providing FSM.
+One of the first problems that needs to be solved is to connect the different types of data available in the dataset.
+In this thesis project, this is done via a context-providing finite-state machine.
 The result of the pre-processing step is a collection of trajectories for each bus line, which proves to be a useful resource when solving higher-level problems.
 
 The problem of poor bus stop detection is also discussed and explained.
 An approach on how to solve this problem is proposed and outlined, with the steps briefly covered.
 The problem of poor bus stops also influenced the arrival time prediction solution.
-The arrival time prediction models are based on GPR, creating a MoGP.
-One GP model is trained for each trajectory in a bus line.
-The models are naïvely aggregated using the means and a Uniform prior.
-The results show that the quality of the arrival time prediction greatly varies depending on the tested trajectory.
-The errors range from 5 to ca. 19 seconds.
+The arrival time prediction models are based on Gaussian process regression (GPR), creating a mixture of Gaussian process model (MoGP).
+One Gaussian process (GP) model is trained for each trajectory in a bus line.
+The models are naïvely aggregated using the means and a uniform prior.
+The results show that the quality of the arrival time prediction greatly varies depending on the tested trajectory and segment.
+The mean absolute error (MAE) scores range from around 4 to 13 seconds when looking at full trajectories.
+The MAE scores are better if evaluated on segments for a trajectory.
+The scores then range from around 3 to 7 seconds.
+The model achieves better arrival time predictions as the buses travel the segments, i.e, in general, the absolute error decreases over time for each segment.
 The GPS variance estimation problem is also solved using a MoGP with GPR. 
 The model is able to produce an estimation of the variance, which varies based the environment and the shape of the trajectory.
 More models need to be trained in order to improve both the GPS variance estimation model and the arrival time prediction model.

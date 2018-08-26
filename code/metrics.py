@@ -22,28 +22,40 @@ def main(argv):
             sys.exit()
         elif opt in ("-t", "--traj"):
             traj = arg
-    if traj is None:
-        print(help_line)
-        sys.exit(2)
-    run(traj)
+    run()
 
 
-def run(traj):
+def run():
     logger.info("Starting execution of metrics.py!")
     BASE_DIR = "forecasting/arrival_time_distributions/"
 
     segments = 18
-    truths = []
-    predicted = []
+    #truths = []
+    #predicted = []
     for i in range(segments):
-        result = hlp.load_array("{}{}/{}/predicted".format(BASE_DIR, traj, i))
-        truths.extend(result["truth"])
-        predicted.extend(result["predicted"])
+        plt.figure()
+        trajectory_ids = sorted([32, 34, 4, 6, 11, 16, 20, 24, 27])
+        markers = [""] * len(trajectory_ids) #["o", "s", "p", "*", "+", "x", "1", "2", "3", "4"]
+        for traj, mark in zip(trajectory_ids, markers):
+            result = hlp.load_array("{}{}/{}/predicted".format(BASE_DIR, traj, i))
+            feature = result["feature"]
+            feature = (feature - np.min(feature)) / np.ptp(feature)
+            truth = result["truth"]
+            pred = result["predicted"]
+            plt.plot(feature, [abs(t - p) for t, p in zip(truth, pred)], "{}--".format(mark), label="Traj. {}".format(traj))
+        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.xlabel("Segment progress")
+        plt.ylabel("Absolute error [s]")
+        plt.title("Predicted arrival time errors for test trajectories (segment {})".format(i))
+        plt.savefig("forecasting/metrics/segment_{}.png".format(i), bbox_inches="tight")
+        plt.close()
+        #truths.extend(result["truth"])
+        #predicted.extend(result["predicted"])
 
-    truths = np.array(truths)
-    predicted = np.array(predicted)
-    logger.info("RMSE: {}".format(round(np.sqrt(mean_squared_error(truths, predicted)), 2)))
-    logger.info("MAE: {}".format(round(mean_absolute_error(truths, predicted), 2)))
+    #truths = np.array(truths)
+    #predicted = np.array(predicted)
+    #logger.info("RMSE: {}".format(round(np.sqrt(mean_squared_error(truths, predicted)), 2)))
+    #logger.info("MAE: {}".format(round(mean_absolute_error(truths, predicted), 2)))
 
 
 

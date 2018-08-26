@@ -353,3 +353,19 @@ def plot_speed_stops(route, filter_speed=0, file_name=None, f1_gp=None, scaler=N
     plt.savefig("{}.png".format(file_name))
     plt.clf()
     plt.close()
+
+def plot_speeds(routes, filter_speed=0, file_id="1"):
+    plt.figure()
+    plt.xlabel("Time (s)")
+    plt.ylabel("Speed (m/s)")
+    for route, mark, label in zip(routes, ["s-", "o-", "d-", "2-", "*-"], ["1", "2", "3", "4", "5"]):
+        speed_events = [e for e in route if e["event.type"] == "ObservedPositionEvent" and e["speed"] > filter_speed]
+        start_time = speed_events[0]["date"]
+        relative_times = [timedelta.total_seconds(event["date"] - start_time) for event in speed_events]
+        #print(relative_times)   
+        plt.plot(relative_times, [e["speed"] for e in speed_events], mark, markersize=3, label="Traj. {}".format(label))
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    title = 'Trajectory Comparison (Segment {})'.format(file_id)
+    plt.title(title)
+    plt.savefig("speed_comparison_{}.png".format(file_id), bbox_inches="tight")
+    plt.close()

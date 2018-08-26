@@ -94,7 +94,7 @@ def run(line_number, load_model):
 
     if load_model:
         model = load_GPS_variation_GPs(session, load_only="all", f1_version="_ard")
-        output_file = "f1_ard_contour_segment1_combine"
+        output_file = "f1_ard_contour_segment3_pdf"
     else:
         create_GPS_variation_GPs(all_trajectories, session, f1_version="_ard")
         exit(0)
@@ -122,9 +122,9 @@ def run(line_number, load_model):
     #lat, lng = np.mgrid[58.4174:58.4178:res*1j, 15.4967:15.4974:res*1j] # Super small Grid (krök)
     #lat, lng = np.mgrid[58.4185:58.4188:res*1j, 15.4985:15.49875:res*1j] # Super small Grid (sträcka)
 
-    lat, lng = np.mgrid[58.4190:58.422:res*1j, 15.500:15.502:res*1j] # Small Grid (new start)
+    #lat, lng = np.mgrid[58.4190:58.422:res*1j, 15.500:15.502:res*1j] # Small Grid (new start)
     #lat, lng = np.mgrid[58.4175:58.422:res*1j, 15.508:15.517:res*1j] # Small Grid (segment 2) 
-    #lat, lng = np.mgrid[58.408:58.418:res*1j, 15.61:15.63:res*1j] # Small Grid (segment 3, final) 
+    lat, lng = np.mgrid[58.408:58.418:res*1j, 15.61:15.63:res*1j] # Small Grid (segment 3, final) 
     
     pos_grid = np.dstack((lng, lat)).reshape(-1, 2)
     logger.info("Grid created.")
@@ -136,9 +136,17 @@ def run(line_number, load_model):
     hlp.save_array(grid_tau, "grid_tau", logger, BASE_DIR)
 
     logger.info("Evaluate Grid with GPs...")
-    probs = calculate_prob_grip(grid_tau, f2_f3_GPs, f2_f3_scalers, pos_grid_fitted, res, combine=True)
+    probs = calculate_prob_grip(grid_tau, f2_f3_GPs, f2_f3_scalers, pos_grid_fitted, res, method="pdf")
 
-    visualise_probabilities(probs, all_trajectories, pos_grid, lat, lng, res, file_name=output_file)
+    pdf_grid_sum = None
+    for traj_j, pdf_grid in probs.items():
+        visualise_probabilities(pdf_grid, all_trajectories, pos_grid, lat, lng, res, file_name=output_file + "_{}".format(traj_j))
+        if pdf_grid_sum is None:
+            pdf_grid_sum = pdf_grid
+        else:
+            np.add(pdf_grid_sum, pdf_grid, pdf_grid_sum)
+    pdf_grid_sum /= len(probs.keys())
+    visualise_probabilities(pdf_grid_sum, all_trajectories, pos_grid, lat, lng, res, file_name=output_file + "_all")
     exit(1)
     # TODO: Just testing this. #MidnightIdeas
     # combined_f2_means = combine_mean(f2_means)
@@ -238,19 +246,23 @@ def visualise_probabilities(probs, all_trajectories, pos_grid, lat, lng, res, fi
         plt.scatter(points[:,0], points[:,1], color="r", s=0.2, zorder=3)
 
     plt.savefig("{}variance_plot/{}.png".format(BASE_DIR, file_name))
+    plt.close()
 
 
-def calculate_prob_grip(grid_tau, f2_f3_GPs, f2_f3_scalers, pos_grid_fitted, res, combine=False):
+def calculate_prob_grip(grid_tau, f2_f3_GPs, f2_f3_scalers, pos_grid_fitted, res, method=None):
     lng_ss_scaled = get_step_size(pos_grid_fitted[0][0], pos_grid_fitted[-1][0], res)
     lat_ss_scaled = get_step_size(pos_grid_fitted[0][1], pos_grid_fitted[-1][1], res)
 
     points = grid_tau.shape[0]
     probs = np.zeros(points)
-    if combine:
+    if method == "combine":
         lng_means = []
         lng_vars = []
         lat_means = []
         lat_vars = []
+    elif method == "pdf":
+        kernels_list = defaultdict(list)
+        probs = {}
     else:
         result = defaultdict(list)
     
@@ -259,15 +271,25 @@ def calculate_prob_grip(grid_tau, f2_f3_GPs, f2_f3_scalers, pos_grid_fitted, res
         lng_mean, lng_var = f2_gp.predict_y(grid_tau_fitted)
         lat_mean, lat_var = f3_gp.predict_y(grid_tau_fitted)
 
-        if combine:
+        if method == "combine":
             lng_means.append(lng_mean)
             lng_vars.append(lng_var)
             lat_means.append(lat_mean)
             lat_vars.append(lat_var)
+        elif method == "pdf":
+            probs[traj_j] = np.zeros(points)
+            kernels = []
+            for m1, v1, m2, v2 in zip(lng_mean, lng_var, lat_mean, lat_var):
+                k = multivariate_normal(
+                    mean=[m1[0], m2[0]],
+                    cov=np.diag([v1[0], v2[0]])
+                )
+                kernels.append(k)
+            kernels_list[traj_j] = kernels
         else:
             result[traj_j].extend((lng_mean, lng_var, lat_mean, lat_var))
 
-    if combine:
+    if method == "combine":
         lng_means = np.array(lng_means)
         lng_vars = np.array(lng_vars)
         lat_means = np.array(lat_means)
@@ -276,14 +298,19 @@ def calculate_prob_grip(grid_tau, f2_f3_GPs, f2_f3_scalers, pos_grid_fitted, res
         c_lng_vars = combine_variance(lng_vars, lng_means, c_lng_means)
         c_lat_means = combine_mean(lat_means)
         c_lat_vars = combine_variance(lat_vars, lat_means, c_lat_means)
+
     traj_count = len(f2_f3_GPs.keys())
     for grid_i, (lng_i, lat_i) in enumerate(pos_grid_fitted):
         if grid_i % 100 == 0:
             logger.info(grid_i)
-        if combine:
+
+        if method == "combine":
             lng_prob = prob_of(lng_i, lng_ss_scaled, c_lng_means[grid_i], c_lng_vars[grid_i])
             lat_prob = prob_of(lat_i, lat_ss_scaled, c_lat_means[grid_i], c_lat_vars[grid_i])
             probs[grid_i] += lng_prob * lat_prob  # We assume independent!
+        elif method == "pdf":
+            for traj_j, kernels in kernels_list.items():
+                probs[traj_j][grid_i] = kernels[grid_i].pdf((lng_i, lat_i))
         else:
             for traj_j, (lng_mean, lng_var, lat_mean, lat_var) in result.items():
                 lng_prob = prob_of(lng_i, lng_ss_scaled, lng_mean[grid_i], lng_var[grid_i])

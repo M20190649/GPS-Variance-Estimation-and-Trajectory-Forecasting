@@ -4,82 +4,82 @@
 %\section{Motivation}
 %\label{sec:motivation}
 Today, there is an increasing number of services built upon the use of spatio-temporal datasets.
-For example, public transportation companies use the data for route planning and arrival time prediction.
+For example, public transportation companies use such data for route planning and arrival time prediction.
 Taxi companies use spatio-temporal data to track vehicles and, for example, assign the closest available vehicle to a new customer.
 Spatio-temporal datasets can also be used for city planning and analysing effects of rapid urbanisation \cite{Deng2009, Liu2005}.
 Service vehicles are today equipped with GPS sensors which collect behavioural data.
-The availability and usability of spatio-temporal datasets will only increase, e.g., the field of autonomous vehicles utilise spatio-temporal dataset for various applications \cite{Dickmanns1990, Peng2018}.
+The availability and usability of spatio-temporal datasets will only increase with the development of new technologies.
+For example, the field of autonomous vehicles utilises spatio-temporal dataset for various applications \cite{Dickmanns1990, Peng2018}.
 
-The purpose of this thesis project is to perform analysis on a novel spatio-temporal dataset received from Östgötatrafiken AB.
+The purpose of this thesis project is to perform analysis on a novel spatio-temporal dataset collected by Östgötatrafiken AB.
 The goal is to analyse the dataset and define problems inherent in it.
 By solving the inherent problems of the dataset, the dataset can be used to provide new or improved services.
-For example, further knowledge could be gained about the flow of traffic, the arrival time prediction for service vehicles could also be improved or better position detection of vehicles.
+For example, further knowledge can be gained about the flow of traffic.
+The arrival time prediction or vehicle position estimation for service vehicles can also be improved.
 The provided documentation for the dataset is minimal, which makes the insights from the analysis even more valuable.
 
 \section{Aim}
 \label{sec:aim}
-The aim of this thesis project is to explore a novel dataset and formulate problems and solutions which could be interesting not only to the dataset provider but also in a broader context, such as services relying on GPS positioning.
+The aim of this thesis project is to explore a novel dataset and formulate problems and solutions which can be interesting not only to the dataset provider but also in a broader context, e.g., for services relying on GPS positioning.
 The dataset is currently used to provide time forecasts on the public transportation available in Östergötland county.
 The aim is not to fully solve all possible problems with the dataset, but rather formulate outlines for a few interesting problems.
-Some of the outlines will be implemented with their outcomes presented in the thesis.
-
+Some of the outlines are implemented in this thesis project and their results presented.
 
 \section{Research Questions}
 \label{sec:research-questions}
 The specific research questions treated in this thesis project are presented in this section.
-They are divided into three groups: \textit{Metadata Questions}, \textit{Higher-Level Problem Questions}, and \textit{Problem Specific Questions}.
+They are divided into three groups: \textit{Metadata Questions}, \textit{High-Level Problem Questions}, and \textit{Problem Specific Questions}.
 The \textit{Metadata Questions} investigate and explore the provided dataset in depth, using Exploratory Data Analysis (EDA).
 They cover issues such as pre-processing, data noise and outliers.
-These questions can be seen as a pre-study before machine learning techniques are applied.
-The insights from these questions are the basis for the \textit{Higher-Level Problem Questions}.
-The \textit{Higher-Level Problem Questions} formulate various high-level problems by using the information available both internally in the dataset and externally from sources outside the provided dataset.
+These questions can be seen as a pre-study before data analysis and machine learning techniques are applied.
+The insights from these questions are the basis for the \textit{High-Level Problem Questions}.
+The \textit{High-Level Problem Questions} formulate general problems which span individual applications by using the information available both internally in the dataset and externally from sources outside the provided dataset.
 High-level problems are problems which are not inherent in the dataset but rather problems which can be solved by using the information available in the dataset.
 They also aim to suggest solutions for these formulated problems.
-The \textit{Problem Specific Questions} are questions related to a specific problem and solution described by the \textit{Higher-Level Problem Questions}.
+The \textit{Problem Specific Questions} are questions related to a specific problem and solution described by the \textit{High-Level Problem Questions}.
 
 \begin{description}
   \item \textbf{Metadata Questions:}
   \begin{enumerate}
     \item \textit{What kind of information is available in the dataset provided by Östgötatrafiken AB?} \newline
     Which features exist in the dataset, such as different event types, event parameters, and event structures?
-    What does these features mean and how do they relate to each other?
+    What do these features mean and how do they relate to each other?
     Are some features more important than others?
     Are there any features missing from the given dataset?
-    \item \textit{What pre-processing needs to be done in order to solve higher-level problems?} \newline
+    \item \textit{What pre-processing needs to be done in order to solve high-level problems?} \newline
     The pre-processing focuses on solving problems inherent in the dataset, such as processing events and extracting relevant information from them.
-    What are some pre-processing methods that could be applied to this dataset?
-    How can the raw data in the dataset be transformed to useful features?
-    How does the ordering of the raw data affect the solutions for higher-level problems?
+    What are some pre-processing methods that can be applied to this dataset?
+    How can the raw data in the dataset be transformed into useful features?
+    How does the ordering of the raw data affect the solutions for high-level problems?
     How can the raw data be transformed into trajectories?
     How can information from different event types be added to the trajectories?
     \item \textit{How can noisy measurements be detected?} \newline
-    Noisy measurements can affect the solutions for higher-level problems negatively.
-    Various anomaly detection algorithms can be applied to detect such cases, but they could also be solved using dataset-tailored algorithms.
-    Which manual inspection methods could be used to detect noisy measurements?
-    Which general anomaly detection algorithms could be applied?
-    How could a dataset-tailored algorithm be implemented?
+    Noisy measurements can affect the solutions for high-level problems negatively.
+    Various anomaly-detection algorithms can be applied to find such cases, but they can also be solved using dataset-tailored algorithms.
+    Which manual inspection methods can be used to detect noisy measurements?
+    Which general anomaly detection algorithms can be applied?
+    How can a dataset-tailored algorithm be implemented?
     How does the general anomaly detection algorithm differ from the dataset-tailored algorithm?
     \item \textit{How is the provided dataset related to external data sources and how can they be combined?} \newline
-    There are external data sources available which could complement the data in the provided dataset, such as Google Roads API\footnote{https://developers.google.com/maps/documentation/roads/intro} and the website of Östgötatrafiken\footnote{https://www.ostgotatrafiken.se/}.
-    This question explores if these sources could be combined in order to solve problems on a higher level.
-    Which external sources exist and what further information could be gathered from the external data sources?
+    There are external data sources available which can complement the data in the provided dataset, such as Google Roads API\footnote{https://developers.google.com/maps/documentation/roads/intro}, the website of Östgötatrafiken\footnote{https://www.ostgotatrafiken.se/} and the Traffic Lab API\footnote{https://www.trafiklab.se/}.
     How compatible is the data from the external sources with the data in the given dataset?
-    Does the external sources contain any of the features that were deemed missing from the given dataset (in \textit{Metadata Question} 1)? 
+    Does the external sources contain any of the features that are deemed missing from the given dataset (in \textit{Metadata Question} 1)? 
+    How can the data from the external sources be used?
   \end{enumerate}
 
-  \item \textbf{Higher-Level Problem Questions:}
+  \item \textbf{High-Level Problem Questions:}
   \begin{enumerate}
-    \item \textit{What interesting higher-level problems can be investigated and solved based on the available data?} \newline
-    The higher-level problems can utilise both the data available in the provided dataset and any complementary external data.
+    \item \textit{What interesting high-level problems can be investigated and solved based on the available data?} \newline
+    The high-level problems can utilise both the data available in the provided dataset and any complementary external data.
     What problems span over the areas of GPS Positioning and Trajectory Forecasting?
     What are the core problems for each area?
-    How could the existing system that generated the dataset be improved?
+    How can the existing system that generated the dataset be improved?
     \item \textit{How can these problems be solved?} \newline
-    The solutions will tackle the core of each problem.
-    Each solution will explicitly state if there is a baseline available for comparison or if one could be easily created.
+    The solutions tackle the core of each problem.
+    Each solution explicitly states if there is a baseline available for comparison or if one can be easily created.
     How can problems with GPS Positioning and Trajectory Forecasting be solved?
-    \item \textit{How does solutions to these problems benefit society and the industry?} \newline
-    This question analyses the solutions in a broader context, e.g. from a societal or ethical point of view.
+    \item \textit{How do solutions to these problems benefit society and the industry?} \newline
+    The solutions are analysed in a broader context, e.g., from a societal or ethical point of view.
     What value do the solutions offer to the industry?
     How is consumer privacy affected by the solutions?
   \end{enumerate}
@@ -105,26 +105,27 @@ The \textit{Problem Specific Questions} are questions related to a specific prob
     \item \textit{How can the Trajectory Forecasting model be evaluated?} \newline
     Can the existing forecasts from Östgötatrafiken AB be used to create an evaluation baseline?
     How can new forecasts be compared with the baseline?
-    Which insights could be made from the information available in the output of the Trajectory Forecasting model?
+    Which insights can be made from the information available in the output of the Trajectory Forecasting model?
     How can the model respond to immediate real-time changes?
     How can the performance of a single forecast be evaluated?
     How can the overall performance of the model be evaluated?
     Which evaluation criteria can be applied to evaluate the forecasts?
     Can the new model be combined with the existing model in order to produce more precise forecasts?
-    Are there any benefits to return a probability distribution over arrival times compared to returning the expected arrival time?
+    Are there any benefits to returning a probability distribution over arrival times compared to returning the expected arrival time?
   \end{enumerate}
 \end{description}
 
 \section{Delimitations and Limitations}
 \label{sec:delimitations}
 The dataset is provided by Östgötatrafiken AB and is not available for public use.
-This thesis project will only focus on the data from buses; data from public transportation trains will be ignored.
+This thesis project only focuses on the data from buses; data from public transportation trains are ignored.
 In order to support manual inspection of the data in the dataset, the data is filtered to only contain data from a certain geographical area.
 The data gathering process cannot be changed or affected during the span of this thesis project; the dataset is thus as-is, which means that information missing in the dataset cannot be retrieved from other sources.
 Bugs in the data gathering process cannot be solved either.
 
-The models used in the thesis project will be trained and evaluated on a MacBook Pro (early 2015), with a 2,7 GHz Intel Core i5 processor and 8GB 1867 MHz DDR3 memory.
-The setup is by no means optimal, as the MacBook Pro cannot fully utilise the TensorFlow library, as it benefits from GPU acceleration.
+The models used in the thesis project are trained and evaluated on a MacBook Pro (early 2015), with a 2.7 GHz Intel Core i5 processor and 8GB 1867 MHz DDR3 memory.
+The setup is by no means optimal, as the MacBook Pro used does not have an NVIDIA GPU.
+The TensorFlow library is thus not fully utilised, as there is no GPU acceleration.
 
 \section{Structure of the Report}
 Chapter \ref{cha:background} covers the background concepts used in the report.
@@ -133,11 +134,11 @@ Chapter \ref{cha:data} analyses the data in depth.
 The data gathering process is explained together with the structure and characteristics of the dataset.
 In the dataset pre-study, problems inherent in the dataset are explained and solutions to the problems are either outlined or implemented.
 Interesting problems from real-world scenarios are visualised and used to explain various pre-processing steps.
-The data chapter acts as a stepping stone to the higher-level problems described in Chapters \ref{cha:bus-stop-detection}-\ref{cha:arrival-time-prediction}.
+The data chapter acts as a stepping stone to the high-level problems described in Chapters \ref{cha:bus-stop-detection}-\ref{cha:arrival-time-prediction}.
 Chapter \ref{cha:bus-stop-detection} covers the problem of poorly detected bus stops, which causes a large proportion of the problems in the dataset.
 The chapter explains the problem and proposes a solution to it.
 Chapter \ref{cha:GPS-variation-estimation} focuses on the positional data in the dataset.
 It attempts to estimate the GPS variation of journeys for a bus line.
-If the proposed methodology yields good results, the overall precision of positional data could be improved for the dataset.
+If the proposed methodology yields good results, the overall precision of positional data can be improved for the dataset.
 Chapter \ref{cha:arrival-time-prediction} proposes a method to predict the arrival time of buses, using processed data from the spatio-temporal dataset.
 The chapter covers the description of the problem, the methodology, and the results of the implemented solution.
