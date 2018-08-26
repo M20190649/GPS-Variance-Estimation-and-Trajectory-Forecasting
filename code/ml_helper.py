@@ -42,6 +42,155 @@ def ensure_dir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+
+def distance(p1, p2):
+    x1, y1 = p1["gps"][::-1]
+    x2, y2 = p2["gps"][::-1]
+    return np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+
+
+def load_f1_GP_revamped(session, logger, base_dir):
+    f1_gp = session.load(base_dir + "f1_gp")
+    f1_scaler = load_array("f1_scaler", logger, base_dir)
+    return f1_gp, f1_scaler
+
+def create_f1_GP_revamped(route, session, logger, base_dir, load_model):
+    events = [e for e in route if e["event.type"] == "ObservedPositionEvent" and e["speed"] > -1]
+    events = filter_duplicates(events)
+    prev_point = events[0]
+    distance_filtered_events = [prev_point]
+    for event in events[1:]:
+        dist = distance(event, prev_point)
+        if  dist > 6e-05:
+            distance_filtered_events.append(event)
+            prev_point = event
+            
+    X = np.vstack([e["gps"][::-1] for e in distance_filtered_events])
+    Y = np.linspace(0, 1, num = X.shape[0]).reshape(-1,1)
+    
+    if load_model:
+        f1_gp, f1_scaler = load_f1_GP_revamped(session, logger, base_dir)
+    else:
+        f1_scaler = StandardScaler().fit(X)
+        X_fitted = f1_scaler.transform(X)
+        f1_gp = train_f1_gp_revamped(X_fitted, Y, logger, constrain=True)
+        session.save(base_dir + "f1_gp_constrained", f1_gp)
+        save_array(f1_scaler, "f1_scaler", logger, base_dir)
+    
+    return {
+        "f1_gp": f1_gp, 
+        "f1_scaler": f1_scaler,
+        "X": X,
+        "Y": Y
+    }
+
+
+def get_all_trajectories(trajectories, trajectory_key):
+    trajectory_start, trajectory_end = trajectory_key.split(":")
+    all_trajectories = trajectories[trajectory_key]
+    
+    for key, values in trajectories.items():
+        k_start, k_end = key.split(":")
+        if trajectory_start == k_start and trajectory_end != k_end:
+            for vehicle_id, journey in values:
+                segmented_journey, _ = journey.segment_at(trajectory_end)
+                all_trajectories.append((vehicle_id, segmented_journey))
+    return all_trajectories
+
+
+def visualise_f1_gp_revamped(X, Y, f1_gp, f1_scaler, other_points, file_name="f1_gp", title="f1", base_dir=""):
+    res = 200
+    #lat, lng = np.mgrid[58.410317:58.427006:res*1j, 15.490352:15.523200:res*1j] # Big Grid
+    #lat, lng = np.mgrid[58.416317:58.42256:res*1j, 15.494352:15.503200:res*1j] # Middle Grid
+    lat, lng = np.mgrid[58.4173:58.419:res*1j, 15.4965:15.499:res*1j] # Small Grid
+
+    pos_grid = np.dstack((lng, lat)).reshape(-1, 2)
+    print("Grid created.")
+    pos_grid_fitted = f1_scaler.transform(pos_grid)
+    print("Grid scaled.")
+    #print(pos_grid_fitted)
+    grid_tau_mapped, _var = f1_gp.predict_y(pos_grid_fitted)
+    print("Grid predicted.")
+    #grid_tau_mapped_fitted = inv_scaler.transform(grid_tau_mapped)
+
+    #proj_x, _var = inv_f1_gp[0].predict_y(grid_tau_mapped_fitted)
+    #proj_y, _var = inv_f1_gp[1].predict_y(grid_tau_mapped_fitted)
+    #proj_points = np.array([[x[0], y[0]] for (x, y) in zip(proj_x, proj_y)])
+    #proj_points_inv = f1_scaler.inverse_transform(proj_points)
+    #print(proj_points_inv)
+    print(len(X))
+    X_test = X[:29]
+    X_test_fitted = f1_scaler.transform(X_test)
+    means, _var = f1_gp.predict_y(X_test_fitted)
+    #means_fitted = inv_scaler.transform(means)
+    #test_proj_x, _var = inv_f1_gp[0].predict_y(means_fitted)
+    #test_proj_y, _var = inv_f1_gp[1].predict_y(means_fitted)
+    #test_proj_points = np.array([[x[0], y[0]] for (x, y) in zip(test_proj_x, test_proj_y)])
+    #test_proj_points_inv = f1_scaler.inverse_transform(test_proj_points) 
+    #for i, x in enumerate(X_test):
+    #    print(x, test_proj_points_inv[i])
+    plt.figure()
+    plt.title(title)
+    #plt.scatter(pos_grid[:,0], pos_grid[:,1]),#, c=grid_tau_mapped[:,0], cmap="cool", s=0.5)
+    min_x = min(pos_grid[:,0])
+    max_x = max(pos_grid[:,0])
+    min_y = min(pos_grid[:,1])
+    max_y = max(pos_grid[:,1])
+    v_min = min(means[:,0])#min(min(means[:,0]), min(grid_tau_mapped[:,0]))
+    v_max = max(means[:,0])#max(max(min(means[:,0]), max(grid_tau_mapped[:,0]))
+    #plt.plot(X_test[:,0], X_test[:,1], "wx", mew=1.5, zorder=2)
+    plt.scatter(X_test[:,0], X_test[:,1], c=means[:,0], edgecolors="w", vmin=v_min, vmax=v_max, cmap="cool", zorder=4)
+    plt.colorbar()
+    #plt.scatter(X_test[:,0], X_test[:,1], color="w", s=0.25, zorder=5)
+    tightness = 0
+    plt.xlim(min_x - (max_x - min_x)*tightness, max_x + (max_x - min_x)*tightness)
+    plt.ylim(min_y - (max_y - min_y)*tightness, max_y + (max_y - min_y)*tightness)
+    
+    plt.scatter(pos_grid[:,0], pos_grid[:,1], c=grid_tau_mapped[:,0], vmin=v_min, vmax=v_max, cmap="cool", s=3, zorder=1)
+    for points in other_points:
+        plt.scatter(points[:,0], points[:,1], color="k", s=0.2, zorder=3)
+    #plt.contourf(pos_grid, pos_grid[:,1], c=grid_tau_mapped[:,0], cmap="cool")
+    
+    #plt.plot(proj_points_inv[:,0], proj_points_inv[:,1], "kx", mew=2)
+
+    #plt.scatter(X[:,0], X[:,1], c=Y[:,0], cmap='coolwarm', s=0.5)
+    plt.savefig("{}{}.png".format(base_dir, file_name))
+
+
+def train_f1_gp_revamped(X_train, Y_train, logger, constrain=False):
+    """GP which maps lng, lat -> Tau.
+    X_train should be standardised and should not contain any stops."""
+    with gpflow.defer_build():
+        m = gpflow.models.GPR(X_train, Y_train, kern=gpflow.kernels.RBF(2, lengthscales=0.01))
+        if constrain:
+            m.likelihood.variance = 1e-04
+            m.likelihood.variance.trainable = False
+        else:
+            m.likelihood.variance = 30
+        print(m)
+        #m = gpflow.models.GPMC(X_train, Y_train, gpflow.kernels.RBF(2), gpflow.likelihoods.Gaussian())
+        m.compile()
+        opt = gpflow.train.ScipyOptimizer()
+        opt.minimize(m)
+        logger.info("Model optimized")
+        logger.info(m)
+        logger.info("Revamped f1 GP trained.")
+    return m
+
+
+def train_inv_f1_gp(X_train, Y_train, logger):
+    """GP which maps Tau -> lng or lat."""
+    with gpflow.defer_build():
+        m = gpflow.models.GPR(X_train, Y_train, kern=gpflow.kernels.RBF(1))
+        m.compile()
+        opt = gpflow.train.ScipyOptimizer()
+        opt.minimize(m)
+        logger.info("Model optimized")
+        logger.info(m)
+        logger.info("Inverse f1 GP trained.")
+    return m
+
+
 def create_f1_GP(route, logger, visualise_gp=False):
     events = [e for e in route if e["event.type"] == "ObservedPositionEvent" and e["speed"] > 3]
     events = filter_duplicates(events)

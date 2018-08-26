@@ -5,8 +5,9 @@ venv/
 .vscode/
 *.pyc
 GPflow/
-*.pickle
 
+*.pickle
+code/forecasting/**/*.png
 
 ## Core latex/pdflatex auxiliary files:
 *.aux

@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import tensorflow as tf
 import pprint
+import os
 import seaborn as sns
 from datetime import timedelta
 from sklearn.preprocessing import StandardScaler
@@ -18,16 +19,17 @@ from helpers import setup_logging, print_progress_bar
 from collections import defaultdict
 from gmplot import gmplot
 from operator import add
-from scipy.stats import multivariate_normal 
+from scipy.stats import multivariate_normal, norm
+from scipy.integrate import quad
 from matplotlib.colors import ListedColormap
 
 def main(argv):
     line_number = None
-    create_variation_GPs = True
+    load_model = False
     load_heatmap = False
-    help_line = 'usage: gps_var.py -l <line_number> --load-variation-gp --load-heatmap'
+    help_line = 'usage: gps_var.py -l <line_number> --load-model --load-heatmap'
     try:
-        opts, args = getopt.getopt(argv,"hl:",["line=", "load-variation-gp", "load-heatmap"])
+        opts, args = getopt.getopt(argv,"hl:",["line=", "load-model", "load-heatmap"])
     except getopt.GetoptError:
         print(help_line)
         sys.exit(2)
@@ -37,15 +39,15 @@ def main(argv):
             sys.exit()
         elif opt in ("-l", "--line"):
             line_number = arg
-        elif opt == "--load-variation-gp":
-            create_variation_GPs = False
+        elif opt == "--load-model":
+            load_model = True
         elif opt == "--load-heatmap":
             load_heatmap = True
 
     logger.info("Starting execution of gps_var.py!")
 
     if not load_heatmap:
-        run(line_number, create_variation_GPs)
+        run(line_number, load_model)
     else:
         #heatmap = hlp.load_array("heatmap_7500x7500", logger)
         for j in range(6):
@@ -70,15 +72,17 @@ def plot_heatmap(heatmap, identifier="", show_title=True, with_alpha=False):
     plt.close()
     
     
-def run(line_number, create_variation_GPs):
+def run(line_number, load_model):
     visualise_trajectory_gp = False # Quicker if False
     visualise_tau_gp = False # Quicker if False
 
+    session = gpflow.saver.Saver()
+
     trajectories = hlp.load_trajectories_from_file(line_number, logger)
-    hlp.plot_trajectories(trajectories, logger, print_only=True)
+    #hlp.plot_trajectories(trajectories, logger, print_only=True)
     
     trajectory_key = "Lötgatan:Linköpings resecentrum"
-    vehicle_id, journey = trajectories[trajectory_key][0]
+    #vehicle_id, journey = trajectories[trajectory_key][0]
     #pprint.pprint(journey.route)
     #hlp.plot_speed_time(trajectories["Lötgatan:Fönvindsvägen östra"][4][1].segment_at("Linköpings resecentrum")[0])
     #hlp.plot_speed_stops(journey.route)
@@ -86,17 +90,52 @@ def run(line_number, create_variation_GPs):
     #plot_speed_stops(journey.route)
     #plot_speed_time(journey)
 
-    if create_variation_GPs:
-        f2_means, f2_variances, f3_means, f3_variances, scaler = create_GPS_variation_GPs(
-            journey, 
-            trajectories, 
-            trajectory_key, 
-            visualise_trajectory_gp,
-            visualise_tau_gp
-        )
+    all_trajectories = hlp.get_all_trajectories(trajectories, trajectory_key)
+
+    if load_model:
+        model = load_GPS_variation_GPs(session, load_only=2, constrained_f1=True)
+        output_file = "f1_fixed_var_2GPs"
     else:
-        f2_means, f2_variances, f3_means, f3_variances, scaler = load_GPS_variation_GPs()
+        create_GPS_variation_GPs(all_trajectories, session)
+        exit(0)
+        
+    f1_gp = model["f1_gp"]
+    f1_scaler = model["f1_scaler"]
+    f2_f3_GPs = model["f2_f3_GPs"]
+    f2_f3_scalers = model["f2_f3_scalers"]
+
+    # for i, (vehicle_id, journey) in enumerate(all_trajectories[1:]):
+    #     events = [e for e in journey.route if e["event.type"] == "ObservedPositionEvent"]
+    #     X = [[e["date"].isoformat(), e["gps"][::-1][0], e["gps"][::-1][-1], e["speed"], e["dir"]] for e in events]
+    #     np.savetxt("d{}.txt".format(i + 2), X, fmt='%s', delimiter=";")
+
+    # exit(1)
+
+
+    res = 200
+    #lat_step = get_step_size(lat_start, lat_stop, res)
+    #lng_step = get_step_size(lng_start, lng_stop, res)
+
+    #lat, lng = np.mgrid[58.410317:58.427006:res*1j, 15.490352:15.523200:res*1j] # Big Grid
+    #lat, lng = np.mgrid[58.416317:58.42256:res*1j, 15.494352:15.503200:res*1j] # Middle Grid
+    #lat, lng = np.mgrid[58.4173:58.419:res*1j, 15.4965:15.499:res*1j] # Small Grid
+    #lat, lng = np.mgrid[58.4174:58.4178:res*1j, 15.4967:15.4974:res*1j] # Super small Grid (krök)
+    lat, lng = np.mgrid[58.4185:58.4188:res*1j, 15.4985:15.49875:res*1j] # Super small Grid (sträcka)
+
+    pos_grid = np.dstack((lng, lat)).reshape(-1, 2)
+    logger.info("Grid created.")
+    pos_grid_fitted = f1_scaler.transform(pos_grid)
+    logger.info("Grid scaled.")
     
+    grid_tau, _var = f1_gp.predict_y(pos_grid_fitted)
+    logger.info("Grid predicted.")
+    hlp.save_array(grid_tau, "grid_tau", logger, BASE_DIR)
+
+    logger.info("Evaluate Grid with GPs...")
+    probs = calculate_prob_grip(grid_tau, f2_f3_GPs, f2_f3_scalers, pos_grid_fitted, res)
+
+    visualise_probabilities(probs, all_trajectories, pos_grid, file_name=output_file)
+    exit(1)
     # TODO: Just testing this. #MidnightIdeas
     # combined_f2_means = combine_mean(f2_means)
     # combined_f2_variances = combine_variance(f2_variances, f2_means, combined_f2_means)
@@ -161,62 +200,118 @@ def run(line_number, create_variation_GPs):
     visualise_combined_f2_f3_gp_heatmap(combined_f2_means, combined_f2_variances, combined_f3_means, combined_f3_variances)
 
 
+def visualise_probabilities(probs, all_trajectories, pos_grid, file_name):
+    logger.info("Visualise probabilities...")
+    X_test = []
+    for vehicle_id, journey in all_trajectories:
+        X_test.append(np.vstack([e["gps"][::-1] for e in journey.route if e["event.type"] == "ObservedPositionEvent" and e["speed"] > 0.1]))
+    X_test = np.array(X_test)
 
-def create_GPS_variation_GPs(journey, trajectories, trajectory_key, visualise_trajectory_gp, visualise_tau_gp):
-    """ Function that creates two GPS variation GPs (f2=lat, f3=lng) for each trajectory.
-    Returns and saves the means and variances for each (f2,f3) pair."""
-    logger.info("Creating new GPs f1, f2, and f3 for GPS variation estimation.")
-    f1_gp, scaler = hlp.create_f1_GP(journey.route, logger, visualise_tau_gp)
-    hlp.save_array(scaler, "scaler", logger)
+    plt.figure()
+    plt.title("GPS Variance Estimation")
 
-    trajectory_GPs = train_trajectory_GPs(
-        trajectories,
-        trajectory_key, 
-        scaler, 
-        f1_gp, 
-        visualise_tau_gp, 
-        visualise_trajectory_gp
-    )
+    min_x = min(pos_grid[:,0])
+    max_x = max(pos_grid[:,0])
+    min_y = min(pos_grid[:,1])
+    max_y = max(pos_grid[:,1])
+    v_min = min(probs)
+    v_max = max(probs)
 
-    size = 2000
-    tau_grid = np.linspace(0, 1, num=size).reshape(-1,1)
+    #plt.scatter(X_test[:,0], X_test[:,1], c=means[:,0], edgecolors="w", vmin=v_min, vmax=v_max, cmap="cool", zorder=4)
+    #plt.scatter(X_test[:,0], X_test[:,1], color="w", s=0.25, zorder=5)
+    tightness = 0
+    plt.xlim(min_x - (max_x - min_x)*tightness, max_x + (max_x - min_x)*tightness)
+    plt.ylim(min_y - (max_y - min_y)*tightness, max_y + (max_y - min_y)*tightness)
+    
+    plt.scatter(pos_grid[:,0], pos_grid[:,1], c=probs, vmin=v_min, vmax=v_max, cmap="cool", s=3, zorder=1)
+    plt.colorbar()
+    for points in X_test:
+        plt.scatter(points[:,0], points[:,1], color="k", s=0.2, zorder=3)
+    #plt.contourf(pos_grid, pos_grid[:,1], c=grid_tau_mapped[:,0], cmap="cool")
+    
+    #plt.plot(proj_points_inv[:,0], proj_points_inv[:,1], "kx", mew=2)
 
-    f2_means_array = []
-    f2_variances_array = []
-    f3_means_array = []
-    f3_variances_array = []
-
-    for f2, f3 in trajectory_GPs:
-        f2_means, f2_variances = f2.predict_y(tau_grid)
-        f2_means_array.append(f2_means.reshape(-1))
-        f2_variances_array.append(f2_variances.reshape(-1))
-
-        f3_means, f3_variances = f3.predict_y(tau_grid)
-        f3_means_array.append(f3_means.reshape(-1))
-        f3_variances_array.append(f3_variances.reshape(-1))
-
-    f2_means = np.vstack(f2_means_array)
-    hlp.save_array(f2_means, "f2_means", logger)
-    f2_variances = np.vstack(f2_variances_array)
-    hlp.save_array(f2_variances, "f2_variances", logger)
-    f3_means = np.vstack(f3_means_array)
-    hlp.save_array(f3_means, "f3_means", logger)
-    f3_variances = np.vstack(f3_variances_array)
-    hlp.save_array(f3_variances, "f3_variances", logger)
-    return f2_means, f2_variances, f3_means, f3_variances, scaler
+    #plt.scatter(X[:,0], X[:,1], c=Y[:,0], cmap='coolwarm', s=0.5)
+    plt.savefig("{}variance_plot/{}.png".format(BASE_DIR, file_name))
 
 
-def load_GPS_variation_GPs():
+def calculate_prob_grip(grid_tau, f2_f3_GPs, f2_f3_scalers, pos_grid_fitted, res):
+    lng_ss_scaled = get_step_size(pos_grid_fitted[0][0], pos_grid_fitted[-1][0], res)
+    lat_ss_scaled = get_step_size(pos_grid_fitted[0][1], pos_grid_fitted[-1][1], res)
+
+    points = grid_tau.shape[0]
+    probs = np.zeros(points)
+    for traj_j, (f2_gp, f3_gp) in f2_f3_GPs.items():
+        logger.info("Probabilities being calculated from GP #{}.".format(traj_j))
+        grid_tau_fitted = f2_f3_scalers[traj_j].transform(grid_tau)
+        lng_mean, lng_var = f2_gp.predict_y(grid_tau_fitted)
+        lat_mean, lat_var = f3_gp.predict_y(grid_tau_fitted)
+        
+        for grid_i, (lng_i, lat_i) in enumerate(pos_grid_fitted):
+            lng_mu_i = lng_mean[grid_i]
+            lng_var_i = lng_var[grid_i]
+            lat_mu_i = lat_mean[grid_i]
+            lat_var_i = lat_var[grid_i]
+
+            lng_prob = prob_of(lng_i, lng_ss_scaled, mean=lng_mu_i, variance=lng_var_i)
+            lat_prob = prob_of(lat_i, lat_ss_scaled, mean=lat_mu_i, variance=lat_var_i)
+
+            probs[grid_i] += lng_prob * lat_prob  # We assume independent!
+
+    probs = probs / len(f2_f3_GPs.keys())  # Make into a probability distribution
+    print(len(f2_f3_GPs.keys()))
+    #probs[probs < 1e-03] = 0
+    hlp.save_array(probs, "grid_probs", logger, BASE_DIR)
+    return probs
+
+
+def prob_of(observed_value, step_size, mean, variance):
+    distr = norm(mean, np.sqrt(variance))  # standard deviation as parameter
+    half_step = step_size / 2
+    prob, _ =  quad(distr.pdf, observed_value - half_step, observed_value + half_step)
+    return prob
+
+def get_step_size(start, stop, points):
+    return (stop - start) / (points - 1)
+
+
+def create_GPS_variation_GPs(all_trajectories, session):
+    """ Function that creates and saves two GPS variation GPs,
+    (f2=lat, f3=lng) for each trajectory.
+    """
+    logger.info("Loading good f1 model...")
+    f1_gp, f1_scaler = hlp.load_f1_GP_revamped(session, logger, "f1_test/")
+
+    logger.info("Creating new f2, and f3 for GPS variation estimation.")
+    train_trajectory_GPs(all_trajectories, f1_gp, f1_scaler, session)
+
+
+def load_GPS_variation_GPs(session, load_only="all", load_specific=None, constrained_f1=False):
+    """ 'load_only' is the number of GPs to load. Default is "all".
+    If an int it will only load that number of GPs.
+    'load_specific' loads a GP with that specific number."""
     logger.info("Loading GPs f1, f2, and f3 for GPS variation estimation.")
-    return (
-        hlp.load_array("f2_means", logger),
-        hlp.load_array("f2_variances", logger),
-        hlp.load_array("f3_means", logger),
-        hlp.load_array("f3_variances", logger),
-        hlp.load_array("scaler", logger)
-    )
+    
+    f1_gp = session.load("f1_test/f1_gp{}".format("_constrained" if constrained_f1 else ""))
 
+    path = BASE_DIR + "GP/"
+    GPs = defaultdict(list)
+    models = sorted([f.split("_")[1:] for f in os.listdir(path) if "model_" in f])
 
+    for trajectory_i, gp_name in models: # gp_name: f2 always before f3
+        if load_specific is not None and int(trajectory_i) != load_specific: continue
+        if load_only != "all" and int(trajectory_i) >= load_only: break
+
+        logger.info("{} GP #{} loaded.".format(gp_name, trajectory_i))
+        gp = session.load(path + "model_{}_{}".format(trajectory_i, gp_name))
+        GPs[int(trajectory_i)].append(gp)
+
+    return {
+        "f1_gp": f1_gp,
+        "f1_scaler": hlp.load_array("f1_test/f1_scaler", logger),
+        "f2_f3_GPs": GPs,
+        "f2_f3_scalers": hlp.load_array(BASE_DIR + "f2_f3_scalers", logger)
+    }
 
 
 def combine_mean(means):
@@ -240,46 +335,33 @@ def combine_variance(variances, means, combined_means):
     )
 
 
-def train_trajectory_GPs(trajectories, trajectory_key, scaler, f1_gp, visualise_tau_gp, visualise_trajectory_gp):
-    trajectory_start, trajectory_end = trajectory_key.split(":")
-    logger.info("Trajectory start/end: %s/%s", trajectory_start, trajectory_end)
-    all_trajectories = trajectories[trajectory_key]
-    
-    for key, values in trajectories.items():
-        k_start, k_end = key.split(":")
-        if trajectory_start == k_start and trajectory_end != k_end:
-            for vehicle_id, journey in values:
-                segmented_journey, _ = journey.segment_at(trajectory_end)
-                if segmented_journey is None:
-                    logger.info("Journey not segmented when it should have been: %s, %s", trajectory_start, trajectory_end)               
-                all_trajectories.append((vehicle_id, segmented_journey))
-
-    trajectory_GPs = []
+def train_trajectory_GPs(all_trajectories, f1_gp, f1_scaler, session):
+    f2_f3_scalers = []
     for i, (vehicle_id, journey) in enumerate(all_trajectories):
         events = [e for e in journey.route if e["event.type"] == "ObservedPositionEvent" and e["speed"] > 0.1]
         events = hlp.filter_duplicates(events)
 
         xx = np.vstack([e["gps"][::-1] for e in events])
-        xx_fit = scaler.transform(xx)
+        xx_fit = f1_scaler.transform(xx)
         xx_lng = xx_fit[:,0].reshape(-1,1)
         xx_lat = xx_fit[:,1].reshape(-1,1)
-        mean, var = f1_gp.predict_y(xx_fit)
-        mean = mean[:,0].reshape(-1,1)
+        tau_mean, _var = f1_gp.predict_y(xx_fit)
+        tau_mean = tau_mean[:,0].reshape(-1,1)
 
-        if visualise_tau_gp:
-            hlp.visualise_f1_gp(xx_fit, mean, file_name="test_{}".format(i), title="f1 (test {})".format(i))
+        f2_f3_scaler = StandardScaler().fit(tau_mean)
+        f2_f3_scalers.append(f2_f3_scaler)
+        tau_mean_fitted = f2_f3_scaler.transform(tau_mean)
+        train_GP(tau_mean_fitted, xx_lng, session, number=i, gp_name="f2")
+        train_GP(tau_mean_fitted, xx_lat, session, number=i, gp_name="f3")
+    hlp.save_array(f2_f3_scalers, "f2_f3_scalers", logger, BASE_DIR)
 
-        assert len(mean), len(set(mean))
 
-        f2_gp = train_f2_gp(mean, xx_lng, i)
-        f3_gp = train_f3_gp(mean, xx_lat, i)
-
-        trajectory_GPs.append((f2_gp, f3_gp))
-        
-        if visualise_trajectory_gp:
-            visualise_f2_f3(f2_gp, f3_gp, i)
-        
-    return trajectory_GPs
+def new_vis_combined_gp_mean(all_trajectories):
+    # TODO: Implement
+    X_test = []
+    for vehicle_id, journey in all_trajectories[1:]:
+        X_test.append(np.vstack([e["gps"][::-1] for e in journey.route if e["event.type"] == "ObservedPositionEvent" and e["speed"] > 0.1]))
+    X_test = np.array(X_test)
 
 
 def visualise_combined_f2_f3_gp(combined_f2_means, combined_f2_variances, combined_f3_means, combined_f3_variances, scaler, splits=None):
@@ -319,7 +401,7 @@ def visualise_combined_f2_f3_gp_heatmap(combined_f2_means, combined_f2_variances
     kernels = []
     logger.info("Creating kernels.")
     for i in range(len(combined_f2_means)):
-        # We want (lng, lat) coords for this kernel
+        #TODO: cov is std and not variance, right?
         k = multivariate_normal(
             mean=[combined_f2_means[i], combined_f3_means[i]],
             cov=np.diag([combined_f2_variances[i], combined_f3_variances[i]])
@@ -426,34 +508,19 @@ def plot_gp_grid_region(grid, gp_mean, gp_var):
         color="red", alpha=0.2
     )
 
-
-def train_f2_gp(X_tau, Y_lng, number=None):
-    """GP which maps tau -> lng."""
+def train_GP(X_tau, Y, session, number, gp_name):
+    """GP which maps tau -> lng or lat."""
     with gpflow.defer_build():
-        m = gpflow.models.GPR(X_tau, Y_lng, kern=gpflow.kernels.Matern32(1))
+        m = gpflow.models.GPR(X_tau, Y, kern=gpflow.kernels.RBF(1))
         m.compile()
         opt = gpflow.train.ScipyOptimizer()
         opt.minimize(m)
-        logger.info("f2 GP #{} trained.".format("" if number is None else number))
+        logger.info("{} GP #{} trained.".format(gp_name, number))
+    session.save(BASE_DIR + "GP/model_{}_{}".format(number, gp_name), m)
     return m
-
-
-def train_f3_gp(X_tau, Y_lat, number=None):
-    """GP which maps tau -> lat."""
-    with gpflow.defer_build():
-        m = gpflow.models.GPR(X_tau, Y_lat, kern=gpflow.kernels.Matern32(1))
-        m.compile()
-        opt = gpflow.train.ScipyOptimizer()
-        opt.minimize(m)
-        logger.info("f3 GP #{} trained.".format("" if number is None else number))
-    return m
-
-
-
-
-
 
 
 if __name__ == "__main__":
     logger = setup_logging("gps_var.py", "gps_var.log")
+    BASE_DIR = "gps_var/"
     main(sys.argv[1:])

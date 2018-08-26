@@ -18,7 +18,7 @@ from helpers import setup_logging
 from collections import defaultdict
 from gmplot import gmplot
 from operator import add
-from scipy.stats import multivariate_normal
+from scipy.stats import norm
 
 # Metrics
 from sklearn.metrics import mean_absolute_error, mean_squared_error, median_absolute_error
@@ -26,9 +26,13 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, median_abso
 def main(argv):
     line_number = None
     load_model = False
-    help_line = 'usage: forecasting.py -l <line_number> --load-model'
+    load_result = False
+    load_dist = False
+    train_f1 = False
+
+    help_line = 'usage: forecasting.py -l <line_number> --train-f1 --load-model --load-result --load-dist'
     try:
-        opts, args = getopt.getopt(argv,"hl:",["line=", "load-model"])
+        opts, args = getopt.getopt(argv,"hl:",["line=", "train-f1", "load-model", "load-result", "load-dist"])
     except getopt.GetoptError:
         print(help_line)
         sys.exit(2)
@@ -40,235 +44,242 @@ def main(argv):
             line_number = arg
         elif opt == "--load-model":
             load_model = True
+        elif opt == "--load-result":
+            load_result = True
+        elif opt == "--load-dist":
+            load_dist = True
+        elif opt == "--train-f1":
+            train_f1 = True
 
-    run(line_number, load_model)
+    if train_f1:
+        run_train_f1(line_number)
+    elif load_dist:
+        run_plot_dist()
+    elif load_result:
+        run_load_result()
+    else:
+        run(line_number, load_model)
     
-def run(line_number, load_model):
-    logger.info("Starting execution of forecasting.py!")
 
+def run_plot_dist(trajectory_results=None):
+    if trajectory_results is None:
+        distributions = hlp.load_array("trajectory_distributions", logger, BASE_DIR)
+    else:
+        distributions = create_trajectory_distributions(trajectory_results)
+    plot_arrival_time_distributions(distributions)
+
+
+def run_load_result():
+    trajectory_results = hlp.load_array("trajectory_results", logger, BASE_DIR)
+    run_plot_dist(trajectory_results)
+
+
+def run_train_f1(line_number):
+    session = gpflow.saver.Saver()
     trajectories = hlp.load_trajectories_from_file(line_number, logger)
     
     trajectory_key = "Lötgatan:Linköpings resecentrum"
     kernels = ["rbf_linear"]
+
+    logging.info("Test GP f1...")
+    F1_DIR = "f1_test/"
+    vehicle_id, journey = trajectories[trajectory_key][0]
+    model = hlp.create_f1_GP_revamped(journey.route, session, logger, F1_DIR, load_model=False)
     
-    all_trajectories = get_all_trajectories(trajectories, trajectory_key)
+    f1_gp = model["f1_gp"]
+    f1_scaler = model["f1_scaler"]
+    X = model["X"]
+    Y = model["Y"]
+    
+    X_test = []
+    for vehicle_id, journey in hlp.get_all_trajectories(trajectories, trajectory_key)[1:]:
+        X_test.append(np.vstack([e["gps"][::-1] for e in journey.route if e["event.type"] == "ObservedPositionEvent" and e["speed"] > 0.1]))
+    X_test = np.array(X_test)
+
+    hlp.visualise_f1_gp_revamped(X, Y, f1_gp, f1_scaler, X_test, file_name="f1_gp_constrained", base_dir=F1_DIR)
+
+
+def run(line_number, load_model):
+    logger.info("Starting execution of forecasting.py!")
+    session = gpflow.saver.Saver()
+
+    trajectories = hlp.load_trajectories_from_file(line_number, logger)
+    trajectory_key = "Lötgatan:Linköpings resecentrum"
+    all_trajectories = hlp.get_all_trajectories(trajectories, trajectory_key)
 
     if load_model:
-        model = load_forecasting_model(kernels=kernels)
+        model = load_forecasting_model(session)
     else:
-        create_forecasting_model(
-            all_trajectories, 
-            model_trajectory=trajectories[trajectory_key][0], 
-            kernels=kernels)
-        exit(1)
+        create_forecasting_model(all_trajectories, session)
+        exit(0)
 
+    test_ids = list(set(np.random.randint(37, size=10)))
+    logger.info(test_ids)
+    logger.info("Test models...")
+    trajectory_results = test_model(test_ids, all_trajectories, model, logger)    
+
+    run_plot_dist(trajectory_results)
+
+
+def create_trajectory_distributions(trajectory_results):
+    logger.info("Create trajectory distributions...")
+    logger.info("Test trajectory IDs: {}".format(trajectory_results.keys()))
+    trajectory_distributions = defaultdict(object)
+    for test_id, test_trajectory_result in trajectory_results.items():
+        logger.info("Segments: {}".format(len(test_trajectory_result)))
+        segment_distributions = []
+        for segment_i, segment_result in enumerate(test_trajectory_result):
+            logger.info("Segment {} tested on {} GPs".format(segment_i, len(segment_result["pred"])))
+            # segment_result elements have 3 keys: 
+            # pred: Arrival time predictions (means, vars, kernel/gp)
+            # true: True arrival times.
+            # metrics: Metrics for the prediction.
+
+            # TODO: Plot ATP distribution for segment_i.
+            # How? Well, we create PDF distributions with the (mean, var)-pairs 
+            # we get from the results. We can then plot the PDFs, as they are 1D on input.
+            # We also need to show the true arival time, so we can get a grasp of how far "off" we are.
+            y_true = segment_result["true"]
+            distribution = defaultdict(list)
+            for mu, var, kernel in segment_result["pred"]:
+                for point_i, (mu_i, std_i) in enumerate(zip(mu, np.sqrt(var))):
+                    distribution[point_i].append(norm(mu_i, std_i))
+            segment_distributions.append((distribution, y_true))
+        trajectory_distributions[test_id] = segment_distributions
+    hlp.save_array(trajectory_distributions, "trajectory_distributions", logger, BASE_DIR)
+    return trajectory_distributions
+
+
+def plot_arrival_time_distributions(trajectory_distributions):
+    logger.info("Plot Arrival Time Prediction Distributions...")
+    path = BASE_DIR + "arrival_time_distributions"
+    hlp.ensure_dir(path)
+    for trajectory_i, segment_distributions in trajectory_distributions.items():
+        logger.info("Trajectory {} has {} segment(s).".format(trajectory_i, len(segment_distributions)))
+        traj_path = path + "/{}".format(trajectory_i)
+        hlp.ensure_dir(traj_path)
+        for segment_i, (point_distribution, truth) in enumerate(segment_distributions):
+            logger.info("Plotting Segment {}...".format(segment_i))
+            seg_path = traj_path + "/{}".format(segment_i)
+            hlp.ensure_dir(seg_path)
+            for point_i, distribution in point_distribution.items():
+                plt.figure()
+                plt.axvline(x=truth[point_i], color="r", linestyle='-', lw=0.5)
+                for k in distribution:
+                    xx = np.linspace(k.ppf(0.01), k.ppf(0.99), 100)
+                    plt.plot(xx, k.pdf(xx))
+                plt.savefig("{}/{}".format(seg_path, point_i))
+                plt.close()
+
+    
+def test_model(test_ids, all_trajectories, model, logger):
     f1_gp = model["f1_gp"]
-    scaler = model["f1_scaler"]
+    f1_scaler = model["f1_scaler"]
     segment_GPs = model["segment_GPs"]
-    pprint(segment_GPs)
-    #speed_scaler = model["speed_scaler"]
-    #tau_scalers = model["tau_scalers"]
+    segment_scalers = model["segment_scalers"]
 
-    segments_list, arrival_times_list = segment_trajectories(all_trajectories[0:1], level=0, f1_gp=f1_gp)
-    #hlp.plot_coordinates(all_trajectories[31:32])
-    #hlp.plot_speed_time(all_trajectories[31:32][0][1], filter_speed=-1, file_id="bug_31")
+    test_trajectories = []
+    for test_id in test_ids:
+        test_trajectories.append(all_trajectories[test_id])
+    segments_list, arrival_times_list = segment_trajectories(test_trajectories, level=0, f1_gp=f1_gp)
 
-    # for j, segments in enumerate(segments_list):
-    #     for i, segment in enumerate(segments):
-    #         hlp.plot_speed_stops(segment, filter_speed=-1, file_name="speed_stops/{}/segment_{}".format(31, i), f1_gp=f1_gp, scaler=scaler)
-
-
-    logger.info("Creating test data...")
-
-    trajectory_results = []
-    for j, (segments, arrival_times) in enumerate(zip(segments_list, arrival_times_list)):
+    trajectory_results = defaultdict(object)
+    for traj_j, (segments, arrival_times) in enumerate(zip(segments_list, arrival_times_list)):
         segment_results = []
-        for i, (segment, arrival_time) in enumerate(zip(segments, arrival_times)):
-            if i != 0: continue
-            #speeds = np.vstack([e["speed"] for e in segment])
-            #speeds = speed_scaler.transform(speeds)
-            #pos = np.vstack([e["gps"][::-1] for e in segment])
-            #pos = scaler.transform(pos)
-            #means, _vars = f1_gp.predict_y(pos)
-            #taus = tau_scalers[i].transform(means)
-            #feature = np.vstack([[tau[0], speed[0]] for tau, speed in zip(taus, speeds)])
-            feature = np.vstack([event_to_tau(e, scaler, f1_gp) for e in segment])
+        for seg_i, (segment, arrival_time) in enumerate(zip(segments, arrival_times)):
+            #if i > 1: continue
+    
+            feature = np.vstack([event_to_tau(e, f1_scaler, f1_gp) for e in segment])
             truth = np.vstack([(arrival_time - e["date"]).total_seconds() for e in segment])
-            pprint(feature)
-            print(feature.shape)
+
             result = defaultdict(list)
             result["true"] = truth
-            for kernel in kernels:
-                for gp_i, gp in enumerate(segment_GPs[i][kernel]):
-                    mean, var = gp.predict_y(feature)
-                    result["pred"].append([mean, var, kernel])
-                    print(gp)
-                    abs_errors = [abs(t - m) for t, m in zip(truth, mean)]
-                    mae = mean_absolute_error(truth, mean)
-                    if mae > 50:
-                        logger.warn("{}, {}: {}".format(j, i, mae))
-                    mse = mean_squared_error(truth, mean)
-                    metrics = {
-                        "mae": mae,
-                        "mse": mse,
-                        "rmse": np.sqrt(mse),
-                        "median_abs_err": median_absolute_error(truth, mean),
-                        "max_err": max(abs_errors),
-                        "min_err": min(abs_errors)
-                    }
-                    result["metrics"].append(metrics)
-                    pprint(list(zip(mean, truth)))
-                    logger.info(metrics)
-
-                    xx = np.linspace(min(feature), max(feature), 100)[:,None]
-                    mu, sigma = gp.predict_y(xx)
-                    plt.figure()
-                    plt.plot(xx, mu, "C1", lw=2)
-
-                    plt.plot(feature, mean, "2", mew=2)
-                    #plt.fill_between(feature[:,0], mean[:,0] -  2*np.sqrt(var[:,0]), mean[:,0] +  2*np.sqrt(var[:,0]), color="C0", alpha=0.2)
-
-                    plt.fill_between(xx[:,0], mu[:,0] -  2*np.sqrt(sigma[:,0]), mu[:,0] +  2*np.sqrt(sigma[:,0]), color="C1", alpha=0.2)
-                    plt.plot(feature, truth, 'kx', mew=2)
-                    plt.savefig("{}test_gp_{}_{}_{}.png".format(BASE_DIR, gp_i, i, kernel))
+            for gp_k, gp in enumerate(segment_GPs[seg_i]):
+                if gp_k == test_ids[traj_j]: # GP is trained on this data
+                    continue
+                
+                feature_fitted = segment_scalers[seg_i][gp_k].transform(feature)
+                mean, var = gp.predict_y(feature_fitted)
+                result["pred"].append([mean, var])
+                abs_errors = [abs(t - m) for t, m in zip(truth, mean)]
+                mae = mean_absolute_error(truth, mean)
+                if mae > 50:
+                    logger.warn("{}, {}: {}".format(traj_j, seg_i, mae))
+                mse = mean_squared_error(truth, mean)
+                metrics = {
+                    "mae": mae,
+                    "mse": mse,
+                    "rmse": np.sqrt(mse),
+                    "median_abs_err": median_absolute_error(truth, mean),
+                    "max_err": max(abs_errors),
+                    "min_err": min(abs_errors)
+                }
+                result["metrics"].append(metrics)
+                logger.info("Segment {}, GP {} metrics: {}".format(seg_i, gp_k, metrics))
 
             segment_results.append(result)
 
-        trajectory_results.append(segment_results)
+        trajectory_results[test_ids[traj_j]] = segment_results
     hlp.save_array(trajectory_results, "trajectory_results", logger, BASE_DIR)
-    #print(trajectory_results)
-
-    # vehicle_id, journey = all_trajectories[5]
-    # filtered_events = list(filter(lambda e: filter_func(e, level=0, only_pos=True), journey.route))
-    # features = defaultdict(list)
-
-    # for event in filtered_events:
-    #     tau = f1_gp.predict_y(scaler.transform([event["gps"][::-1]]))[0].reshape(-1, 1)
-    #     v = speed_scaler.transform(np.array([event["speed"]]).reshape(-1, 1))[0][0]
-    #     for j, tau_scaler in tau_scalers.items():
-    #         feature = np.array([tau_scaler.transform(tau)[0][0], v]).reshape(1, -1)
-    #         print(feature)
-    #         features[j].append(feature)
-    #         for gp_i, gp in enumerate(segment_GPs[j]):
-    #             print(j, gp_i, gp.predict_y(feature))
-    #     exit(1)
-
-    logger.info("%s, %s", model["segment_GPs"].keys(), len(model["segment_GPs"].keys()))
-    for key, values in model["segment_GPs"].items():
-        logger.info("%s", len(values))
+    return trajectory_results
 
 
-def load_forecasting_model(kernels=None):
-    loader = gpflow.saver.Saver()
+def load_forecasting_model(session):
+    logger.info("Loading good f1 model...")
+    f1_gp, f1_scaler = hlp.load_f1_GP_revamped(session, logger, "f1_test/")
 
-    if kernels is None:
-        kernels = [f for f in os.listdir(BASE_DIR + "segment_GPs") if not "." in f]
-
-    segment_GPs = defaultdict(lambda: defaultdict(list))
-    for kernel in kernels:
-        models = sorted([f.split("_")[1:] for f in os.listdir("{}segment_GPs/{}/".format(BASE_DIR, kernel)) if "model_" in f], key=lambda x: (int(x[0]), int(x[1])))
-        for j, i in models:
-            if int(j) > 1: break
-            logger.info("Loading GPs for trajectory #%s, %s", j, i)
-            path = BASE_DIR + "segment_GPs/{}/model_{}_{}".format(kernel, j, i)
-            gp = loader.load(path)
-            segment_GPs[int(i)][kernel].append(gp)
+    segment_GPs = defaultdict(list)
+    segment_scalers = defaultdict(list)
+    models = sorted([f.split("_")[1:] for f in os.listdir(BASE_DIR + "GP/") if "model_" in f], key=lambda x: (int(x[0]), int(x[1])))
+    for j, i in models:
+        #if int(j) > 1: break
+        logger.info("Loading GPs for trajectory #%s, %s", j, i)
+        gp = session.load(BASE_DIR + "GP/model_{}_{}".format(j, i))
+        scaler = hlp.load_array("GP/scaler_{}_{}".format(j, i), logger, BASE_DIR)
+        segment_i = int(i)
+        segment_GPs[segment_i].append(gp)
+        segment_scalers[segment_i].append(scaler)
 
     return {
+        "f1_gp": f1_gp,
+        "f1_scaler": f1_scaler,
         "segment_GPs": segment_GPs,
-        "f1_gp": loader.load(BASE_DIR + "f1_gp"),
-        "f1_scaler": hlp.load_array("f1_scaler", logger, BASE_DIR),
-        #"speed_scaler": hlp.load_array("speed_scaler", logger, BASE_DIR),
-        #"tau_scalers": hlp.load_array("tau_scalers", logger, BASE_DIR)
+        "segment_scalers": segment_scalers
     }
 
 
-def get_all_trajectories(trajectories, trajectory_key):
-    trajectory_start, trajectory_end = trajectory_key.split(":")
-    all_trajectories = trajectories[trajectory_key]
-    
-    for key, values in trajectories.items():
-        k_start, k_end = key.split(":")
-        if trajectory_start == k_start and trajectory_end != k_end:
-            for vehicle_id, journey in values:
-                segmented_journey, _ = journey.segment_at(trajectory_end)
-                if segmented_journey is None:
-                    logger.info("Journey not segmented when it should have been: %s, %s", trajectory_start, trajectory_end)               
-                all_trajectories.append((vehicle_id, segmented_journey))
-    return all_trajectories
+def create_forecasting_model(all_trajectories, session):
+    logger.info("Loading good f1 model...")
+    f1_gp, f1_scaler = hlp.load_f1_GP_revamped(session, logger, "f1_test/")
 
-
-def create_forecasting_model(all_trajectories, model_trajectory, kernels=None):
-    vehicle_id, journey = model_trajectory
-    saver = gpflow.saver.Saver()
-    f1_gp, scaler = hlp.create_f1_GP(journey.route, logger)
-
-    #saver.save(BASE_DIR + "f1_gp", f1_gp)
-    #hlp.save_array(scaler, "f1_scaler", logger, BASE_DIR)
-
-    #tau_scalers = {}
-    #speeds = []
-    #segment_taus = defaultdict(list)
+    logger.info("Creating Segments...")
     segments_list, arrival_times_list = segment_trajectories(all_trajectories, level=0)
-
-    # logger.info("Creating scaler training data...")
-    # for j, (segments, arrival_times) in enumerate(zip(segments_list, arrival_times_list)):
-    #     for i, (segment, arrival_time) in enumerate(zip(segments, arrival_times)):
-    #         #speeds.extend([e["speed"] for e in segment])
-    #         pos = np.vstack([e["gps"][::-1] for e in segment])
-    #         pos = scaler.transform(pos)
-    #         means, _vars = f1_gp.predict_y(pos)
-    #         means = means[:,0]
-    #         segment_taus[i].extend(means)
-    # speeds = np.array(speeds).reshape(-1, 1)
-    # logger.info("Training scalers...")    
-    # for segment_i, taus in enumerate(segment_taus):
-    #     tau_scalers[segment_i] = StandardScaler().fit(taus)
-    # speed_scaler = StandardScaler().fit(speeds)
-    
-    #hlp.save_array(speed_scaler, "speed_scaler", logger, BASE_DIR)
-    #hlp.save_array(tau_scalers, "tau_scalers", logger, BASE_DIR)
 
     logger.info("Training GPs...")
     for j, (segments, arrival_times) in enumerate(zip(segments_list, arrival_times_list)):
         #if j < 16: continue
-        if j != 34: continue
+        #if j != 34: continue
         for i, (segment, arrival_time) in enumerate(zip(segments, arrival_times)):
             #if j == 16 and i <= 18: continue
-            if i != 3: continue
-            pprint(segment)
-            pprint(arrival_time)
-            print(arrival_time)
-            X = np.vstack([event_to_tau(e, scaler, f1_gp) for e in segment])
+            #if i != 3: continue
+            #pprint(segment)
+            #pprint(arrival_time)
+            #print(arrival_time)
+            X = np.vstack([event_to_tau(e, f1_scaler, f1_gp) for e in segment])
             Y = np.vstack([(arrival_time - e["date"]).total_seconds() for e in segment])
-
-            print(X)
-            print(Y)
-            # for event in segment:
-            #     pos = scaler.transform([event["gps"][::-1]]) # (lat, lng) -> (lng, lat)
-            #     mean, _var = f1_gp.predict_y(pos)
-            #     X.append(mean)
-            #     #X.append([tau_scalers[i].transform(mean)[:,0][0], speed_scaler.transform(event["speed"])[0][0]])
-            #     Y.append(().total_seconds())
-            if kernels is None:
-                try:
-                    gp = train_arrival_time_gp(X, Y, "{},{}".format(j, i))
-                except Exception:
-                    logger.warn("{}, {} chomsky".format(j, i))
-                    continue
-                
-                saver.save(BASE_DIR + "segment_GPs/{}/model_{}_{}".format("white", j, i), gp)
-            else:
-                for kernel in kernels:
-                    gp = train_arrival_time_gp(X, Y, "{},{}".format(j, i), kernel=kernel)
-                    xx = np.linspace(min(X), max(X), 100)[:,None]
-                    mu, var = gp.predict_y(xx)
-                    plt.figure()
-                    plt.plot(xx, mu, "C1", lw=2)
-                    plt.fill_between(xx[:,0], mu[:,0] -  2*np.sqrt(var[:,0]), mu[:,0] +  2*np.sqrt(var[:,0]), color="C1", alpha=0.2)
-                    plt.plot(X, Y, 'kx', mew=2)
-                    plt.savefig("{}gp_{}_{}_{}.png".format(BASE_DIR, j, i, kernel))
-                    saver.save(BASE_DIR + "segment_GPs/{}/model_{}_{}".format(kernel, j, i), gp)
+            segment_scaler = StandardScaler().fit(X)
+            X_fitted = segment_scaler.transform(X)
+            hlp.save_array(segment_scaler, "GP/scaler_{}_{}".format(j, i), logger, BASE_DIR)
+            gp = train_arrival_time_gp(X_fitted, Y, number="{},{}".format(j, i))
+            session.save(BASE_DIR + "GP/model_{}_{}".format(j, i), gp)
+            # Visualise:
+            #xx = np.linspace(min(X), max(X), 100)[:,None]
+            #mu, var = gp.predict_y(xx)
+            #plt.figure()
+            #plt.plot(xx, mu, "C1", lw=2)
+            #plt.fill_between(xx[:,0], mu[:,0] -  2*np.sqrt(var[:,0]), mu[:,0] +  2*np.sqrt(var[:,0]), color="C1", alpha=0.2)
+            #plt.plot(X, Y, 'kx', mew=2)
+            #plt.savefig("{}gp_{}_{}_{}.png".format(BASE_DIR, j, i, kernel))
 
 
 def event_to_tau(event, scaler, f1_gp):
@@ -299,7 +310,7 @@ def train_tau_segment_gp(segment_taus):
     return m
 
 
-def train_arrival_time_gp(X, Y, number=None, kernel=None):
+def train_arrival_time_gp(X, Y, number, kernel="rbf_linear"):
     """GP which maps (%, v) -> arrival_time."""
     with gpflow.defer_build():
         if kernel is None or kernel == "white":
@@ -315,14 +326,12 @@ def train_arrival_time_gp(X, Y, number=None, kernel=None):
         else:
             raise Exception("Kernel {} unknown!".format(kernel))
         
-        print(X, Y, kern)
         m = gpflow.models.GPR(X, Y, kern=kern)
         m.likelihood.variance = 1#10
         m.compile()
         opt = gpflow.train.ScipyOptimizer()
-        opt.minimize(m, disp=True)
-        print(m)
-        logger.info("f2 GP #{} trained.".format("" if number is None else number))
+        opt.minimize(m)
+        logger.info("Arrival Time Pred GP #{} trained.".format(number))
     return m
 
 def filter_func(event, level, only_pos=False):
@@ -378,10 +387,10 @@ def segment_trajectories(trajectories, level=0, f1_gp=None):
                     name = event["stop.name"] if "stop.name" in event else "Stop"
                     segment_starts.append(([index, index], name, [stop]))
         
-        print()
-        print(trajectory_i)
-        pprint(segment_starts)
-        print("segment_starts:", len(segment_starts))
+        #print()
+        #print(trajectory_i)
+        #pprint(segment_starts)
+        #print("segment_starts:", len(segment_starts))
         #hlp.plot_speed_stops(journey.route, filter_speed=-1, file_name="31_bug", f1_gp=f1_gp)
         #hlp.plot_speed_time(journey)
 
@@ -402,7 +411,7 @@ def segment_trajectories(trajectories, level=0, f1_gp=None):
                 else:
                     overlapped_start = start - segment_overlap
                 overlapped_stop = next_start + segment_overlap
-                print(overlapped_start, next_start, overlapped_stop)
+                #print(overlapped_start, next_start, overlapped_stop)
                 segments.append(compressed_events[overlapped_start:overlapped_stop])
             start = next_start
 
