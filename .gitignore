@@ -5,7 +5,7 @@ venv/
 .vscode/
 *.pyc
 GPflow/
-
+*.pickle
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof

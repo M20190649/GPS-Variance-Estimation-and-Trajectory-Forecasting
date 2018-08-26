@@ -152,7 +152,7 @@ author="Knuth, D. E.",
 title="Optimum binary search trees",
 journal="Acta Informatica",
 year="1971",
-month="Mar",
+month="03",
 day="01",
 volume="1",
 number="1",
@@ -221,6 +221,17 @@ publisher=      "MIT Press",
   publisher = {Association for Computational Linguistics},
   address = {Stroudsburg, PA, USA},
 } 
+@ARTICLE{GPflow2017,
+author = {Matthews, Alexander G. de G. and {van der Wilk}, Mark and Nickson, Tom and Fujii, Keisuke. and {Boukouvalas}, Alexis and {Le{‘o}n-Villagr{‘a}}, Pablo and Ghahramani, Zoubin and Hensman, James},
+title = {GPflow: A Gaussian process library using TensorFlow},
+journal = {Journal of Machine Learning Research},
+year = {2017},
+month = {apr},
+volume = {18},
+number = {40},
+pages = {1-6},
+url = {http://jmlr.org/papers/v18/16-537.html}
+}
 
 
 @inproceedings{Quinlan1992,
@@ -256,6 +267,10 @@ publisher=      "MIT Press",
   month={June},
 }
 
+@inbook{Tiger2018-gp-motion-pattern, 
+title={Gaussian Process Based Motion Pattern Recognition with Sequential Local Models}, url={http://urn.kb.se/resolve?urn=urn:nbn:se:liu:diva-148724}, abstractNote={Conventional trajectory-based vehicular traffic analysis approaches work well in simple environments such as a single crossing but they do not scale to more structurally complex environments such as networks of interconnected crossings (e.g. urban road networks). Local trajectory models are necessary to cope with the multi-modality of such structures, which in turn introduces new challenges. These larger and more complex environments increase the occurrences of non-consistent lack of motion and self-overlaps in observed trajectories which impose further challenges. In this paper we consider the problem of motion pattern recognition in the setting of sequential local motion pattern models. That is, classifying sub-trajectories from observed trajectories in accordance with which motion pattern that best explains it. We introduce a Gaussian process (GP) based modeling approach which outperforms the state-of-the-art GP based motion pattern approaches at this task. We investigate the impact of varying local model overlap and the length of the observed trajectory trace on the classification quality. We further show that introducing a pre-processing step filtering out stops from the training data significantly improves the classification performance. The approach is evaluated using real GPS position data from city buses driving in urban areas for extended periods of time.}, booktitle={2018 IEEE Intelligent Vehicles Symposium (IV)}, author={Tiger, Mattias and Heintz, Fredrik}, year={2018}}
+
+
 @book{Tukey1977,
   title={Exploratory data analysis},
   author={Tukey, John W},
@@ -288,5 +303,115 @@ publisher=      "MIT Press",
   author = "Svante Wold and Kim Esbensen and Paul Geladi"
 }
 
+###############################################################################
+###############################################################################
+#              EXAMPLES OF APPLICATIONS USING GAUSSIAN PROCESSES              #
+###############################################################################
+###############################################################################
+
+@ARTICLE{Alaa2018, 
+author={A. M. Alaa and J. Yoon and S. Hu and M. van der Schaar}, 
+journal={IEEE Transactions on Biomedical Engineering}, 
+title={Personalized Risk Scoring for Critical Care Prognosis Using Mixtures of Gaussian Processes}, 
+year={2018}, 
+volume={65}, 
+number={1}, 
+pages={207-218}, 
+abstract={Objective: In this paper, we develop a personalized real-time risk scoring algorithm that provides timely and granular assessments for the clinical acuity of ward patients based on their (temporal) lab tests and vital signs; the proposed risk scoring system ensures timely intensive care unit admissions for clinically deteriorating patients. Methods: The risk scoring system is based on the idea of sequential hypothesis testing under an uncertain time horizon. The system learns a set of latent patient subtypes from the offline electronic health record data, and trains a mixture of Gaussian Process experts, where each expert models the physiological data streams associated with a specific patient subtype. Transfer learning techniques are used to learn the relationship between a patient's latent subtype and her static admission information (e.g., age, gender, transfer status, ICD-9 codes, etc). Results: Experiments conducted on data from a heterogeneous cohort of 6321 patients admitted to Ronald Reagan UCLA medical center show that our score significantly outperforms the currently deployed risk scores, such as the Rothman index, MEWS, APACHE, and SOFA scores, in terms of timeliness, true positive rate, and positive predictive value. Conclusion: Our results reflect the importance of adopting the concepts of personalized medicine in critical care settings; significant accuracy and timeliness gains can be achieved by accounting for the patients' heterogeneity. Significance: The proposed risk scoring methodology can confer huge clinical and social benefits on a massive number of critically ill inpatients who exhibit adverse outcomes including, but not limited to, cardiac arrests, respiratory arrests, and septic shocks.}, 
+keywords={diseases;Gaussian processes;health care;learning (artificial intelligence);medical computing;medical information systems;patient care;patient diagnosis;patient monitoring;risk analysis;critical care prognosis;Gaussian processes;real-time risk scoring algorithm;timely assessments;granular assessments;clinical acuity;ward patients;lab tests;risk scoring system;timely intensive care unit;sequential hypothesis testing;uncertain time horizon;latent patient subtypes;offline electronic health record data;Gaussian Process experts;expert models the physiological data streams;specific patient subtype;transfer learning techniques;static admission information;currently deployed risk scores;SOFA scores;personalized medicine;critical care settings;risk scoring methodology;personalized risk scoring;Physiology;Biomedical monitoring;Indexes;Computational modeling;Real-time systems;Testing;Data models;Critical care medicine;personalized medicine;prognosis;sequential hypothesis testing}, 
+doi={10.1109/TBME.2017.2698602}, 
+ISSN={0018-9294}, 
+month={01},}
+
+@article{Angus2017,
+  title={Inferring probabilistic stellar rotation periods using Gaussian processes},
+  author={Angus, Ruth and Morton, Timothy and Aigrain, Suzanne and Foreman-Mackey, Daniel and Rajpaul, Vinesh},
+  journal={Monthly Notices of the Royal Astronomical Society},
+  volume={474},
+  number={2},
+  pages={2094--2108},
+  year={2017},
+  publisher={Oxford University Press}
+}
+
+@article{Czekala2017,
+  author={Ian Czekala and Kaisey S. Mandel and Sean M. Andrews and Jason A. Dittmann and Sujit K. Ghosh and Benjamin T.
+Montet and Elisabeth R. Newton},
+  title={Disentangling Time-series Spectra with Gaussian Processes: Applications to Radial Velocity Analysis},
+  journal={The Astrophysical Journal},
+  volume={840},
+  number={1},
+  pages={49},
+  url={http://stacks.iop.org/0004-637X/840/i=1/a=49},
+  year={2017},
+  abstract={Measurements of radial velocity variations from the spectroscopic monitoring of stars and their companions are essential for a broad swath of astrophysics; these measurements provide access to the fundamental physical properties that dictate all phases of stellar evolution and facilitate the quantitative study of planetary systems. The conversion of those measurements into both constraints on the orbital architecture and individual component spectra can be a serious challenge, however, especially for extreme flux ratio systems and observations with relatively low sensitivity. Gaussian processes define sampling distributions of flexible, continuous functions that are well-motivated for modeling stellar spectra, enabling proficient searches for companion lines in time-series spectra. We introduce a new technique for spectral disentangling, where the posterior distributions of the orbital parameters and intrinsic, rest-frame stellar spectra are explored simultaneously without needing to invoke cross-correlation templates. To demonstrate its potential, this technique is deployed on red-optical time-series spectra of the mid-M-dwarf binary LP661-13. We report orbital parameters with improved precision compared to traditional radial velocity analysis and successfully reconstruct the primary and secondary spectra. We discuss potential applications for other stellar and exoplanet radial velocity techniques and extensions to time-variable spectra. The code used in this analysis is freely available as an open-source Python package.}
+}
+
+@article{Dong2017,
+  author    = {Jing Dong and Byron Boots and Frank Dellaert},
+  title     = {Sparse Gaussian Processes for Continuous-Time Trajectory Estimation on Matrix Lie Groups},
+  journal   = {CoRR},
+  volume    = {abs/1705.06020},
+  year      = {2017},
+  url       = {http://arxiv.org/abs/1705.06020},
+}
+
+@article{Finley2017,
+author = {O. Finley, Andrew and Datta, Abhirup and C. Cook, Bruce and Morton, Douglas and E. Andersen, Hans and Banerjee, Sudipto},
+year = {2017},
+month = {02},
+pages = {},
+url = {http://arxiv.org/abs/1702.00434},
+title = {Applying Nearest Neighbor Gaussian Processes to Massive Spatial Data Sets: Forest Canopy Height Prediction Across Tanana Valley Alaska}
+}
+
+@article{Raissi2017,
+title = "Machine learning of linear differential equations using Gaussian processes",
+journal = "Journal of Computational Physics",
+volume = "348",
+pages = "683 - 693",
+year = "2017",
+issn = "0021-9991",
+doi = "https://doi.org/10.1016/j.jcp.2017.07.050",
+url = "http://www.sciencedirect.com/science/article/pii/S0021999117305582",
+author = "Maziar Raissi and Paris Perdikaris and George Em Karniadakis",
+keywords = "Probabilistic machine learning, Inverse problems, Fractional differential equations, Uncertainty quantification, Functional genomics",
+abstract = "This work leverages recent advances in probabilistic machine learning to discover governing equations expressed by parametric linear operators. Such equations involve, but are not limited to, ordinary and partial differential, integro-differential, and fractional order operators. Here, Gaussian process priors are modified according to the particular form of such operators and are employed to infer parameters of the linear equations from scarce and possibly noisy observations. Such observations may come from experiments or âblack-boxâ computer simulations, as demonstrated in several synthetic examples and a realistic application in functional genomics."
+}
+
+@article{Stein2017,
+title = {Spatio-Temporal Data Analysis at Scale Using Models Based on Gaussian Processes},
+author = {Stein, Michael},
+abstractNote = {Gaussian processes are the most commonly used statistical model for spatial and spatio-temporal processes that vary continuously. They are broadly applicable in the physical sciences and engineering and are also frequently used to approximate the output of complex computer models, deterministic or stochastic. We undertook research related to theory, computation, and applications of Gaussian processes as well as some work on estimating extremes of distributions for which a Gaussian process assumption might be inappropriate. Our theoretical contributions include the development of new classes of spatial-temporal covariance functions with desirable properties and new results showing that certain covariance models lead to predictions with undesirable properties. To understand how Gaussian process models behave when applied to deterministic computer models, we derived what we believe to be the first significant results on the large sample properties of estimators of parameters of Gaussian processes when the actual process is a simple deterministic function. Finally, we investigated some theoretical issues related to maxima of observations with varying upper bounds and found that, depending on the circumstances, standard large sample results for maxima may or may not hold. Our computational innovations include methods for analyzing large spatial datasets when observations fall on a partially observed grid and methods for estimating parameters of a Gaussian process model from observations taken by a polar-orbiting satellite. In our application of Gaussian process models to deterministic computer experiments, we carried out some matrix computations that would have been infeasible using even extended precision arithmetic by focusing on special cases in which all elements of the matrices under study are rational and using exact arithmetic. The applications we studied include total column ozone as measured from a polar-orbiting satellite, sea surface temperatures over the Pacific Ocean, and annual temperature extremes at a site in New York City. In each of these applications, our theoretical and computational innovations were directly motivated by the challenges posed by analyzing these and similar types of data.},
+doi = {10.2172/1346562},
+journal = {},
+place = {United States},
+year = {2017},
+month = {3}
+}
+
+@incollection{NIPS2017_6877,
+title = {Convolutional Gaussian Processes},
+author = {van der Wilk, Mark and Rasmussen, Carl Edward and Hensman, James},
+booktitle = {Advances in Neural Information Processing Systems 30},
+editor = {I. Guyon and U. V. Luxburg and S. Bengio and H. Wallach and R. Fergus and S. Vishwanathan and R. Garnett},
+pages = {2849--2858},
+year = {2017},
+publisher = {Curran Associates, Inc.},
+url = {http://papers.nips.cc/paper/6877-convolutional-gaussian-processes.pdf}
+}
 
 
+@ARTICLE{8082124, 
+author={P. Morales-Álvarez and A. Pérez-Suay and R. Molina and G. Camps-Valls}, 
+journal={IEEE Transactions on Geoscience and Remote Sensing}, 
+title={Remote Sensing Image Classification With Large-Scale Gaussian Processes}, 
+year={2018}, 
+volume={56}, 
+number={2}, 
+pages={1103-1114}, 
+abstract={Current remote sensing image classification problems have to deal with an unprecedented amount of heterogeneous and complex data sources. Upcoming missions will soon provide large data streams that will make land cover/use classification difficult. Machine-learning classifiers can help at this, and many methods are currently available. A popular kernel classifier is the Gaussian process classifier (GPC), since it approaches the classification problem with a solid probabilistic treatment, thus yielding confidence intervals for the predictions as well as very competitive results to the state-of-the-art neural networks and support vector machines. However, its computational cost is prohibitive for large-scale applications, and constitutes the main obstacle precluding wide adoption. This paper tackles this problem by introducing two novel efficient methodologies for GP classification. We first include the standard random Fourier features approximation into GPC, which largely decreases its computational cost and permits large-scale remote sensing image classification. In addition, we propose a model which avoids randomly sampling a number of Fourier frequencies and alternatively learns the optimal ones within a variational Bayes approach. The performance of the proposed methods is illustrated in complex problems of cloud detection from multispectral imagery and infrared sounding data. Excellent empirical results support the proposal in both computational cost and accuracy.}, 
+keywords={Bayes methods;Gaussian processes;geophysical image processing;image classification;learning (artificial intelligence);remote sensing;support vector machines;GPC;computational cost;large-scale Gaussian processes;data streams;Gaussian process classifier;neural networks;support vector machines;GP classification;land cover classification;remote sensing image classification problems;kernel classifier;Fourier frequencies;variational Bayes approach;standard random Fourier feature approximation;land use classification;Kernel;Remote sensing;Computational efficiency;Standards;Image resolution;Support vector machines;Gaussian processes;Cloud detection;Gaussian process classification (GPC);IAVISA;Infrared Atmospheric Sounding Interferometer (IASI)/Advanced Very High Resolution Radiometer (AVHRR);random Fourier features (RFFs);Spinning Enhanced Visible and Infrared Imager/Meteosat Second Generation (SEVIRI/MSG);variational inference}, 
+doi={10.1109/TGRS.2017.2758922}, 
+ISSN={0196-2892}, 
+month={02},}

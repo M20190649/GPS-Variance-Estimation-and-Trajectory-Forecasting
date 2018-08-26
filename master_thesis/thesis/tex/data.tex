@@ -29,7 +29,8 @@ The process of gathering the data used in this thesis project can be generally d
 \begin{figure}
     \centering
     \includegraphics[width=0.75\textwidth]{figures/data-gathering}
-    \caption{Simplified graph illustrating the data gathering process. 
+    \caption[Simplified graph illustrating the data gathering process]
+    {\small Simplified graph illustrating the data gathering process. 
     Each bus is equipped with a GPS sensor and transmits its position to a central server, which is propagated to a database.
     The dataset used in this thesis project is a collection of logs, where each log is a collection of events.
     The logs serve as a historical timeline of all events occurring at the central server.
@@ -55,7 +56,8 @@ Each type has its own header and body structure.
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{figures/data-example-1}
-    \caption{Example of a raw \texttt{ObservedPositionEvent} entry.
+    \caption[Example of a raw \texttt{ObservedPositionEvent} entry]
+    {\small Example of a raw \texttt{ObservedPositionEvent} entry.
     The header and the body are separated by \texttt{|||}.
     Each parameter in the header and body is separated by a single \texttt{|}.
     Key parameters for the \texttt{ObservedPositionEvent} event type is highlighted.}
@@ -88,7 +90,8 @@ As the figure shows, the majority of events that occur are of the type \texttt{O
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{figures/types_barplot}
-    \caption{The distribution of event types for an arbitrary day in the dataset.}
+    \caption[The distribution of event types for an arbitrary day in the dataset]
+    {\small The distribution of event types for an arbitrary day in the dataset.}
     \label{fig:types-barplot}
 \end{figure}
 
@@ -156,28 +159,36 @@ If anomalies were present in both splits, the split intervals were saved and the
 When the search exhausted the arbitrarily chosen split, it started searching the other split using the saved interval.
 The method can thus be seen as a binary search algorithm which branches and starts another binary search processes if anomalies are detected in both splits. 
 
-\begin{figure}[t!]
+\begin{figure}[h!]
     \centering
-    \includegraphics[width=0.6\textwidth]{figures/edge_case_early_quit}
-    \caption{Example of early stopping in a journey.
-    The three markers are the final three stops of a particular bus line.
-    Instead of following the pre-determined route of the bus line, the final three stops are skipped.
-    This results in the journey never being deemed completed.}
-    \label{fig:human-error-early-stopping-1}
-\end{figure}
-
-\begin{figure}[t!]
-    \centering
-    \includegraphics[width=0.65\textwidth]{figures/lazy_driver_2}
-    \caption{Another example of early stopping in a journey.
-    The red dashed line is the planned route of the bus line.
-    The blue line at "Nya Ledbergsvägen" is the actual route the bus drove.
-    This results in the journey never being deemed completed, creating an erroneous ordering of contextual events (\texttt{JourneyCompletedEvent} never received).}
-    \label{fig:human-error-early-stopping-2}
+    \begin{subfigure}[t]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/edge_case_early_quit}
+        \caption[]
+        {\small Example of early stopping in a journey.
+        The three markers are the final three stops of a particular bus line.
+        Instead of following the pre-determined route of the bus line, the final three stops are skipped.
+        This results in the journey never being deemed completed.}
+        \label{fig:human-error-early-stopping-1}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[t]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/lazy_driver_2}
+        \caption[Another example of early stopping in a journey]
+        {\small Another example of early stopping in a journey.
+        The red dashed line is the planned route of the bus line.
+        The blue line at "Nya Ledbergsvägen" is the actual route the bus drove.
+        This results in the journey never being deemed completed, creating an erroneous ordering of contextual events (\texttt{JourneyCompletedEvent} never received).}
+        \label{fig:human-error-early-stopping-2}
+    \end{subfigure}
+    \caption[Two examples of early stopping in a journey]
+    {\small Two examples of early stopping in a journey.}
+    \label{fig:early-stopping}
 \end{figure}
 
 \subsection{Human Error: Early Stopping}
-Figure \ref{fig:human-error-early-stopping-1} and \ref{fig:human-error-early-stopping-2} illustrate two scenarios when the \texttt{JourneyCompletedEvent} type for a started journey would be missing.
+Figure \ref{fig:early-stopping} illustrate two scenarios when the \texttt{JourneyCompletedEvent} type for a started journey would be missing.
 In Figure \ref{fig:human-error-early-stopping-1}, the bus driver is supposed to visit the three markers in order to complete the journey for a particular line.
 In Figure \ref{fig:human-error-early-stopping-2}, the dashed line highlights the route of the bus line, while the blue line is the actual route the bus drove.
 In both these real-world examples, the bus drivers ignore the final stops of the journeys.
@@ -188,7 +199,6 @@ For example, if the journey is compared with an average journey, the anomaly cou
 However, it would be uncertain if the anomaly is due to a journey being stopped early or if the bus driver took a wrong turn on the highway.
 A time constraint threshold would have to be introduced to the system in order to separate these two cases.
 In the case of a wrong turn, the bus would eventually converge to the average journey, while in the early-stopping scenario the journey would most likely never converge.
-
 
 \subsection{Imprecise Algorithms: Final Bus Stop Missed}
 This scenario occurs due to a mix of imprecision in the bus stop detection algorithm and human error.
@@ -201,19 +211,27 @@ The bus stops there for a few minutes, before it drives to the first bus stop fo
 This systematically occurs at certain bus stops, due to there being a "waiting" space commonly used by bus drivers while waiting for a new journey to be assigned.
 The scenario highlights a problem with the implemented bus stop detection algorithm.
 The bus stop detection algorithm can be improved to both handle these scenarios and yield more precise bus stop detection.
-An improved bus stop detection algorithm is proposed in Section \ref{sec:improving-bus-stop-detection}.
+An improved bus stop detection method is proposed in Chapter \ref{cha:bus-stop-detection}.
 
 \begin{figure}[t!]
     \centering
     \includegraphics[width=0.6\textwidth]{figures/stopped_before_end}
-    \caption{Real-world example of a bus driver stopping roughly 45 meters before reaching the final bus stop.
+    \caption[Real-world example of a bus driver stopping roughly 45 meters before reaching the final bus stop]
+    {\small Real-world example of a bus driver stopping roughly 45 meters before reaching the final bus stop.
     The red marker is the GPS position where the bus stopped and the bus icon on the map is the pre-determined position of the bus stop.
     The bus stops there for a few minutes before it drives off to the first bus stop for a new journey.
     The bus stop detection algorithm systematically does not identify these cases.}
     \label{fig:stopped-before-end}
 \end{figure}
 
-\section{Pre-Processing Events}
+\subsection{Self-Overlap}
+
+\todo{Visa exempel på self-overlap}
+\todo{Visa bild hur det påverkar GP (Från Tiger, borde vara okej?)}
+\todo{Förklara lite mer ingående exakt hur det påverkas}
+\todo{Förklara lätt hur det kan lösas. Det mer ingående kanske inte ska stå här?}
+
+\section{Pre-Processing Events} \label{sec:pre-process-events}
 The first step deemed necessary in order to use the data in the provided dataset was to transform it from strings to objects with attributes.
 Figure \ref{fig:data-ex-1} visualises which attributes an \texttt{ObservedPositionEvent} object contains.
 Similar structures were created for each of the mentioned event types.
@@ -226,7 +244,8 @@ The geo-fence applied in this thesis project is shown in Figure \ref{fig:geo-fen
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/geofencing_linkoping}
-    \caption{A geo-fence is constructed to filter out events occurring outside the virtual perimeter.
+    \caption[A geo-fence is constructed to filter out events occurring outside the virtual perimeter]
+    {\small A geo-fence is constructed to filter out events occurring outside the virtual perimeter.
     The two red markers create a rectangular boundary, which is illustrated with the red-dotted line.
     The geographical area is the city of Linköping.}
     \label{fig:geo-fence}
@@ -235,7 +254,8 @@ The geo-fence applied in this thesis project is shown in Figure \ref{fig:geo-fen
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/context-state-machine}
-    \caption{Finite-state machine providing context to \texttt{ObservedPositionEvent}s. 
+    \caption[Finite-state machine providing context to \texttt{ObservedPositionEvent}s]
+    {\small Finite-state machine providing context to \texttt{ObservedPositionEvent}s. 
     The constructed FSM is simplified to illustrate the best-case scenario.
     The "Assigned" state is the starting state.
     \texttt{ObservedPositionEvent}s are assigned to the current FSM state.
@@ -250,14 +270,15 @@ Context was provided by constructing a FSM.
 \subsection{Context-Providing Finite-State Machine}
 The context-providing FSM constructed in this thesis project is shown in Figure \ref{fig:context-state-machine}.
 The shown state machine is illustrating the best-case scenario, when the actual order of events is equal to the logical ordering of events, see Figure \ref{fig:assigned-before-completed-working} for a real-world example.
-However, this is not always the case when working with real-world data, as shown in Figures \ref{fig:assigned-before-completed-long} and \ref{fig:assigned-before-completed}.
+However, this is not always the case when working with real-world data, as shown in Figure \ref{fig:illogical-ordering}.
 Occasionally the timing of events gets mixed up, e.g. a bus in the "Started" state receives a \texttt{JourneyAssignedEvent} before it receives a \texttt{JourneyCompletedEvent}.
 This ordering breaks the logical ordering of events: a journey needs to be completed before a new one can assigned.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=1\textwidth]{figures/assigned_completed_working}
-    \caption{Real-world scenario illustrating when events occur in a logical ordering.
+    \caption[Real-world scenario illustrating when events occur in a logical ordering]
+    {\small Real-world scenario illustrating when events occur in a logical ordering.
     The blue line to the left is \texttt{ObservedPositionEvent}s in the "Started" state.
     Upon reaching the final bus stop for the line the state changes to "Completed".
     The \texttt{ObservedPositionEvent}s for this state is drawn with a green line to denote the "Completed" state.
@@ -268,26 +289,32 @@ This ordering breaks the logical ordering of events: a journey needs to be compl
     \label{fig:assigned-before-completed-working}
 \end{figure}
 
-\begin{figure}[t!]
+\begin{figure}[h!]
     \centering
-    \includegraphics[width=0.75\textwidth]{figures/assigned_completed_problem_long}
-    \caption{Example illustrating when the ordering of events breaks the logical ordering.
-    The bus is assigned a new bus line long before reaching the final bus stop.
-    The final bus stop is marked with a circle.
-    The rectangle marks the position of the bus when it is assigned a new bus line.
-    The last part of the journey (the path between the rectangle and the circle) is thus assigned to a new state "Assigned", instead of the actual, logical state "Started".}
-    \label{fig:assigned-before-completed-long}
-\end{figure}
-
-\begin{figure}[t!]
-    \centering
-    \includegraphics[width=0.75\textwidth]{figures/assigned_completed_problem}
-    \caption{Another example illustrating two cases where a bus is assigned a new bus line before completing the started one.
-    The two circles (green and blue) denote the final bus stops for the respective bus lines.
-    One of the buses is assigned a new bus line at the blue rectangle in the bottom-right corner, long before reaching the final bus stop.
-    The other bus is assigned a new bus line at the green rectangle, which is closer to the final bus stops.
-    This example demonstrates that the assignment to a new bus line is independent of the distance to the final bus stop.}
-    \label{fig:assigned-before-completed}
+    \begin{subfigure}[t]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/assigned_completed_problem_long}
+        \caption[]
+        {\small The bus is assigned a new bus line long before reaching the final bus stop.
+        The final bus stop is marked with a circle.
+        The rectangle marks the position of the bus when it is assigned a new bus line.
+        The last part of the journey (the path between the rectangle and the circle) is thus assigned to a new state "Assigned", instead of the actual, logical state "Started".}
+        \label{fig:assigned-before-completed-long}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[t]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/assigned_completed_problem}
+        \caption[]
+        {\small The two circles (green and blue) denote the final bus stops for the respective bus lines.
+        One of the buses is assigned a new bus line at the blue rectangle in the bottom-right corner, long before reaching the final bus stop.
+        The other bus is assigned a new bus line at the green rectangle, which is closer to the final bus stops.
+        This example demonstrates that the assignment to a new bus line is independent of the distance to the final bus stop.}
+        \label{fig:assigned-before-completed}
+    \end{subfigure}
+    \caption[Examples of early stopping in a journey]
+    {\small Examples illustrating when the ordering of events breaks the logical ordering}
+    \label{fig:illogical-ordering}
 \end{figure}
 
 The problem is partly solved by changing the ordering of events from \textit{Timestamp} to \textit{Event ID}.
@@ -335,7 +362,7 @@ A number of high-level problems can now be formulated by using the result from t
 
 \subsection{Discussion}
 The faulty journeys are only marked as anomalies and discarded in this thesis.
-The fraction of faulty journeys can be calculated and used as a baseline when comparing an improved bus stop detection algorithm with the existing one.
+The fraction of faulty journeys can be calculated and used as a baseline when comparing an improved bus stop detection method with the existing one.
 Faulty journeys can be categorised based on the error in the journey, e.g. a missed starting bus stop is a different error compared with a missed final bus stop.
 The categorisation of faults could provide deeper insights into the dataset.
 For example, the insights could be used to improve the bus stop detection algorithm or identify journeys where a particular error occurs regularly.

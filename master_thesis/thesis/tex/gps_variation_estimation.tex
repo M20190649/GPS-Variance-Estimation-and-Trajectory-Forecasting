@@ -2,7 +2,7 @@
 \label{cha:GPS-variation-estimation}
 
 The main component of the dataset is the GPS positional update events from the vehicles.
-They contribute to roughly 96\% of the events in the data, as shown by Figure \ref{fig:types-barplot} in Section \ref{sec:data-structure}.
+They contribute to 95\% of the events in the data, as shown by Figure \ref{fig:types-barplot} in Section \ref{sec:data-structure}.
 An interesting high-level problem is thus the estimation of the variance in the GPS positions.
 The hypotheses are that the GPS positions vary depending on:
 \begin{enumerate}
@@ -50,7 +50,8 @@ The hypotheses are that the GPS positions vary depending on:
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/gps_variation}
-    \caption{Visualisation of multiple journeys by different buses in the same area.
+    \caption[Visualisation of multiple journeys by different buses in the same area]
+    {\small Visualisation of multiple journeys by different buses in the same area.
     Each blue line is a journey in the "Started" state.
     The variance differs between different road segments, as shown around "World Class Linköping" compared to "Järnvägsgatan".}
     \label{fig:gps-variation}
@@ -59,7 +60,8 @@ The hypotheses are that the GPS positions vary depending on:
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/gps_sensor_calibration}
-    \caption{Illustrates the case of a poorly calibrated GPS sensor on an individual bus.
+    \caption[Illustrates the case of a poorly calibrated GPS sensor on an individual bus]
+    {\small Illustrates the case of a poorly calibrated GPS sensor on an individual bus.
     The orange lines creating the thicker line are all the other journeys for the same bus line, but done by other buses.
     The thin orange line is one bus with an extremely poorly calibrated GPS sensor.
     It seems to have a constant offset compared to the rest.
@@ -88,71 +90,221 @@ Before using the simpler approach of ignoring journeys with discrepancies, a dee
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/gps_map_problem}
-    \caption{Real-world example of multiple buses driving on a road not correctly modelled by Google Maps.
+    \caption[Real-world example of multiple buses driving on a road not correctly modelled by Google Maps]
+    {\small Real-world example of multiple buses driving on a road not correctly modelled by Google Maps.
     For example, at "Sjukhusvägen" the buses are driving through a building according to Google Maps.
     In this particular scenario the area has received major road re-structuring and renovation.
     The Google Maps representation is thus likely outdated.}
     \label{fig:gps-map-problem}
 \end{figure}
 
-\section{Methodology}
+\section{Stop Compression} \label{sec:stop-compression}
+Each stop present in the journey causes an imbalance of points being clustered around that stop.
+The longer the stop is, the more points are present.
+This results in problems when using a GP model, as certain coordinates would thus be denser than others.
+The GP would model the noise of the GPS in these denser areas, instead of the variance due to the environment.
 
-The method used in this thesis project to solve the higher-level GPS Variation Estimation problem is based on combined Gaussian Processes (GPs).
-The method is described by 5 steps:
+Stop compression can be achieved in multiple ways, e.g., stopped positions could be either averaged or ignore completely.
+The time of the stop is also adjusted.
+In this thesis project, all \texttt{ObservedPositionEvent}s with a \textit{Speed} value lower than $0.1$ m/s were discarded.
+The result is a journey (trajectory) consisting of a sequence of coordinates where stops are invisible time-wise.
 
-\begin{enumerate}
-    \item \textit{Stop Compression:}
-    Each stop present in the journey causes an imbalance of points being clustered around each stop.
-    The longer the stop is, the more points are present.
-    This results in problems with the GP, as certain coordinates would be denser than others.
-    Positions sent while a bus has stopped are averaged into a single coordinate.
-    The time of the stop is also adjusted.
-    The result is a journey consisting of a sequence of coordinates where stops are invisible time-wise.
+Examples of the procedure is shown in Figures \ref{fig:uncompressed-events}-\ref{fig:time-and-speed-segment}.
+All of the figures show the same trajectory.
+Figure \ref{fig:uncompressed-events} shows the trajectory without stop compression, where the stops are highlighted by drawn lines.
+Figure \ref{fig:time-and-speed} shows the stop compressed speeds and coordinates of the trajectory.
+Figure \ref{fig:time-and-speed-segment} zooms in on an arbitrary segment of the stop compressed trajectory.
+The stop compression is implemented using a \textit{Speed} threshold value of $0.1$ m/s.
 
-    \item \textit{Segment Journeys:}
-    Each bus journey in the dataset is fitted with its own GPs.
-    Journeys are analysed in order to detect self-overlapping, which would cause problems for the fitted GPs.
-    Journeys with self-overlap are split at the overlapping points into two segments.
-    The process recursively analyses each resulting segment and proceeds with splitting the segments as long as self-overlapping is present.
-    If a journey has multiple segments, each segment is fitted with its own GPs.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/speed_and_stops_filter_0}
+    \caption[Example of a trajectory with uncompressed speeds]
+    {\small Example of a trajectory with uncompressed speeds.
+    The red lines are \texttt{ArrivedEvent}s and \texttt{DepartedEvent}s.
+    The dashed blue lines are \texttt{StartedEvent}s and \texttt{StoppedEvent}s.
+    The red and blue lines usually coincide.}
+    \label{fig:uncompressed-events}
+\end{figure}
 
-    The first GP fits $x$, $y$ (longitude, latitude) coordinates to a new time parameter $\tau$:
-    \begin{equation} \label{eq:gps-var-f1}
-       f_1: x, y \longmapsto \tau
-    \end{equation}
-    $\tau$ is the relative time of the journey, denoting the progress of the bus in completing the journey.
-    The second and third GP fits $\tau$ to a new $x$ and $y$, respectively:
-    \begin{equation} \label{eq:gps-var-f2}
-        f_2: \tau \longmapsto x
-    \end{equation}
-    \begin{equation} \label{eq:gps-var-f3}
-        f_3: \tau \longmapsto y
-    \end{equation}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/time_and_speed}
+    \caption[Example of a stop compressed trajectory]
+    {\small Example of a stop compressed trajectory.
+    The \textit{Speed} threshold is set to $0.1$ m/s.
+    The various speeds are shown in the top graph, while the trajectory is drawn in the bottom graph.}
+    \label{fig:time-and-speed}
+\end{figure}
 
-    \item \textit{Point-Wise Combining of GP:}
-    The GPs $f_2$ (Eq. \ref{eq:gps-var-f2}) and $f_3$ (Eq. \ref{eq:gps-var-f3}) each describe the variance ($\sigma_2^2$ and $\sigma_3^2$, respectively) at each point in the fitted segment or journey.
-    The GPs describing the variances are point-wise combined using Equation \ref{eq:mean-point-wise-combined} and \ref{eq:var-point-wise-combined}, creating the GPs $f_4$ (Eq. \ref{eq:gps-var-f4}) and $f_5$ (Eq. \ref{eq:gps-var-f5}), respectively.
-    
-    \begin{equation} \label{eq:mean-point-wise-combined}
-        \mu(x^*) = \frac{\sum_{j=1}^{J} N_j\mu_j(x^*)}{\sum_{j=1}^{J} N_j},
-    \end{equation}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/time_and_speed_segment}
+    \caption[Another example of a stop compressed trajectory segment]
+    {\small Another example of a stop compressed trajectory segment.
+    The duration of a stop causes no delay in the relative time of the trajectory.}
+    \label{fig:time-and-speed-segment}
+\end{figure}
 
-    \begin{equation} \label{eq:var-point-wise-combined}
-        \sigma^2(x^*) = \frac{\sum_{j=1}^{J} N_j(\sigma_j^2(x^*) + \mu_j^2(x^*))}{\sum_{j=1}^{J} N_j} - \mu(x^*)^2,
-    \end{equation}
+\section{Synchronising Input Space} \label{sec:synchronisation}
+Before GPs can be trained on the journey data, the journeys need to be synchronised in their input space.
+A journey can be seen as a sequence of (longitude, latitude, time)-tuples, where \textit{time} is the timestamp of the bus when it is at coordinate (longitude, latitude).
+However, at identical values for the \textit{time} parameter, different buses driving for the same bus line have progressed differently on the journey.
+For example, buses drive at different speeds and they may stay stopped for different periods of time at each bus stop.
+The \textit{time} parameter needs thus to be synchronised, so that (longitude, latitude)-pairs can be compared.
+The synchronisation is achieved by introducing a global bus line GP $f_1$, given by
 
-    \begin{equation} \label{eq:gps-var-f4}
-        f_4: \tau \longmapsto \sigma_4^2
-    \end{equation}
-    \begin{equation} \label{eq:gps-var-f5}
-        f_5: \tau \longmapsto \sigma_5^2
-    \end{equation}
-    where $\sigma_4^2$ is the variation in longitude and $\sigma_5^2$ the variation in latitude.
+\begin{equation} \label{eq:gps-var-f1}
+    f_1: (x, y) \longmapsto \tau,
+ \end{equation}
+where $(x, y)$ is the (longitude, latitude)-pair and $\tau$ the synchronised \textit{time} parameter.
+Each bus line has its own $f_1$ GP, which is trained on a chosen trajectory for that bus line.
 
-    \item \textit{Visualisation:}
-    The resulting $f_4$ and $f_5$ GPs are then visualised. \todo{hur?}
+Before the model is trained on the trajectory the data is pre-processed with a stricter stop compression algorithm.
+Instead of discarding \texttt{ObservedPositionEvent}s with a \textit{Speed} value lower than $0.1$ m/s, the threshold is increased to $3$ m/s.
+The reason behind this is to reduce the impact from stops and traffic on the model training.
+The trajectory used for the training was arbitrarily chosen from a pool of trajectories occurring in the middle of the night, as during night-time, the buses stop at fewer bus stops and the traffic is lighter.
 
-    \item \textit{Comparison:}
-    The visualised GPs are compared and different routes are compared at the same spatial area.
-    The comparison analyses if there is a periodicity to the variation or if the variation is purely based on spatial locality.
-\end{enumerate} 
+GP models also assume zero mean for the input data, which in this thesis project is achieved by fitting a global scaler model to the input data.
+The same trajectory used for $f_1$ is used to fit this scaler.
+All trajectory coordinates are centralised and normalised by the same scaler.
+\todo{@Mattias: Homogenously scaled data is good, om jag minns mina praktiska machine learning kurser från ETH}
+
+The GPflow framework \cite{GPflow2017} is used to implement all GP functionality in this thesis work. 
+
+\section{Segment Self-Overlapping Journeys} \label{sec:segment-self-overlapping-journeys}
+After the input space synchronisation, each trajectory if fitted with two GPs.
+Journeys are analysed in order to detect self-overlapping, which would cause problems for the GP models, as described in Section \ref{sec:self-overlapping-trajectories}.
+Journeys with self-overlap are split at the overlapping points into two segments.
+The process recursively analyses each resulting segment and proceeds with splitting the segments as long as self-overlapping is present.
+If a journey has multiple segments, each segment is fitted with its own two GPs
+\begin{align}
+    f_2&: \tau \longmapsto x \\
+    f_3&: \tau \longmapsto y
+\end{align}
+$\tau$ is the relative time of the journey, denoting the progress the bus has made on its journey, $x$ the longitude, and $y$ the latitude.
+The $\tau$ values are from the $f_1$ GP, evaluated on the trajectory data.
+
+Once $f2_k$ and $f3_k$ have been trained for each trajectory $k$, the GPs are evaluated on a $N$ long interval ($[0,1]$) of $\tau$ values.
+The result is a sequence of longitude and latitude means and variances.
+
+\section{Probability Models}
+The GPs $f_2$ and $f_3$ each describe the mean ($\mu_x$ and $\mu_y$, respectively) and variance ($\sigma_x^2$ and $\sigma_y^2$, respectively) at each point in the fitted segment or journey.
+The probability for various coordinate pairs $p((x_\star,y_\star))$ is of interest in this thesis project, which can be calculated with two different approaches.
+
+\subsection{Mixture of Gaussian Process Model with Uniform Prior}
+The first approach is to see all of the trajectory models for the same bus line as a Mixture of Gaussian Process (MoGP) model.
+An observed $(x_\star, y_\star)$ coordinate is thus assumed to be generated from one of the GP models in the MoGP.
+The prior on the MoGP model is assumed to be Uniform.
+The probability of $(x_\star, y_\star)$ for each trajectory model $k$ is 
+\(
+    p_k((x_\star,y_\star)) = \mathcal{N}((x_\star,y_\star); \mu_k, \Sigma_k)
+\)\todo{borde det inte vara $\sim$ istället för $=$?}, where
+\begin{align}
+\mu_k &= \begin{bmatrix} \mu_{k_x} \\ \mu_{k_y} \end{bmatrix} \\
+\Sigma_k &= \begin{bmatrix} \sigma^2_{k_x} & 0 \\ 0 & \sigma^2_{k_y} \end{bmatrix}
+\end{align}
+is the mean and covariance of the point evaluated at $(x_\star,y_\star)$.
+In the covariance matrix $\Sigma_k$, longitude and latitude is assumed to be independent.
+As the MoGP prior is Uniform, the probability of $(x_\star, y_\star)$ is given by
+\begin{equation}
+    p((x_\star, y_\star)) = \frac{1}{K}\sum_{k=1}^K p_k((x_\star,y_\star)) 
+\end{equation}
+
+\subsection{Unimodal Mixture of Gaussian Process Model by Combining}
+In order to create a unimodal MoGP model, $f_{2_k}$ and $f_{3_k}$ are point-wise combined for each trajectory $k$.
+The equations \ref{eq:mean-point-wise-combined} and \ref{eq:var-point-wise-combined} from Section \ref{sec:trajectory-aggregation} are applied as follows:
+\begin{align}
+    \mu_x(x^*) &= \frac{\sum_{k=1}^{K} M_k\mu_{k_x}(x^*)}{\sum_{k=1}^{K} M_k} \label{eq:combined-mu-x} \\
+    \mu_y(y^*) &= \frac{\sum_{k=1}^{K} M_k\mu_{k_y}(y^*)}{\sum_{k=1}^{K} M_k} \label{eq:combined-mu-y} \\
+    \sigma_x^2(x^*) &= \frac{\sum_{k=1}^{K} M_k\Big(\sigma_{k_x}^2(x^*) + \mu_{k_x}^2(x^*)\Big)}{\sum_{k=1}^{K} M_k} - \mu_x(x^*)^2 \label{eq:combined-var-x} \\
+    \sigma_y^2(y^*) &= \frac{\sum_{k=1}^{K} M_k\Big(\sigma_{k_y}^2(y^*) + \mu_{k_y}^2(y^*)\Big)}{\sum_{k=1}^{K} M_k} - \mu_y(y^*)^2 \label{eq:combined-var-y}
+\end{align}
+where
+\begin{itemize}
+    \item $M_k$ is the number of trajectories used to train $f_{2_k}$ and $f_{3_k}$.
+    In this thesis project, each trajectory $k$ was trained on its own $f_{2_k}$ and $f_{3_k}$ $\Rightarrow$ $M_k = 1$ for all $k = 1,\dotso,K$ trajectories.
+    \item $x^*$ and $y^*$ are index slices (points) to evaluate the MoGP model at.
+    \item $\mu_{k_x}$ and $\mu_{k_y}$ is the predicted mean of the evaluated point at the index slice of x (longitude) and y (latitude), respectively. 
+    \item $\sigma_{k_x}^2$ and $\sigma_{k_y}^2$ is the predicted variance of the evaluated point at the index slice. 
+\end{itemize}
+
+Equations \ref{eq:combined-mu-x}-\ref{eq:combined-var-y} can thus be simplified to
+\begin{align}
+    \mu_x(x^*) &= \frac{\sum_{k=1}^{K} \mu_{k_x}(x^*)}{K} \label{eq:simplified-combined-mu-x} \\
+    \mu_y(y^*) &= \frac{\sum_{k=1}^{K} \mu_{k_y}(y^*)}{K} \label{eq:simplified-combined-mu-y} \\
+    \sigma_x^2(x^*) &= \frac{\sum_{k=1}^{K} \Big(\sigma_{k_x}^2(x^*) + \mu_{k_x}^2(x^*)\Big)}{K} - \mu_x(x^*)^2 \label{eq:simplified-combined-var-x} \\
+    \sigma_y^2(y^*) &= \frac{\sum_{k=1}^{K} \Big(\sigma_{k_y}^2(y^*) + \mu_{k_y}^2(y^*)\Big)}{K} - \mu_y(y^*)^2 \label{eq:simplified-combined-var-y}
+\end{align}
+
+The equations \ref{eq:simplified-combined-mu-x}-\ref{eq:simplified-combined-var-y} give the combined unimodal MoGP model at index slice $(x^*, y^*)$
+\begin{align}
+\mu((x^*, y^*)) &= \begin{bmatrix} \mu_x(x^*) \\ \mu_y(y^*) \end{bmatrix} \\
+\Sigma((x^*, y^*)) &= \begin{bmatrix} \sigma^2_x(x^*) & 0 \\ 0 & \sigma^2_y(y^*) \end{bmatrix}
+\end{align}
+which gives the probability of an arbitrary point $(x_\star, y_\star)$: $p(x_\star, y_\star) = \mathcal{N}((x_\star, y_\star), \mu, \Sigma)$
+\todo{@Mattias: Är osäker på exakt hur jag ska formulera matematiskt det vi gör. Försöker hitta liknande notaitoner i litteraturen, men finner inget bra exempel.}
+
+\section{Results}
+
+The unimodal MoGP model is visualised by evaluating the MoGP model on a grid of (longitude, latitude) values.
+Figure \ref{fig:predictive-mean-combined-gp} shows the predictive mean for the unimodal MoGP model.
+The trajectory shown is thus the predicted mean of observing new data points for the bus line.
+The MoGP model consists of 37 trajectories from a single day. 
+Figure \ref{fig:predictive-var-combined-gp1} shows the predictive variance of the starting segment for the bus line and Figure \ref{fig:starting-segment-trajectory} shows this starting segment on Google Maps, where the red lines are trajectories for the bus line.
+Figure \ref{fig:fig:predictive-var-combined-gp2} shows a predictive variance for a segment of the trajectory containing a bus stop.
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/combined_gp}
+    \caption[Predictive mean of the unimodal MoGP model]
+    {\small Predictive mean of the unimodal MoGP model. 
+    The trajectory shown is the mean trajectory of 37 trajectories.}
+    \label{fig:predictive-mean-combined-gp}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[t]{0.6\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/0_1000x1000}
+        \caption[Heatmap of the predictive variance of the unimodal MoGP model]
+        {\small Heatmap of the predictive variance of the unimodal MoGP model.}
+        \label{fig:predictive-var-combined-gp1}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/starting_segment}
+        \caption[]
+        {\small Starting segment with bus line journeys (trajectories) drawn with red lines.}
+        \label{fig:starting-segment-trajectory}
+    \end{subfigure}
+    \caption[The predictive variance and the trajectories for the starting segment $S_0$]
+    {\small The predictive variance and the trajectories for the starting segment $S_0$.}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[t]{0.9\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/2_1000x1000}
+        \caption[]
+        {\small Segment containing a bus stop.
+        The bus stop occurs immediately after top curve.}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[t]{0.9\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/3_1000x1000}
+        \caption[]
+        {\small The bus stop is zoomed in to show the increase in predictive variance around the bus stop.}
+    \end{subfigure}
+    \caption[Predictive variance of the unimodal MoGP model]
+    {\small Predictive variance of the unimodal MoGP model.
+    The segment shown contains a bus stop.}
+    \label{fig:predictive-var-combined-gp2}
+\end{figure}
+
+\section{Discussion}
+
+\section{Future Work}

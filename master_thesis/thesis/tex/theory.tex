@@ -24,7 +24,8 @@ However, the algorithm requires a sorted sequence of values.
 \begin{figure}[t!]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/binary_search_algorithm}
-    \caption{Example of a binary search algorithm run.
+    \caption[Example of a binary search algorithm run]
+    {\small Example of a binary search algorithm run.
     The target value is 42.
     First the root node 50 is compared, but as $42 < 50$ the left subtree is explored.
     The new root node is 33 and $42 > 30$, so the right subtree is explored.
@@ -35,37 +36,80 @@ However, the algorithm requires a sorted sequence of values.
 \end{figure}
 
 \section{Gaussian Processes}
-Definition \ref{def:gaussian-process} is the formal definition of a Gaussian process (GP) given by Rasmussen et al. in \cite{Rasmussen2006}.
+Gaussian processes \cite{Rasmussen2006} (GPs) are a Bayesian non-parametric approach to modelling.
+GPs have throughout the years been proved useful when solving a wide variety of real-world problems in various fields.
+Recent examples of GPs being used are in the field of astronomy to infer intrinsic spectra and stellar radial velocities \cite{Czekala2017} or to infer stellar rotation periods \cite{Angus2017}.
+GPs have also been successfully used in the field of Biomedical Engineering to develop a real-time algorithm which risk scores ward patients \cite{Alaa2018}.
+Finley et al. showed in \cite{Finley2017} how GPs could be used to predict the forest canopy height.
+In \cite{8082124}, large-scale GPs are used to improve remote sensing image classification and in \cite{Raissi2017} GPs are used to infer linear equation parameters.
+In \cite{NIPS2017_6877}, van der Wilk et al. improve the practical aspects for a convolutional structure in GP in order to improve image detection.
+In \cite{Stein2017}, Stein conducts a large-scale spatio-temporal data analysis with models based on GPs and in \cite{Dong2017}, Dong et al. perform continuous-time trajectory estimation using GPs.
 
+\subsection{Definition}
+
+Definition \ref{def:gaussian-process} is the formal definition of a GP given by Rasmussen et al. in \cite{Rasmussen2006}.
 \begin{definition} \label{def:gaussian-process}
     A Gaussian process is a collection of random variables, any infinite number of which have a joint Gaussian distribution.
 \end{definition}
 
 A GP is denoted by the equation
-\[f(x) \sim \mathcal{GP}(m(x), k(x, x')),\]
+\begin{equation} \label{eq:GP-eq1}
+    f(x) \sim \mathcal{GP}(m(x), k(x, x')),
+\end{equation}
+
 where 
 \begin{itemize}
     \item $m(x) = \mathbb{E}[f(x)]$ is the mean function;
     \item $k(x, x') = \mathbb{E}[(f(x) - m(x))(f(x') - m(x'))]$ is the covariance function.
     $x$ and $x'$ are two inputs.
 \end{itemize}
+
 A GP is thus completely described by its mean and covariance function, where the mean function is taken to be zero for notational simplicity \cite{Rasmussen2006}.
 It can be seen as a probability distribution over functions.
 The covariance function can be expressed in the form of a \textit{kernel}, where kernels exhibit different characteristics.
 A comparison between common kernels is illustrated in Figure \ref{fig:gp-kernels}.
+The approach is Bayesian as \(f(x) \sim \mathcal{GP}\) encodes a prior belief about the unknown $f(\cdot)$.
 
 \begin{figure} [t!]
     \centering
     \includegraphics[width=\textwidth]{figures/gp_kernels}
-    \caption{Samples from GP priors defined by common covariance functions. 
+    \caption[Samples from GP priors defined by common covariance functions]
+    {\small Samples from GP priors defined by common covariance functions. 
     The functions exhibit different characteristics depending on the choice of kernel.}
     \label{fig:gp-kernels}
 \end{figure}
 
-\todo{continue...}
+Gaussian process regression (GPR) aims at reconstruct the underlying, unknown $f(\cdot)$ without the observation noise $\epsilon$.
+The GPR model is given by
+\begin{equation}
+    y = f(x) + \epsilon,
+\end{equation}
+where
+\[\epsilon \overset{iid}{\sim} \mathcal{N}(0, \sigma_{noise}^2)\]
+and $f(\cdot)$ is a prior.
+Here $\epsilon$ represents noisy observations, where $\epsilon$ is assumed to be additive independent identically distributed (iid) Gaussian noise.
 
+The posterior of a GP is also a GP \cite{Rasmussen2006}, with a Gaussian predictive distribution given by the posterior GP evaluated at the new point $x_\star$.
+The GP prediction (posterior) is defined by the equation
+\begin{equation}
+    p(f_\star|x, y, x_\star) \sim \mathcal{GP}(\bar{f}_\star, cov(f_\star)),
+\end{equation}
+where $\bar{f}_\star$ and $cov(f_\star)$ are given by the equations
+\begin{align}
+    \bar{f}_\star &= K(x_\star, x)[K(x, x) + \sigma^2_{noise}I]^{-1}y \\
+    cov(f_\star) &= K(x_\star, x_\star) - K(x_\star, x)[K(x, x) + \sigma^2_{noise}I]^{-1}K(x,x_\star),
+\end{align}
+where $K(x_\star, x), K(x, x)$, and $K(x, x_\star)$ each are a covariance (Gram) matrix \cite{Rasmussen2006}.  
+
+\subsection{Related Work}
 \section{Combining GPs}
 \todo{...}
+
+\subsection{GPflow}
+GPflow\footnote{https://gpflow.readthedocs.io/en/latest/index.html} \cite{GPflow2017} is a GP framework for the Python programming language \footnote{https://www.python.org/} using TensorFlow\footnote{https://www.tensorflow.org/}.
+It is an open-source software which has its origins from the contributors of GPy\footnote{https://sheffieldml.github.io/GPy/}, another famous framework for implementing GPs in Python.
+As GPflow is built upon TensorFlow, it achieves better performance when using GPUs for processing \cite{GPflow2017}.
+Building GPflow on top of TensorFlow also allows the benefits of using TensorFlow methods for calculations, e.g., most gradient computations are handled by TensorFlow.
 
 \section{Finite-State Machines}
 Finite-state machines (FSM) are well-defined mathematical models which can have numerous representations.
@@ -99,7 +143,8 @@ The grouping helps when sorting batches of data and visualising important featur
 \begin{figure} [h!]
     \centering
     \includegraphics[width=0.33\textwidth]{figures/stem-leaf-plot}
-    \caption{Example of a stem-and-leaf plot. The numbers above the plot is the input.
+    \caption[Example of a stem-and-leaf plot]
+    {\small Example of a stem-and-leaf plot. The numbers above the plot is the input.
     The first digit of the number is the \emph{stem}, the following digits are the \emph{leafs}.}
     \label{fig:stem-leaf-plot}
 \end{figure}
