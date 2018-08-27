@@ -2,12 +2,14 @@ Spatio-temporal data is a commonly used source of information.
 Using machine learning to analyse this kind of data can lead to many interesting and useful insights.
 In this thesis project, a novel public transportation spatio-temporal dataset is explored and analysed.
 The dataset contains 300 GB of positional events, spanning two weeks of time, from all public transportation vehicles in Östergötland county, Sweden.
+
 From the data exploration, three high-level problems are formulated: bus stop detection, GPS variance estimation, and arrival time prediction, also called trajectory forecasting.
 The bus stop detection problem is briefly discussed and solutions are proposed.
-Gaussian process regression is an effective method for solving regression problems, which is a typical class of problems.
+Gaussian process regression is an effective method for solving regression problems.
 The GPS variance estimation problem is solved via the use of a mixture of Gaussian processes.
 A mixture of Gaussian processes is also used to predict the arrival time for public transportation buses.
 The arrival time prediction is from one bus stop to the next, not for the whole trajectory.
+
 The result from the arrival time prediction is a distribution of arrival times, which can easily be applied to determine the earliest and latest expected arrival to the next bus stop, alongside the most probable arrival time.
 The naïve arrival time prediction model implemented has a root mean square error of 5 to 19 seconds.
 In general, the absolute error of the prediction model decreases over time in each respective segment.

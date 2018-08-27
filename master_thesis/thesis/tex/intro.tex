@@ -3,50 +3,48 @@
 
 %\section{Motivation}
 %\label{sec:motivation}
-Today, there is an increasing number of services built upon the use of spatio-temporal datasets.
-For example, public transportation companies use such data for route planning and arrival time prediction.
+Today, there is an increasing number of services built upon the use of spatio-temporal models.
+For example, public transportation companies use such spatio-temporal models for route planning and arrival time prediction.
 Taxi companies use spatio-temporal data to track vehicles and, for example, assign the closest available vehicle to a new customer.
 Spatio-temporal datasets can also be used for city planning and analysing effects of rapid urbanisation \cite{Deng2009, Liu2005}.
 Service vehicles are today equipped with GPS sensors which collect behavioural data.
 The availability and usability of spatio-temporal datasets will only increase with the development of new technologies.
 For example, the field of autonomous vehicles utilises spatio-temporal dataset for various applications \cite{Dickmanns1990, Peng2018}.
 
-The purpose of this thesis project is to perform analysis on a novel spatio-temporal dataset collected by Östgötatrafiken AB.
-The goal is to analyse the dataset and define problems inherent in it.
-By solving the inherent problems of the dataset, the dataset can be used to provide new or improved services.
-For example, further knowledge can be gained about the flow of traffic.
-The arrival time prediction or vehicle position estimation for service vehicles can also be improved.
+The purpose of this thesis project is to analyse a novel spatio-temporal dataset collected by Östgötatrafiken AB.
+The goal is to understand the dataset, find out if there are inherent problems in the dataset, and create models to answer questions about reality, based on the dataset.
+For example, models can be used to gain further knowledge about the flow of traffic.
+New or improved services can be provided by creating models of specific aspects captured by the dataset.
+The arrival time prediction or vehicle position estimation for service vehicles can be improved.
 The provided documentation for the dataset is minimal, which makes the insights from the analysis even more valuable.
 
 \section{Aim}
 \label{sec:aim}
 The aim of this thesis project is to explore a novel dataset and formulate problems and solutions which can be interesting not only to the dataset provider but also in a broader context, e.g., for services relying on GPS positioning.
-The dataset is currently used to provide time forecasts on the public transportation available in Östergötland county.
-The aim is not to fully solve all possible problems with the dataset, but rather formulate outlines for a few interesting problems.
-Some of the outlines are implemented in this thesis project and their results presented.
+Currently, Östgötatrafiken AB is using models based on a similar dataset to provide time forecasts on the public transportation available in Östergötland county.
+The aim is not to answer all questions the dataset could provide (partial) answers to, but rather outline a few interesting questions and problems.
+Some of the problems are implemented in this thesis project and their results presented.
 
 \section{Research Questions}
 \label{sec:research-questions}
-The specific research questions treated in this thesis project are presented in this section.
-They are divided into three groups: \textit{Metadata Questions}, \textit{High-Level Problem Questions}, and \textit{Problem Specific Questions}.
+The specific research questions treated in this thesis project are divided into three groups: \textit{Metadata Questions}, \textit{High-Level Problem Questions}, and \textit{Problem Specific Questions}.
 The \textit{Metadata Questions} investigate and explore the provided dataset in depth, using Exploratory Data Analysis (EDA).
 They cover issues such as pre-processing, data noise and outliers.
 These questions can be seen as a pre-study before data analysis and machine learning techniques are applied.
 The insights from these questions are the basis for the \textit{High-Level Problem Questions}.
 The \textit{High-Level Problem Questions} formulate general problems which span individual applications by using the information available both internally in the dataset and externally from sources outside the provided dataset.
 High-level problems are problems which are not inherent in the dataset but rather problems which can be solved by using the information available in the dataset.
-They also aim to suggest solutions for these formulated problems.
-The \textit{Problem Specific Questions} are questions related to a specific problem and solution described by the \textit{High-Level Problem Questions}.
+The \textit{Problem Specific Questions} are related to a specific problem described by the \textit{High-Level Problem Questions}.
 
 \begin{description}
   \item \textbf{Metadata Questions:}
   \begin{enumerate}
     \item \textit{What kind of information is available in the dataset provided by Östgötatrafiken AB?} \newline
-    Which features exist in the dataset, such as different event types, event parameters, and event structures?
+    What features exist in the dataset, such as different event types, event parameters, and event structures?
     What do these features mean and how do they relate to each other?
     Are some features more important than others?
     Are there any features missing from the given dataset?
-    \item \textit{What pre-processing needs to be done in order to solve high-level problems?} \newline
+    \item \textit{What general pre-processing can be done in order to use the dataset to solve high-level problems?} \newline
     The pre-processing focuses on solving problems inherent in the dataset, such as processing events and extracting relevant information from them.
     What are some pre-processing methods that can be applied to this dataset?
     How can the raw data in the dataset be transformed into useful features?
@@ -57,7 +55,7 @@ The \textit{Problem Specific Questions} are questions related to a specific prob
     Noisy measurements can affect the solutions for high-level problems negatively.
     Various anomaly-detection algorithms can be applied to find such cases, but they can also be solved using dataset-tailored algorithms.
     Which manual inspection methods can be used to detect noisy measurements?
-    Which general anomaly detection algorithms can be applied?
+    Which general anomaly detection algorithms can be used?
     How can a dataset-tailored algorithm be implemented?
     How does the general anomaly detection algorithm differ from the dataset-tailored algorithm?
     \item \textit{How is the provided dataset related to external data sources and how can they be combined?} \newline
@@ -110,7 +108,7 @@ The \textit{Problem Specific Questions} are questions related to a specific prob
     How can the performance of a single forecast be evaluated?
     How can the overall performance of the model be evaluated?
     Which evaluation criteria can be applied to evaluate the forecasts?
-    Can the new model be combined with the existing model in order to produce more precise forecasts?
+    Can the new model be combined with the existing model to produce more precise forecasts?
     Are there any benefits to returning a probability distribution over arrival times compared to returning the expected arrival time?
   \end{enumerate}
 \end{description}
@@ -119,12 +117,12 @@ The \textit{Problem Specific Questions} are questions related to a specific prob
 \label{sec:delimitations}
 The dataset is provided by Östgötatrafiken AB and is not available for public use.
 This thesis project only focuses on the data from buses; data from public transportation trains are ignored.
-In order to support manual inspection of the data in the dataset, the data is filtered to only contain data from a certain geographical area.
+To support manual inspection of the data in the dataset, it is filtered to only contain data from a certain geographical area.
 The data gathering process cannot be changed or affected during the span of this thesis project; the dataset is thus as-is, which means that information missing in the dataset cannot be retrieved from other sources.
 Bugs in the data gathering process cannot be solved either.
 
 The models used in the thesis project are trained and evaluated on a MacBook Pro (early 2015), with a 2.7 GHz Intel Core i5 processor and 8GB 1867 MHz DDR3 memory.
-The setup is by no means optimal, as the MacBook Pro used does not have an NVIDIA GPU.
+The setup is by no means optimal, as the MacBook Pro used does not have a GPU.
 The TensorFlow library is thus not fully utilised, as there is no GPU acceleration.
 
 \section{Structure of the Report}

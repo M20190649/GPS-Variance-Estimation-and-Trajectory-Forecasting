@@ -1,43 +1,53 @@
 \chapter{Background}
 \label{cha:background}
 
-This chapter briefly covers the binary search algorithm, the background of Gaussian Processes, and relevant studies using Gaussian Processes. 
-Various evaluation metrics are explained, alongside the GPflow framework used for the implementation.
+%This chapter briefly covers the binary search algorithm, the background of Gaussian Processes, and relevant studies using Gaussian Processes. 
+This chapter briefly covers related work done using spatio-temporal datasets, the background of Gaussian Processes and relevant studies using Gaussian Processes. 
+Various evaluation metrics are explained, alongside the GPflow framework used for the Gaussian Process model implementations.
 Finite-state machines are defined and various techniques in the area of Exploratory Data Analysis are explained. 
 
-\section{Binary Search}
-Binary search is a common algorithm for searching through a sequence for a target value.
-The algorithm utilises a binary tree for the search.
-The algorithm can be described by the following steps, from Knuth \cite{Knuth1971}:
-\begin{enumerate}
-    \item If the tree has no root node, the search is unsuccessful. 
-    The target value is not in the tree, as the tree is empty.
-    \item If the root node has the target value, the search is successful.
-    The position of the target value is found.
-    \item If the target value is smaller than the root value, the left side of the binary tree is explored.
-    The algorithm returns to the first step of the procedure.
-    This time the tree is the left half of the binary tree, with the new root node being the left child of the previous root node.
-    \item If the target value is greater than the root value, the right side of the binary tree is explored.
-    The algorithm returns to the first step, but this time the tree is the right subtree of the binary tree.
-    The new root node is the right child of the previous root node.
-\end{enumerate}
-The procedure is illustrated in Figure \ref{fig:binary-search-algorithm}.
-The algorithm has a complexity of $O(log_2 n)$, as the search space is in the binary case divided in two after each comparison.
-However, the algorithm requires a sorted sequence of values.
+\section{Related Work With Spatio-Temporal Datasets}
+Datasets similar to the one explored in this thesis project have been used in recent studies.
+For example, in \cite{JIT1699}, trajectory datasets are used to model latent driving patterns and qualitatively analyse the main intentions of travelling drivers.
+The model can be used to learn the preferences of individual drivers and to understand the context in which the driver travelled.
+Crowdsources bus data is used in \cite{Kong2018} to explore traffic problems by using an anomaly detection method.
+In \cite{DABIRI2018360}, a dataset of trajectories is used to create a model of transportation modes for users.
+Transportation agencies can use the model to analyse the mode of transportation and identify regions where the transit systems can be improved. 
 
-\begin{figure}[t!]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/binary_search_algorithm}
-    \caption[Example of a binary search algorithm run]
-    {\small Example of a binary search algorithm run.
-    The target value is 42.
-    First the root node 50 is compared, but as $42 < 50$ the left subtree is explored.
-    The new root node is 33 and $42 > 30$, so the right subtree is explored.
-    The new root node is 45 and $42 < 45$.
-    The algorithm should search the left subtree, which in this case only consists of one node, with the target value.
-    The search is successful.}
-    \label{fig:binary-search-algorithm}
-\end{figure}
+
+% \section{Binary Search}
+% Binary search is a common algorithm for searching through a sequence for a target value.
+% The algorithm utilises a binary tree for the search.
+% The algorithm can be described by the following steps, from Knuth \cite{Knuth1971}:
+% \begin{enumerate}
+%     \item If the tree has no root node, the search is unsuccessful. 
+%     The target value is not in the tree, as the tree is empty.
+%     \item If the root node has the target value, the search is successful.
+%     The position of the target value is found.
+%     \item If the target value is smaller than the root value, the left side of the binary tree is explored.
+%     The algorithm returns to the first step of the procedure.
+%     This time the tree is the left half of the binary tree, with the new root node being the left child of the previous root node.
+%     \item If the target value is greater than the root value, the right side of the binary tree is explored.
+%     The algorithm returns to the first step, but this time the tree is the right subtree of the binary tree.
+%     The new root node is the right child of the previous root node.
+% \end{enumerate}
+% The procedure is illustrated in Figure \ref{fig:binary-search-algorithm}.
+% The algorithm has a complexity of $O(log_2 n)$, as the search space is in the binary case divided in two after each comparison.
+% However, the algorithm requires a sorted sequence of values.
+
+% \begin{figure}[t!]
+%     \centering
+%     \includegraphics[width=0.9\textwidth]{figures/binary_search_algorithm}
+%     \caption[Example of a binary search algorithm run]
+%     {\small Example of a binary search algorithm run.
+%     The target value is 42.
+%     First the root node 50 is compared, but as $42 < 50$ the left subtree is explored.
+%     The new root node is 33 and $42 > 30$, so the right subtree is explored.
+%     The new root node is 45 and $42 < 45$.
+%     The algorithm should search the left subtree, which in this case only consists of one node, with the target value.
+%     The search is successful.}
+%     \label{fig:binary-search-algorithm}
+% \end{figure}
 
 \section{Gaussian Processes}
 The Gaussian process \cite{Rasmussen2006} (GP) is a Bayesian non-parametric approach to modelling distributions over functions.
@@ -117,9 +127,9 @@ where
 where $K(x^*, x), K(x, x)$, and $K(x, x^*)$ each are a covariance (Gram) matrix \cite{Rasmussen2006}.  
 
 \subsection{Related Work} \label{sec:trajectory-aggregation}
-GPs have been used with spatio-temporal datasets before in order to create local trajectory models \cite{Tiger2015-unsupervised-learning,Tiger2015-online-sparse, Tiger2018-gp-motion-pattern}.
+GPs have been used with spatio-temporal datasets before to create local trajectory models \cite{Tiger2015-unsupervised-learning,Tiger2015-online-sparse, Tiger2018-gp-motion-pattern}.
 In \cite{Tiger2015-unsupervised-learning}, GPs are used to recognise common activities from spatio-temporal datasets.
-In \cite{Tiger2015-online-sparse}, sparse GPR is used in order to perform trajectory modelling.
+In \cite{Tiger2015-online-sparse}, sparse GPR is used to perform trajectory modelling.
 The methodology conducted can be adapted and implemented in this thesis project.
 For example, the equations to aggregate trajectory models can be directly applied in this thesis work.
 Tiger et al. specifies two ways to aggregate trajectory models by either Fusion or Combining \cite{Tiger2015-online-sparse}.
@@ -173,26 +183,26 @@ The GPy background and TensorFlow foundation contribute with quality of life fea
 Building GPflow on top of TensorFlow also allows the benefits of using TensorFlow methods for calculations, e.g., most gradient computations are handled by TensorFlow.
 All models in this thesis project are implemented using the GPflow framework.
 
-\section{Finite-State Machines}
-Finite-state machines (FSM) are well-defined mathematical models which can have numerous representations.
-The formal notation used here are from the book "Automata and Computability" by Kozen \cite{Kozen1997}.
-An FSM is defined as a set of states with potentially multiple transitions between each state.
-The FSM can only be in one given state at any time.
+% \section{Finite-State Machines}
+% Finite-state machines (FSM) are well-defined mathematical models which can have numerous representations.
+% The formal notation used here are from the book "Automata and Computability" by Kozen \cite{Kozen1997}.
+% An FSM is defined as a set of states with potentially multiple transitions between each state.
+% The FSM can only be in one given state at any time.
 
-Formally an FSM is given by the structure
-\[M = (Q, \Sigma, \delta, s, F),\]
-where
-\begin{itemize}
-    \item Q is a finite set of states.
-    \item $\Sigma$ is the input alphabet of the FSM.
-    \item $\delta : Q \times \Sigma \rightarrow Q$ is the transition function for the FSM.
-    It can intuitively be seen as the function which tells the FSM which state to transition to in response to an input.
-    For example, if M is in state $q$ and receives input $x$ it should move to state $\delta(q, x)$.
-    \item $s \in Q$ is the start state.
-    \item $F \subset Q$; where the elements of $F$ are the final states of the FSM.
-\end{itemize}
+% Formally an FSM is given by the structure
+% \[M = (Q, \Sigma, \delta, s, F),\]
+% where
+% \begin{itemize}
+%     \item Q is a finite set of states.
+%     \item $\Sigma$ is the input alphabet of the FSM.
+%     \item $\delta : Q \times \Sigma \rightarrow Q$ is the transition function for the FSM.
+%     It can intuitively be seen as the function which tells the FSM which state to transition to in response to an input.
+%     For example, if M is in state $q$ and receives input $x$ it should move to state $\delta(q, x)$.
+%     \item $s \in Q$ is the start state.
+%     \item $F \subset Q$; where the elements of $F$ are the final states of the FSM.
+% \end{itemize}
 
-An FSM can be modelled with various representations \cite{Kozen1997}, e.g, in tabular form, as a transition diagram or as a regular expression.
+% An FSM can be modelled with various representations \cite{Kozen1997}, e.g, in tabular form, as a transition diagram or as a regular expression.
 
 \section{Exploratory Data Analysis}
 Exploratory Data Analysis (EDA) is a broad concept comprising various techniques for exploring and analysing data \cite{Anselin1999, Gelman2003, Hoaglin2003, Tukey1977, Velleman1981}.
